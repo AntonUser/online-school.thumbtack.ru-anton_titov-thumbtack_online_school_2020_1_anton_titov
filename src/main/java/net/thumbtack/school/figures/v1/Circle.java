@@ -13,24 +13,18 @@ public class Circle {
     //Создает Circle по координатам центра и значению радиуса.
 
     public Circle(int xCenter, int yCenter, int radius){
-        this.xCenter = xCenter;
-        this.yCenter = yCenter;
-        this.radius = radius;
-    }
+       this(new Point2D(xCenter, yCenter), radius);
+     }
     //Создает Circle по координатам центра и значению радиуса.
 
     public Circle(int radius){
-        xCenter = 0;
-        yCenter = 0;
-        this.radius = radius;
-    }
+        this(new Point2D(0, 0), radius);
+     }
     //Создает Circle с центром в точке (0,0) указанного радиуса.
 
     public Circle(){
-        xCenter = 0;
-        yCenter = 0;
-        radius = 1;
-    }
+        this(new Point2D(0, 0), 1);
+     }
     //Создает Circle с центром в точке (0,0) с радиусом 1.
 
     public Point2D getCenter(){

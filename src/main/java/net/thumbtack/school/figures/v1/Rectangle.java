@@ -15,33 +15,18 @@ public class Rectangle {
     //Создает Rectangle по координатам углов - левого верхнего и правого нижнего.
 
    public Rectangle(int xLeft, int yTop, int xRight, int yBottom){
-       x1 = xLeft;
-       y1 = yTop;
-       x2 = xRight;
-       y2 = yBottom;
-       Length = Math.abs(x2 - x1);
-       Width = Math.abs(y2 - y1);
-   }
+        this(new Point2D(xLeft,yTop), new Point2D(xRight,yBottom));
+    }
    // Создает Rectangle по координатам углов - левого верхнего и правого нижнего.
 
     public Rectangle(int length, int width){
-        x1 = 0;
-        y1 = -width;
-        x2 = length;
-        y2 = 0;
-        Length = Math.abs(length);
-        Width = Math.abs(width);
+        this(new Point2D(0,-width), new Point2D(length,0));
     }
    // Создает Rectangle, левый нижний угол которого находится в начале координат, а  длина (по оси X) и ширина (по оси Y) задаются.
 
     public Rectangle(){
-        x1 = 0;
-        y1 = -1;
-        x2 = 1;
-        y2 = 0;
-        Length = 1;
-        Width = 1;
-    }
+      this(new Point2D(0,-1), new Point2D(1,0));
+      }
    // Создает Rectangle с размерами (1,1), левый нижний угол которого находится в начале координат.
 
    public Point2D getTopLeft(){
