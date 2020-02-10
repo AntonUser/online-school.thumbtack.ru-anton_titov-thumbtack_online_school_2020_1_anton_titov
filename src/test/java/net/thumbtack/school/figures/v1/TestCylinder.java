@@ -8,6 +8,7 @@ public class TestCylinder {
 
     private static final double DOUBLE_EPS = 1E-6;
 
+
     @Test
     public void testCylinder1() {
         Point2D center = new Point2D(10, 20);

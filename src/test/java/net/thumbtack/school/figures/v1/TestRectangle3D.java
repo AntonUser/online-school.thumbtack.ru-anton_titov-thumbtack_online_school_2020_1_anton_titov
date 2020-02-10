@@ -190,5 +190,4 @@ public class TestRectangle3D {
         assertEquals(4000, rect3D1.getVolume(), DOUBLE_EPS);
         assertEquals(10000, rect3D2.getVolume(), DOUBLE_EPS);
     }
-
 }
