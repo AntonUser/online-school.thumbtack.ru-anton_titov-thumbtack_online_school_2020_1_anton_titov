@@ -1,6 +1,9 @@
 package net.thumbtack.school.introduction;
 import java.util.Arrays;
 
+//REVU:
+// 1) убери, пожалуйста, все комментарии из кода, иначе сложно читать
+// 2) также проверь форматирование, у IDEA сть автоформатирование - Ctrl + Alt + L
 public class FirstSteps {
 
     public int sum(int x, int y){
@@ -30,12 +33,17 @@ public class FirstSteps {
     //Возвращает true, если  x равен y, иначе false.
 
     public boolean isGreater(int x, int y){
+        //REVU: конструкцию
+        // if (условие) return true;
+        // else return false;
+        // можно упростить и заменить на return условие;
         if(x > y) return true;
         else return false;
     }
     // Возвращает true, если  x больше y, иначе false.
 
     public boolean isInsideRect(int xLeft, int yTop, int xRight, int yBottom, int x, int y){
+        //REVU: можно упростить и заменить на одну строку - return условие;
        if(x >= xLeft && x <= xRight && y >= yTop && y <= yBottom) return true;
        else return false;
     }
@@ -53,7 +61,8 @@ public class FirstSteps {
     public int mul(int[] array){
         int mul = 1;
         if(array.length == 0){return 0;}
-        else{
+        else{//REVU: если есть return в теле if, можно else не писать, а продолжить просто после тела if
+            //REVU: используй foreach цикл
             for(int i = 0; i < array.length; i++)
             mul*=array[i];
             return mul;
@@ -63,6 +72,7 @@ public class FirstSteps {
 
     public int min(int[] array){
         int min = Integer.MAX_VALUE;
+        //REVU: проверка на длину массива не нужна, если array.length=0 цикл просто не выполнится
         if(array.length==0)return Integer.MAX_VALUE;
         else{   for (int i = 0; i < array.length; i++){
                 if(array[i] < min) min=array[i];}
@@ -73,6 +83,7 @@ public class FirstSteps {
 
     public int max(int[] array){
         int max = Integer.MIN_VALUE;
+        //REVU: проверка на длину массива не нужна, если array.length=0 цикл просто не выполнится
         if(array.length==0)return Integer.MIN_VALUE;
         else{   for (int i = 0; i < array.length; i++){
             if(array[i] > max) max=array[i];}
@@ -85,6 +96,7 @@ public class FirstSteps {
         double sum = 0;
         if(array.length==0)return 0;
         else {
+            //REVU: испольуй foreach цикл, а лучше уже написанный метод int sum(int[] array)
             for (int i = 0; i < array.length; i++){
                 sum += array[i];
             }
@@ -95,9 +107,11 @@ public class FirstSteps {
 
     public boolean isSortedDescendant(int[] array){
         boolean check = true;
+        //REVU: проверка на длину массива не нужна, если array.length=0 цикл просто не выполнится
         if(array.length==0)return true;
         else{
         for(int i = 1; i < array.length; i++) {
+            //REVU: если условие выполнилось, дальше не имеет смысла проверять, можно делать сразу return false
         if(array[i-1] <= array[i])check = false;
         }
         return check;}
@@ -106,13 +120,16 @@ public class FirstSteps {
 
     public void cube(int[] array){
         for (int i = 0; i < array.length; i++)
+            //REVU: для степени 2 и 3 лучше использовать обычное умножение
             array[i] = (int)Math.pow(array[i],3);
     }
     // Возводит все элементы одномерного массива array в куб.
 
     public boolean find(int[]array, int value){
        boolean check = false;
+       //REVU: использй foreach цикл
         for (int i=0; i < array.length; i++){
+            //REVU: если условие выполнилось, дальше не имеет смысла проверять, можно делать сразу return true
             if(value == array[i])check = true;}
         return  check;
     }
@@ -120,6 +137,7 @@ public class FirstSteps {
 
     public void reverse(int[]array){
         int buf;
+        //REVU: array.length!=0||array.length!=1 всегда = true, может эту проверку можно удалить?
         if(array.length!=0||array.length!=1){
         for (int i = 0; i < (int)array.length/2; i++)
         {
@@ -132,10 +150,12 @@ public class FirstSteps {
 
     public boolean isPalindrome(int[]array){
         boolean check = true;
+        //REVU: эта проверка не нужна, так как цикл итак не выполнится в случае array.length = 0 или 1
         if(array.length == 0 || array.length == 1)return true;
         else{
             for (int i = 0; i < array.length/2; i++)
             {
+                //REVU: если условие выполнилось, дальше не имеет смысла проверять, можно делать сразу return false
                 if(array[i] != array[array.length-1 - i]) check = false;
             }
             return check;}
@@ -144,8 +164,10 @@ public class FirstSteps {
 
     public int sum(int[][] matrix){
         int sum = 0;
+        //REVU: используй foreach цикл
         for(int i = 0; i < matrix.length; i++)
         {
+            //REVU: используй метод sum(int[] array), написанный выше
             for(int j = 0; j < matrix[i].length; j++)
             {
                 sum += matrix[i][j];
@@ -157,10 +179,13 @@ public class FirstSteps {
 
     public int max(int[][] matrix){
         int max = Integer.MIN_VALUE;
+        //REVU: проверка на matrix.length == 0 не нужна, т.к. цикл в этом случае все равно не выполнится
         if(matrix.length == 0)return max;
         else {
+            //REVU: используй foreach цикл
         for(int i = 0; i < matrix.length; i++)
         {
+            //REVU: используй метод max(int[] array), написанный выше
             for(int j = 0; j < matrix[i].length; j++)
             {
                 if(matrix[i][j] > max)max = matrix[i][j];
@@ -172,8 +197,10 @@ public class FirstSteps {
 
     public int diagonalMax(int[][] matrix){
         int max = Integer.MIN_VALUE;
+        //REVU: проверка на matrix.length == 0 не нужна, т.к. цикл в этом случае все равно не выполнится
         if(matrix.length == 0)return max;
         else {
+            //REVU: а мы можем не обходить всю матрицу, а сразу идти по диагонали?
             for(int i = 0; i < matrix.length; i++)
             {
                 for(int j = 0; j < matrix[i].length; j++)
@@ -192,7 +219,9 @@ public class FirstSteps {
         boolean check = true;
         if(matrix.length==0)return false;
         else {
+            //REVU: используй foreach цикл
         for(int i = 0; i < matrix.length; i++) {
+            //REVU: используй метод уже написанный isSortedDescendant ля массива
             for (int j = 1; j < matrix[i].length; j++) {
                 if (matrix[i][j - 1] <= matrix[i][j]) check = false;
             }

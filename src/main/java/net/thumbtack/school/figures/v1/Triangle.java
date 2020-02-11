@@ -15,18 +15,21 @@ public class Triangle {
     //Создает Triangle по координатам трех точек.
 
     public Point2D getPoint1(){
+        //REVU: можно сразу return new Point2D(...)
         Point2D point1 = new Point2D(x1, y1);
         return point1;
     }
     //Возвращает точку 1 треугольника.
 
     public Point2D getPoint2(){
+        //REVU: можно сразу return new Point2D(...)
     Point2D point2 = new Point2D(x2, y2);
     return point2;
     }
     //Возвращает точку 2 треугольника.
 
     public Point2D getPoint3(){
+        //REVU: можно сразу return new Point2D(...)
     Point2D point3 = new Point2D(x3, y3);
     return point3;
     }
@@ -50,6 +53,9 @@ public class Triangle {
     }
     //Устанавливает точку 3 треугольника.
 
+    //REVU: можно написать приватный метод, который будет высчитывать длину отрезка по двум точкам
+    // чтобы не дублировать код
+    // а также для вычисления квадрата эффективнее простое умножение
     public double getSide12(){
         return Math.sqrt(Math.pow((x2 - x1),2)+Math.pow((y2 - y1),2));
     }
@@ -83,6 +89,7 @@ public class Triangle {
    // Возвращает периметр треугольника.
 
     public boolean isInside(int x, int y){
+        //REVU: попробй ввести какие-нибудь локальные переменные, чтобы было понятно, что здесь высчитывается
         if((x1 - x) * (y2 - y1) - (x2 - x1) * (y1 - y) <= 0 &&
            (x2 - x) * (y3 - y2) - (x3 - x2) * (y2 - y) <= 0 &&
            (x3 - x) * (y1 - y3) - (x1 - x3) * (y3 - y) <= 0 ||
@@ -94,6 +101,7 @@ public class Triangle {
     //Определяет, лежит ли точка (x, y) внутри Triangle. Если точка лежит на стороне треугольника, считается, что она лежит внутри.
 
     public boolean isInside(Point2D point){
+        //REVU: используй метод boolean isInside(int x, int y) внутри этого
         if((x1 - point.getX()) * (y2 - y1) - (x2 - x1) * (y1 - point.getY()) <= 0 &&
            (x2 - point.getX()) * (y3 - y2) - (x3 - x2) * (y2 - point.getY()) <= 0 &&
            (x3 - point.getX()) * (y1 - y3) - (x1 - x3) * (y3 - point.getY()) <= 0 ||

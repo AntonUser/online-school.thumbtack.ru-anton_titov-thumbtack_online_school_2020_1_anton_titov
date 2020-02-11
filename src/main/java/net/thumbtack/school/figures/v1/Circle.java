@@ -2,6 +2,9 @@ package net.thumbtack.school.figures.v1;
 
 import java.util.Objects;
 
+//REVU:
+// 1) убери, пожалуйста, все комментарии из кода, иначе сложно читать
+// 2) также проверь форматирование, у IDEA сть автоформатирование - Ctrl + Alt + L
 public class Circle {
     private int xCenter, yCenter, radius;
 
@@ -23,11 +26,13 @@ public class Circle {
     //Создает Circle с центром в точке (0,0) указанного радиуса.
 
     public Circle(){
+        //REVU: удобнее было бы использовать конструктор Circle(int radius) - просто this(1);
         this(new Point2D(0, 0), 1);
      }
     //Создает Circle с центром в точке (0,0) с радиусом 1.
 
     public Point2D getCenter(){
+        //REVU: можно сразу return new Point2D(...)
         Point2D coordcenter = new Point2D(xCenter, yCenter);
         return coordcenter;
     }
@@ -61,6 +66,7 @@ public class Circle {
   //  Увеличивает радиус Circle в n раз, не изменяя центра.
 
     public double getArea(){
+        //REVU: для степени 2 лучше использовать обычное умножение
         return Math.PI * Math.pow(radius,2);
     }
    // Возвращает площадь круга.
@@ -73,11 +79,14 @@ public class Circle {
     public boolean isInside(int x, int y){
         x = x-xCenter;
         y = y-yCenter;
+        //REVU: возможно, было бы удобнее сравнивать radius^2 с x^2+y^2
         if(radius -(int)(Math.sqrt(Math.pow(x,2) + Math.pow(y,2))) >= 0) return true;
+        //REVU: можно упростить до return условие;
         else return false;
     }
    // Определяет, лежит ли точка (x, y) внутри Circle. Если точка лежит на окружности, считается, что она лежит внутри.
 
+    //REVU: используй метод public boolean isInside(int x, int y) внутри этого, не дублируй код
     public boolean isInside(Point2D point){
     int x = point.getX()-xCenter;
     int y = point.getY()-yCenter;

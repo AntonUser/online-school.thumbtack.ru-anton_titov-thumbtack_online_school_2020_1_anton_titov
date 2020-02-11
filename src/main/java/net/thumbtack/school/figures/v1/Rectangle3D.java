@@ -3,6 +3,7 @@ package net.thumbtack.school.figures.v1;
 import java.util.Objects;
 
 public class Rectangle3D extends Rectangle {
+    //REVU: тебе для определения Rectangle3D дополнительно нужно только height
     private int z1, z2, height;
 
     public Rectangle3D(Point2D leftTop, Point2D rightBottom, int height){
@@ -28,11 +29,13 @@ public class Rectangle3D extends Rectangle {
     }
    // Создает Rectangle3D, левый нижний угол которого находится в начале координат, а  длина, ширина и высота задаются.
 
+    //REVU: удобнее было бы использовать Rectangle3D(int length, int width, int height) внутри этого конструктора
     public Rectangle3D(){
         this(new Point2D(0,-1), new  Point2D(1,0), 1);
     }
     //Создает Rectangle3D с размерами (1, 1, 1), левый нижний угол которого находится в начале координат.
 
+    //REVU: все методы, которые просто вызывают методы базового класса через super можно смело удалить - они и так наследуются
     public Point2D getTopLeft(){
         return super.getTopLeft();
     }
@@ -114,6 +117,7 @@ public class Rectangle3D extends Rectangle {
     //Определяет, лежит ли точка (x, y, z) внутри Rectangle3D. Если точка лежит на стороне, считается, что она лежит внутри.
 
     public boolean isInside(Point3D point){
+        //REVU: упрости до return условие;
         if(super.isInside(new Point2D(point.getX(),point.getY())) && point.getZ() <= z2 && point.getZ() >= z1) return true;
         else return false;
     }
@@ -125,6 +129,7 @@ public class Rectangle3D extends Rectangle {
     //Определяет, пересекается  ли Rectangle3D с другим Rectangle3D. Считается, что параллелепипеды пересекаются, если у них есть хоть одна общая точка.
 
     public boolean isInside(Rectangle3D rectangle){
+        //REVU: упрости до return условие;
         if(super.isInside(rectangle) && Math.abs(rectangle.z1) >= this.z1 &&
                 Math.abs(rectangle.z2) <= Math.abs(this.z2))return true;
         else return false;
