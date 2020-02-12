@@ -1,274 +1,165 @@
 package net.thumbtack.school.base;
 
-//REVU: тот импорт не используется, его стоит удалить
-import java.util.Arrays;
-
-//REVU:
-// 1) убери, пожалуйста, все комментарии из кода, иначе сложно читать
-// 2) также проверь форматирование, у IDEA сть автоформатирование - Ctrl + Alt + L
 public class StringOperations {
-    public static int getSummaryLength(String[] strings){
+    public static int getSummaryLength(String[] strings) {
         int length = 0;
-        for (String elem:strings){
-        length += elem.length();
+        for (String elem : strings) {
+            length += elem.length();
         }
         return length;
     }
-    //Возвращает суммарную длину строк, заданных массивом strings.
 
-    public static String getFirstAndLastLetterString(String string){
-        return string.substring(0,1) + string.substring(string.length()-1);
+    public static String getFirstAndLastLetterString(String string) {
+        return string.substring(0, 1) + string.substring(string.length() - 1);
     }
-    //Возвращает двухсимвольную строку, состоящую из начального и конечного символов заданной строки.
 
-    public static boolean isSameCharAtPosition(String string1, String string2, int index){
-        //REVU: конструкцию
-        // if (условие) return true;
-        // else return false;
-        // можно упростить и заменить на return условие;
-        // например, в этом методе - return string1.charAt(index) == string2.charAt(index);
-        if(string1.charAt(index) == string2.charAt(index))return true;
-        else return false;
+    public static boolean isSameCharAtPosition(String string1, String string2, int index) {
+        return string1.charAt(index) == string2.charAt(index);
     }
-    //Возвращает true, если обе строки в позиции index содержат один и тот же символ, иначе false.
 
-    public static boolean isSameFirstCharPosition(String string1, String string2, char character){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        // Character.toString делать не нужно, в метод indexOf лучше сразу передать char
-       if(string1.indexOf(Character.toString(character)) == string2.indexOf(Character.toString(character))) return true;
-       else return false;
+    public static boolean isSameFirstCharPosition(String string1, String string2, char character) {
+        return string1.indexOf(character) == string2.indexOf(character);
     }
-    //Возвращает true, если в обеих строках первый встреченный символ character находится в
-    // одной и той же позиции. Просмотр строк ведется от начала.
 
-    public static boolean isSameLastCharPosition(String string1, String string2, char character){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        // Character.toString делать не нужно, в метод lastIndexOf лучше сразу передать char
-        if(string1.lastIndexOf(Character.toString(character)) == string2.lastIndexOf(Character.toString(character))) return true;
-        else return false;
+    public static boolean isSameLastCharPosition(String string1, String string2, char character) {
+        return string1.lastIndexOf(character) == string2.lastIndexOf(character);
     }
-    //Возвращает true, если в обеих строках первый встреченный символ character находится в
-    // одной и той же позиции. Просмотр строк ведется от конца.
 
-    public static boolean isSameFirstStringPosition(String string1, String string2, String str){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.indexOf(str) == string2.indexOf(str))return true;
-        else return false;
+    public static boolean isSameFirstStringPosition(String string1, String string2, String str) {
+        return string1.indexOf(str) == string2.indexOf(str);
     }
-    //Возвращает true, если в обеих строках первая встреченная подстрока str начинается в одной и
-    // той же позиции. Просмотр строк ведется от начала.
 
-    public static boolean isSameLastStringPosition(String string1, String string2, String str){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.lastIndexOf(str) == string2.lastIndexOf(str))return true;
-        else return false;
+    public static boolean isSameLastStringPosition(String string1, String string2, String str) {
+        return string1.lastIndexOf(str) == string2.lastIndexOf(str);
     }
-    //Возвращает true, если в обеих строках первая встреченная подстрока str начинается в одной и той же позиции.
-    // Просмотр строк ведется от конца.
 
-    public static boolean isEqual(String string1, String string2){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.equals(string2))return true;
-        else return false;
+    public static boolean isEqual(String string1, String string2) {
+        return string1.equals(string2);
     }
-   // Возвращает true, если строки равны.
 
-    public static boolean isEqualIgnoreCase(String string1, String string2){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.equalsIgnoreCase(string2))return true;
-        else return false;
+    public static boolean isEqualIgnoreCase(String string1, String string2) {
+        return string1.equalsIgnoreCase(string2);
     }
-    //Возвращает true, если строки равны без учета регистра (например, строки “abc” и “aBC” в этом смысле равны).
 
-    public static boolean isLess(String string1, String string2){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.compareTo(string2) < 0) return true;
-            else return false;
+    public static boolean isLess(String string1, String string2) {
+        return string1.compareTo(string2) < 0;
     }
-   // Возвращает true, если строка string1 меньше строки string2.
 
-    public static boolean isLessIgnoreCase(String string1, String string2){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.compareToIgnoreCase(string2) < 0)return true;
-        else return false;
+    public static boolean isLessIgnoreCase(String string1, String string2) {
+        return string1.compareToIgnoreCase(string2) < 0;
     }
-    //Возвращает true, если строка string1 меньше строки string2 без учета регистра
-    // (например, строка “abc” меньше строки “ABCd” в этом смысле).
 
-    public static String concat(String string1, String string2){
-        //REVU: есть еще метод concat у класса String - это просто FYI
-        return string1 + string2;
+    public static String concat(String string1, String string2) {
+        return string1.concat(string2);
     }
-    //Возвращает строку, полученную путем сцепления двух строк.
 
-    public static boolean isSamePrefix(String string1, String string2, String prefix){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if(string1.startsWith(prefix) && string2.startsWith(prefix))return true;
-        else return false;
+    public static boolean isSamePrefix(String string1, String string2, String prefix) {
+        return string1.startsWith(prefix) && string2.startsWith(prefix);
     }
-   // Возвращает true, если обе строки string1 и string2 начинаются с одной и той же подстроки prefix.
 
-    public static boolean isSameSuffix(String string1, String string2, String suffix){
-        //REVU: можно упростить и заменить на одну строку - return условие;
-        if (string1.endsWith(suffix) && string2.endsWith(suffix))return true;
-        else return false;
+    public static boolean isSameSuffix(String string1, String string2, String suffix) {
+        return string1.endsWith(suffix) && string2.endsWith(suffix);
     }
-    //Возвращает true, если обе строки string1 и string2 заканчиваются одной и той же подстрокой suffix.
 
-    public static String getCommonPrefix(String string1, String string2){
+    public static String getCommonPrefix(String string1, String string2) {
         int i = 0;
-        while (i < (Math.min(string1.length(),string2.length()))){
-                if(string1.charAt(i) != string2.charAt(i)) break;
-                i++;
+        while (i < (Math.min(string1.length(), string2.length()))) {
+            if (string1.charAt(i) != string2.charAt(i)) break;
+            i++;
         }
-        //REVU: можно сразу return string1.substring(0,i); так как если i=0, вернется пустая строка
-        if(i > 0)return string1.substring(0,i);
-        else return "";
+        return string1.substring(0, i);
     }
-    //Возвращает самое длинное общее “начало” двух строк. Если у строк нет общего начала, возвращает пустую строку.
 
-    public static String reverse(String string){
-        //REVU: вместо StringBuffer лучше использовать StringBuilder
-         return new StringBuffer(string).reverse().toString();
+    public static String reverse(String string) {
+        return new StringBuilder(string).reverse().toString();
     }
-    //Возвращает перевернутую строку.
 
-    public static boolean isPalindrome(String string){
-        //REVU: попробй реализовать этот метод без StringBuffer или StringBuilder - простым циклом по строке и сравнением символов
-        if(string.equals(new StringBuffer(string).reverse().toString()))return true;
-        else return false;
+    public static boolean isPalindrome(String string) {
+        for (int i = 0; i < string.length() / 2; i++) {
+            if (string.charAt(i) != string.charAt(string.length() - 1 - i)) return false;
+        }
+        return true;
     }
-    //Возвращает true, если строка является палиндромом, то есть читается слева направо так же, как и справа налево.
 
-    public static boolean isPalindromeIgnoreCase(String string){
-        //REVU: используй предыдущий метод isPalindrome(String string) внутри этого
-        if(string.equalsIgnoreCase(new StringBuffer(string).reverse().toString()))return true;
-        else return false;
+    public static boolean isPalindromeIgnoreCase(String string) {
+        return isPalindrome(string.toUpperCase());
     }
-    //Возвращает true, если строка является палиндромом, то есть читается слева направо так же, как и справа налево, без учета регистра.
 
-    public static String getLongestPalindromeIgnoreCase(String[] strings){
-        //REVU: все эти переменные можно заменить на одну типа String, которая будет хранить в себе самый длинный палиндром на текущий момент
-        int i, length = 0, number = 0;
-        for (i = 0; i < strings.length; i++){
-            //REVU: используй предыдущий метод isPalindrome(String string) внутри этого
-            if(strings[i].equalsIgnoreCase(new StringBuffer(strings[i]).reverse().toString())){
-                if(strings[i].length()>length) {
-                    length = strings[i].length();
-                    number = i;
+    public static String getLongestPalindromeIgnoreCase(String[] strings) {
+        String str = "";
+
+        for (int i = 0; i < strings.length; i++) {
+            if (isPalindromeIgnoreCase(strings[i])) {
+                if (strings[i].length() > str.length()) {
+                    str = strings[i];
                 }
             }
         }
-        return strings[number];
+        return str;
     }
-    //Возвращает самый длинный палиндром (без учета регистра) из массива заданных строк. Если в массиве нет палиндромов, возвращает пустую строку.
 
-    public static boolean hasSameSubstring(String string1, String string2, int index, int length){
-        if((string1.length() - index) < length || (string2.length() - index) < length)return false;
-        //REVU:второй if можно упростить и заменить на одну строку - return условие;
-        else if (string1.substring(index, index + length).equals(string2.substring(index,index + length)))return true;
-        else return false;
-      }
-    //Возвращает true, если обе строки содержат один и тот же фрагмент длиной length, начиная с позиции index.
-
-    public static boolean isEqualAfterReplaceCharacters(String string1, char replaceInStr1, char replaceByInStr1, String string2, char replaceInStr2, char replaceByInStr2){
-       return string1.replace(replaceInStr1, replaceByInStr1).equals(string2.replace(replaceInStr2,replaceByInStr2));
+    public static boolean hasSameSubstring(String string1, String string2, int index, int length) {
+        if ((string1.length() - index) < length || (string2.length() - index) < length) return false;
+        return string1.substring(index, index + length).equals(string2.substring(index, index + length));
     }
-    //Возвращает true, если после замены в string1 всех вхождений replaceInStr1 на replaceByInStr1 и
-    // замены в string2 всех вхождений replaceInStr2 на replaceByInStr2 полученные строки равны.
 
-    public static boolean isEqualAfterReplaceStrings(String string1, String replaceInStr1, String replaceByInStr1, String string2, String replaceInStr2, String replaceByInStr2){
-        return  string1.replace(replaceInStr1, replaceByInStr1).equals(string2.replace(replaceInStr2, replaceByInStr2));
+    public static boolean isEqualAfterReplaceCharacters(String string1, char replaceInStr1, char replaceByInStr1, String string2, char replaceInStr2, char replaceByInStr2) {
+        return string1.replace(replaceInStr1, replaceByInStr1).equals(string2.replace(replaceInStr2, replaceByInStr2));
     }
-    //Возвращает true, если после замены в string1 всех вхождений строки replceInStr1 на replaceByInStr1 и замены в
-    // string2 всех вхождений replceInStr2 на replaceByInStr2 полученные строки равны.
 
-    public static boolean isPalindromeAfterRemovingSpacesIgnoreCase(String string){
-        //StringBuffer sb = new StringBuffer(sb);
-        //REVU: используй уже написанный метод isPalindromeIgnoreCase(String string) внутри этого
-        return string.replaceAll("\\s","").equalsIgnoreCase(new StringBuffer(string).reverse().toString().replaceAll("\\s",""));
+    public static boolean isEqualAfterReplaceStrings(String string1, String replaceInStr1, String replaceByInStr1, String string2, String replaceInStr2, String replaceByInStr2) {
+        return string1.replace(replaceInStr1, replaceByInStr1).equals(string2.replace(replaceInStr2, replaceByInStr2));
     }
-    //Возвращает true, если строка после выбрасывания из нее всех пробелов является палиндромом, без учета регистра.
 
-    public static boolean isEqualAfterTrimming(String string1, String string2){
+    public static boolean isPalindromeAfterRemovingSpacesIgnoreCase(String string) {
+        return isPalindromeIgnoreCase(string.replaceAll("\\s", ""));
+    }
+
+    public static boolean isEqualAfterTrimming(String string1, String string2) {
         return string1.trim().equals(string2.trim());
     }
-    //Возвращает true, если две строки равны, если не принимать во внимание все пробелы в начале и конце каждой строки.
 
     public static String makeCsvStringFromInts(int[] array) {
-        //REVU: используй метод StringBuilder makeCsvStringBuilderFromInts(int[] array) внутри этого
-            StringBuilder sb = new StringBuilder();
-            if (array.length == 0) return "";
-            for (int elem : array) {
-                sb.append(elem + ",");
-            }
-            int end = sb.length() - 1;
-            sb.deleteCharAt(end);
-            return sb.toString();
-
+        return makeCsvStringBuilderFromInts(array).toString();
     }
-    //Для заданного массива целых чисел создает текстовую строку, в которой числа разделены знаком “запятая”
-    // (т.н. формат CSV - comma separated values). Для пустого массива возвращается пустая строка.
 
-    public static String makeCsvStringFromDoubles(double[] array){
-        //REVU: используй метод StringBuilder makeCsvStringBuilderFromDoubles(double[] array) внутри этого
-            StringBuilder sb = new StringBuilder();
-            if (array.length == 0) return "";
-            for (double elem : array) {
-                sb.append(String.format("%.2f", elem) + ",");
-            }
-             sb.delete(sb.length()-1,sb.length());
-            return sb.toString();
+    public static String makeCsvStringFromDoubles(double[] array) {
+        return makeCsvStringBuilderFromDoubles(array).toString();
     }
-    //Для заданного массива вещественных чисел создает текстовую строку, в которой числа разделены знаком “запятая”,
-    // причем каждое число записывается с двумя знаками после точки. Для пустого массива возвращается пустая строка.
 
-    public static StringBuilder makeCsvStringBuilderFromInts(int[] array){
+    public static StringBuilder makeCsvStringBuilderFromInts(int[] array) {
         StringBuilder sb = new StringBuilder();
         if (array.length == 0) return sb;
-           for (int elem : array) {
-                sb.append(elem + ","); //REVU: правильнее будет написать sb.append(elem).append(",");
-            }
-            int end = sb.length() - 1;
-            sb.deleteCharAt(end);
-            return sb;
+        for (int elem : array) {
+            sb.append(elem).append(",");
+        }
+        int end = sb.length() - 1;
+        sb.deleteCharAt(end);
+        return sb;
     }
-    //То же, что и в упражнении 25, но возвращает StringBuilder.
 
-    public static StringBuilder makeCsvStringBuilderFromDoubles(double[] array){
+    public static StringBuilder makeCsvStringBuilderFromDoubles(double[] array) {
         StringBuilder sb = new StringBuilder();
         if (array.length == 0) return sb;
 
-            for (double elem : array) {
-                sb.append(String.format("%.2f", elem) + ","); //REVU: правильнее будет написать sb.append(String.format("%.2f", elem)).append(",");
-            }
-            sb.delete(sb.length()-1,sb.length());
-            return sb;
-    }
-   // То же, что и в упражнении 26, но возвращает StringBuilder.
-
-    public static StringBuilder removeCharacters(String string, int[] positions){
-        StringBuilder sb = new StringBuilder(string);
-        for(int i = 0; i < positions.length; i++ )
-            sb.deleteCharAt(positions[i]-i);
+        for (double elem : array) {
+            sb.append(String.format("%.2f", elem)).append(",");
+        }
+        sb.delete(sb.length() - 1, sb.length());
         return sb;
     }
-    //Удаляет из строки символы, номера которых заданы в массиве positions.
-    // Предполагается, что будут передаваться только допустимые номера, упорядоченные по возрастанию.
-    // Номера позиций для удаления указаны для исходной строки. Возвращает полученный в результате StringBuilder.
 
-    public static StringBuilder insertCharacters(String string, int[] positions, char[] characters){
+    public static StringBuilder removeCharacters(String string, int[] positions) {
         StringBuilder sb = new StringBuilder(string);
-        for(int i = 0; i < positions.length; i++ )
-            sb.insert(positions[i]+i, characters[i]);
-
+        for (int i = 0; i < positions.length; i++)
+            sb.deleteCharAt(positions[i] - i);
         return sb;
     }
-    //Вставляет в строку символы. Массивы positions и characters
-    // имеют одинаковую длину. В позицию positions[i] в исходной
-    // строке string вставляется символ characters[i]. Если в массиве positions один и
-    // тот же номер позиции повторяется несколько раз, это значит, что в указанную позицию
-    // вставляется несколько символов, в том порядке, в котором они перечислены в массиве characters.
-    // Предполагается, что будут передаваться только допустимые номера, упорядоченные по неубыванию.
-    // Возвращает полученный в результате StringBuilder.
+
+    public static StringBuilder insertCharacters(String string, int[] positions, char[] characters) {
+        StringBuilder sb = new StringBuilder(string);
+        for (int i = 0; i < positions.length; i++)
+            sb.insert(positions[i] + i, characters[i]);
+        return sb;
+    }
 }
