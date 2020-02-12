@@ -21,13 +21,11 @@ public class Cylinder extends Circle {
     }
     //Создает Cylinder  с центром в точке (0, 0) с указанными радиусом и высотой.
 
-    //+REVU: удобнее было бы использовать конструктор Cylinder(int radius, int height) внутри этого
     public Cylinder() {
        this(1,1);
     }
     //Создает Cylinder  с центром в точке (0, 0) с радиусом 1 и высотой 1.
 
-    //REVU: все методы, которые просто вызывают методы базового класса через super можно смело удалить - они и так наследуются
     public int getHeight() {
         return height;
     }
@@ -44,7 +42,7 @@ public class Cylinder extends Circle {
     //Возвращает объем цилиндра.
 
     public boolean isInside(int x, int y, int z) {
-        //REVU: упрости до return условие;
+
         return super.isInside(x, y) && Math.abs(z) >= 0 && Math.abs(z) <= height;
     }
     //Определяет, лежит ли точка (x, y, z) внутри Cylinder. Если точка лежит на поверхности, считается, что она лежит внутри.

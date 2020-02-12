@@ -3,8 +3,7 @@ package net.thumbtack.school.figures.v1;
 import java.util.Objects;
 
 public class Rectangle3D extends Rectangle {
-    //+REVU: тебе для определения Rectangle3D дополнительно нужно только height
-    private int height;
+      private int height;
 
     public Rectangle3D(Point2D leftTop, Point2D rightBottom, int height){
         super(leftTop, rightBottom);
@@ -24,13 +23,11 @@ public class Rectangle3D extends Rectangle {
     }
    // Создает Rectangle3D, левый нижний угол которого находится в начале координат, а  длина, ширина и высота задаются.
 
-    //+REVU: удобнее было бы использовать Rectangle3D(int length, int width, int height) внутри этого конструктора
+
     public Rectangle3D(){
         this(1, 1, 1);
     }
     //Создает Rectangle3D с размерами (1, 1, 1), левый нижний угол которого находится в начале координат.
-
-    //+REVU: все методы, которые просто вызывают методы базового класса через super можно смело удалить - они и так наследуются
 
     public int getHeight(){
         return height;
@@ -45,7 +42,7 @@ public class Rectangle3D extends Rectangle {
     public double getVolume(){
         return super.getArea() * height;
     }
- //Возвращает объем параллелепипеда.
+    //Возвращает объем параллелепипеда.
 
     public boolean isInside(int x, int y, int z){
        return this.isInside(new Point3D(x, y, z)) && z <= height;
@@ -54,7 +51,6 @@ public class Rectangle3D extends Rectangle {
 
     public boolean isInside(Point3D point){
 
-        //+REVU: упрости до return условие;
         return isInside(point.getX(), point.getY(), point.getZ());
     }
     //Определяет, лежит ли точка point внутри Rectangle3D. Если точка лежит на стороне, считается, что она лежит внутри.
@@ -64,7 +60,7 @@ public class Rectangle3D extends Rectangle {
     }
     //Определяет, пересекается  ли Rectangle3D с другим Rectangle3D. Считается, что параллелепипеды пересекаются, если у них есть хоть одна общая точка.
     public boolean isInside(Rectangle3D rectangle){
-        //+REVU: упрости до return условие;
+
         return super.isInside(rectangle) && rectangle.height == this.height;
     }
 
