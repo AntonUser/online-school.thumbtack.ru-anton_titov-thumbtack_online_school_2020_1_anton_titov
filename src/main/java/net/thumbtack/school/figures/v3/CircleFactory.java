@@ -6,6 +6,7 @@ import net.thumbtack.school.figures.v1.Point2D;
 
 public class CircleFactory {
     private static int counter;
+    //REVU: заем тебе поле color и метод setColor для фабрики?
     private Color color;
 
 
