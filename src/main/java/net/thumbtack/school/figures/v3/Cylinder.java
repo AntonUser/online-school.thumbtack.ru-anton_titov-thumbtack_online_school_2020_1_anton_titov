@@ -27,6 +27,7 @@ public class Cylinder extends Circle {
         this(1, 1, color);
     }
 
+    //REVU: используй уже существующий конструктор внутри этого
     public Cylinder(Point2D center, int radius, int height, String colorString) throws ColorException {
         super(center, radius, colorString);
         setHeight(height);

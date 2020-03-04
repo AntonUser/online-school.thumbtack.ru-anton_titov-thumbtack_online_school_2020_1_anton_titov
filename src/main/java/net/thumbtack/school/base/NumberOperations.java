@@ -4,10 +4,17 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+//REVU: попробуй выполнить команду Ctrl + Alt + L
+// после ее выполнения должно произойти автоформатирование
+// все тела циклов, if-условий должны быть в {} и начинаться с новой строки
 public class NumberOperations {
     public static Integer find(int[] array, int value) {
 
         for (int i = 0; i < array.length; i++) {
+            //REVU например тут будет
+            //if (array[i] == value) {
+            //  return i;
+            //}
             if (array[i] == value) return i;
         }
         return null;

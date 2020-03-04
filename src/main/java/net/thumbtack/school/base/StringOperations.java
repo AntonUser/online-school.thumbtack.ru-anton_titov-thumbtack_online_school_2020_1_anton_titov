@@ -1,5 +1,7 @@
 package net.thumbtack.school.base;
 
+//REVU: попробуй выполнить команду Ctrl + Alt + L
+// после ее выполнения должно произойти автоформатирование
 public class StringOperations {
     public static int getSummaryLength(String[] strings) {
         int length = 0;
@@ -87,7 +89,7 @@ public class StringOperations {
 
     public static String getLongestPalindromeIgnoreCase(String[] strings) {
         String str = "";
-
+        //REVU: используй foreach цикл
         for (int i = 0; i < strings.length; i++) {
             if (isPalindromeIgnoreCase(strings[i])) {
                 if (strings[i].length() > str.length()) {

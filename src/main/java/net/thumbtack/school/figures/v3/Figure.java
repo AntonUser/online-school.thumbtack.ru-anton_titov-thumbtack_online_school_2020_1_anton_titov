@@ -28,6 +28,7 @@ public abstract class Figure implements Colored, HasArea {
 
     abstract boolean isInside(int x, int y);
 
+    //REVU: сделай этот метод не абстрактым, реализуй его с помощью isInside(int x, int y)
     abstract boolean isInside(Point2D point);
 
     @Override
@@ -36,6 +37,7 @@ public abstract class Figure implements Colored, HasArea {
         this.color = color;
     }
 
+    //REVU: после реализации этого метода в интерфейсе, его можно будет отсюда удалить
     @Override
     public void setColor(String colorString) throws ColorException {
         this.color = Color.colorFromString(colorString);

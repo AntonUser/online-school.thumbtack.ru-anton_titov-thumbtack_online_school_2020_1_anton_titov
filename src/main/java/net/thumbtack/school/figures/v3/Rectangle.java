@@ -26,6 +26,7 @@ public class Rectangle extends Figure {
         this(1, 1, color);
     }
 
+    //REVU: используй уже существующий конструктор внутри этого
     public Rectangle(Point2D leftTop, Point2D rightBottom, String colorString) throws ColorException {
         super(colorString);
         setRectangle(leftTop, rightBottom);
@@ -99,6 +100,7 @@ public class Rectangle extends Figure {
         return x >= x1 && x <= x2 && y >= y1 && y <= y2;
     }
 
+    //REVU: после реализации этого метода в Figure, его можно будет отсюда удалить
     @Override
     public boolean isInside(Point2D point) {
         return isInside(point.getX(), point.getY());

@@ -26,6 +26,7 @@ public class Circle extends Figure {
         this(1, color);
     }
 
+    //REVU: используй уже существующий конструктор внутри этого
     public Circle(Point2D center, int radius, String colorString) throws ColorException {
         super(colorString);
         setCircle(center, radius);
@@ -92,6 +93,7 @@ public class Circle extends Figure {
         return radius * radius >= x * x + y * y;
     }
 
+    //REVU: после реализации этого метода в классе Figure, его можно будет отсюда удалить
     public boolean isInside(Point2D point) {
         return isInside(point.getX(), point.getY());
     }

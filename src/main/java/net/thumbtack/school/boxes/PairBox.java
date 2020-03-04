@@ -33,10 +33,13 @@ public class PairBox<T extends Figure, K extends Figure> implements HasArea {
         return this.firstContent.getArea() + this.secondContent.getArea();
     }
 
+    //REVU: тут ты используешь PairBox - шаблонный класс, но не указываешь для него тип
+    // правильно будет: PairBox<тут что-то про тип>
     public boolean isAreaEqual(PairBox obj) {
         return this.getArea() == obj.getArea();
     }
 
+    //REVU: то же про ParBox
     public static boolean isAreaEqual(PairBox obj1, PairBox obj2) {
         return obj1.getArea() == obj2.getArea();
     }
