@@ -17,12 +17,8 @@ public class Car implements Colored {
         setColor(color);
     }
 
-    //REVU: используй уже существующий конструктор внутри этого
     public Car(String model, int weight, int maxSpeed, String colorString) throws ColorException {
-        setModel(model);
-        setWeight(weight);
-        setMaxSpeed(maxSpeed);
-        setColor(colorString);
+        this(model, weight, maxSpeed, Color.colorFromString(colorString));
     }
 
     public String getModel() {
@@ -53,22 +49,17 @@ public class Car implements Colored {
         this.maxSpeed = maxSpeed;
     }
 
-    //REVU: тело if должно быть в {} и начинаться с новой строки
     @Override
     public void setColor(Color color) throws ColorException {
-        if (color == null) throw new ColorException(ColorErrorCode.NULL_COLOR);
+        if (color == null) {
+            throw new ColorException(ColorErrorCode.NULL_COLOR);
+        }
         this.color = color;
     }
 
     @Override
     public Color getColor() {
         return this.color;
-    }
-
-    //REVU: ть сделаешь реализацию по-умолчанию в интерфейсе, этот метод можно будет удалить
-    @Override
-    public void setColor(String colorString) throws ColorException {
-        this.color = Color.colorFromString(colorString);
     }
 
 }

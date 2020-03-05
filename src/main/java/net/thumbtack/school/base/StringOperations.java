@@ -1,7 +1,5 @@
 package net.thumbtack.school.base;
 
-//REVU: попробуй выполнить команду Ctrl + Alt + L
-// после ее выполнения должно произойти автоформатирование
 public class StringOperations {
     public static int getSummaryLength(String[] strings) {
         int length = 0;
@@ -66,7 +64,9 @@ public class StringOperations {
     public static String getCommonPrefix(String string1, String string2) {
         int i = 0;
         while (i < (Math.min(string1.length(), string2.length()))) {
-            if (string1.charAt(i) != string2.charAt(i)) break;
+            if (string1.charAt(i) != string2.charAt(i)) {
+                break;
+            }
             i++;
         }
         return string1.substring(0, i);
@@ -78,7 +78,9 @@ public class StringOperations {
 
     public static boolean isPalindrome(String string) {
         for (int i = 0; i < string.length() / 2; i++) {
-            if (string.charAt(i) != string.charAt(string.length() - 1 - i)) return false;
+            if (string.charAt(i) != string.charAt(string.length() - 1 - i)) {
+                return false;
+            }
         }
         return true;
     }
@@ -89,11 +91,10 @@ public class StringOperations {
 
     public static String getLongestPalindromeIgnoreCase(String[] strings) {
         String str = "";
-        //REVU: используй foreach цикл
-        for (int i = 0; i < strings.length; i++) {
-            if (isPalindromeIgnoreCase(strings[i])) {
-                if (strings[i].length() > str.length()) {
-                    str = strings[i];
+        for (String string : strings) {
+            if (isPalindromeIgnoreCase(string)) {
+                if (string.length() > str.length()) {
+                    str = string;
                 }
             }
         }
@@ -101,7 +102,9 @@ public class StringOperations {
     }
 
     public static boolean hasSameSubstring(String string1, String string2, int index, int length) {
-        if ((string1.length() - index) < length || (string2.length() - index) < length) return false;
+        if ((string1.length() - index) < length || (string2.length() - index) < length) {
+            return false;
+        }
         return string1.substring(index, index + length).equals(string2.substring(index, index + length));
     }
 
@@ -131,7 +134,9 @@ public class StringOperations {
 
     public static StringBuilder makeCsvStringBuilderFromInts(int[] array) {
         StringBuilder sb = new StringBuilder();
-        if (array.length == 0) return sb;
+        if (array.length == 0) {
+            return sb;
+        }
         for (int elem : array) {
             sb.append(elem).append(",");
         }
@@ -142,7 +147,9 @@ public class StringOperations {
 
     public static StringBuilder makeCsvStringBuilderFromDoubles(double[] array) {
         StringBuilder sb = new StringBuilder();
-        if (array.length == 0) return sb;
+        if (array.length == 0) {
+            return sb;
+        }
 
         for (double elem : array) {
             sb.append(String.format("%.2f", elem)).append(",");

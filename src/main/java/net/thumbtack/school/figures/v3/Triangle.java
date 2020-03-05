@@ -16,12 +16,8 @@ public class Triangle extends Figure {
         setPoint3(point3);
     }
 
-    //REVU: используй уже написанный конструктор внутри этого
     public Triangle(Point2D point1, Point2D point2, Point2D point3, String colorString) throws ColorException {
-        super(colorString);
-        setPoint1(point1);
-        setPoint2(point2);
-        setPoint3(point3);
+        this(point1, point2, point3, Color.colorFromString(colorString));
     }
 
     public Point2D getPoint1() {
@@ -94,12 +90,6 @@ public class Triangle extends Figure {
         int area3 = (x3 - x) * (y1 - y3) - (x1 - x3) * (y3 - y);
         return area1 <= 0 && area2 <= 0 && area3 <= 0 ||
                 area1 >= 0 && area2 >= 0 && area3 >= 0;
-    }
-
-    //REVU: после реализации этого метода в Figure, его можно будет отсюда удалить
-    @Override
-    public boolean isInside(Point2D point) {
-        return isInside(point.getX(), point.getY());
     }
 
     @Override

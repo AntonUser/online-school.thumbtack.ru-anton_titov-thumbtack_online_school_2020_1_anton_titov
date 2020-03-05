@@ -28,10 +28,8 @@ public class Rectangle3D extends Rectangle {
         this(1, 1, 1, color);
     }
 
-    //REVU: используй уже написанный конструктор внутри этого
     public Rectangle3D(Point2D leftTop, Point2D rightBottom, int height, String colorString) throws ColorException {
-        super(leftTop, rightBottom, colorString);
-        setHeight(height);
+        this(leftTop, rightBottom, height, Color.colorFromString(colorString));
     }
 
     public Rectangle3D(int xLeft, int yTop, int xRight, int yBottom, int height, String colorString) throws ColorException {

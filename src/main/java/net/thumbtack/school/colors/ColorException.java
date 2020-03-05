@@ -1,14 +1,13 @@
 package net.thumbtack.school.colors;
 
 public class ColorException extends Exception {
-    //REVU: постарайся не использовать сокращений и аббревиатур - лучше errorCode назвать, к примеру
-    private ColorErrorCode CEC;
+    private ColorErrorCode errorCode;
 
-    public ColorException(ColorErrorCode CEC) {
-        this.CEC = CEC;
+    public ColorException(ColorErrorCode errorCode) {
+        this.errorCode = errorCode;
     }
 
     public ColorErrorCode getErrorCode() {
-        return CEC;
+        return errorCode;
     }
 }

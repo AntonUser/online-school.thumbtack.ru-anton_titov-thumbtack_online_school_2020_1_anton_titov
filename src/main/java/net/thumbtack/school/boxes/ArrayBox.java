@@ -1,13 +1,10 @@
 package net.thumbtack.school.boxes;
 
-//REVU: следует удалить ненужный импорт
 import net.thumbtack.school.figures.v3.Figure;
 
-//REVU: параметр T может быть любого типа?
-// мне кажется, нужны какие-то ограничения на параметр
-public class ArrayBox<T> {
-    //REVU: ле класса должно быть private
-    T[] array;
+public class ArrayBox<T extends Figure> {
+
+    private T[] array;
 
     public ArrayBox(T[] array) {
         setContent(array);
@@ -29,10 +26,7 @@ public class ArrayBox<T> {
         this.array[i] = elem;
     }
 
-    //REVU: тут ты используешь ArrayBox - шаблонный класс, но не указываешь для него тип
-    // правильно будет: ArrayBox<тут что-то про тип>
-    // в примерах в лекции это точно есть
-    public boolean isSameSize(ArrayBox array) {
+    public <V extends Figure> boolean isSameSize(ArrayBox<V> array) {
         return this.array.length == array.getContent().length;
     }
 
