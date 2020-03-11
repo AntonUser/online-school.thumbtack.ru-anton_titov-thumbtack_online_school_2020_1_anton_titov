@@ -27,19 +27,18 @@ public class FileService {
     }
 
     public static byte[] readByteArrayFromBinaryFile(String fileName) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(new File(fileName))) {
+        return readByteArrayFromBinaryFile(new File(fileName));
+    }
+
+    public static byte[] readByteArrayFromBinaryFile(File file) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[fileInputStream.available()];
             fileInputStream.read(bytes);
-            fileInputStream.close();
             return bytes;
         } catch (IOException e) {
             e.getStackTrace();
         }
         return null;
-    }
-
-    public static byte[] readByteArrayFromBinaryFile(File file) throws IOException {
-        return readByteArrayFromBinaryFile(file.getName());
     }
 
     public static byte[] writeAndReadByteArrayUsingByteStream(byte[] array) throws IOException {
@@ -70,7 +69,11 @@ public class FileService {
     }
 
     public static byte[] readByteArrayFromBinaryFileBuffered(String fileName) throws IOException {
-        try (BufferedInputStream byfIn = new BufferedInputStream(new FileInputStream(new File(fileName)))) {
+        return readByteArrayFromBinaryFileBuffered(new File(fileName));
+    }
+
+    public static byte[] readByteArrayFromBinaryFileBuffered(File file) throws IOException {
+        try (BufferedInputStream byfIn = new BufferedInputStream(new FileInputStream(file))) {
             byte[] bytes = new byte[byfIn.available()];
             byfIn.read(bytes);
             byfIn.close();
@@ -79,10 +82,6 @@ public class FileService {
             e.getStackTrace();
         }
         return null;
-    }
-
-    public static byte[] readByteArrayFromBinaryFileBuffered(File file) throws IOException {
-        return readByteArrayFromBinaryFile(file.getName());
     }
 
     public static void writeRectangleToBinaryFile(File file, Rectangle rect) throws IOException {
