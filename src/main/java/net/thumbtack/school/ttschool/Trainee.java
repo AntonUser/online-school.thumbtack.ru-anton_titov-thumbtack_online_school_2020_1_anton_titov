@@ -1,5 +1,7 @@
 package net.thumbtack.school.ttschool;
 
+import java.util.Objects;
+
 public class Trainee {
 
     private String firstName;
@@ -45,4 +47,18 @@ public class Trainee {
         return firstName.concat(" " + lastName);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trainee trainee = (Trainee) o;
+        return rating == trainee.rating &&
+                Objects.equals(firstName, trainee.firstName) &&
+                Objects.equals(lastName, trainee.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, rating);
+    }
 }
