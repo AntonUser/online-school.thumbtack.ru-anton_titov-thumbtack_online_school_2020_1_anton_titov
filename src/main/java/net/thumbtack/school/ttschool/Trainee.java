@@ -2,7 +2,7 @@ package net.thumbtack.school.ttschool;
 
 import java.util.Objects;
 
-public class Trainee {
+public class Trainee implements Comparable<Trainee> {
 
     private String firstName;
     private String lastName;
@@ -60,5 +60,11 @@ public class Trainee {
     @Override
     public int hashCode() {
         return Objects.hash(firstName, lastName, rating);
+    }
+
+
+    @Override
+    public int compareTo(Trainee o) {
+        return this.getFirstName().compareTo(o.getFirstName());
     }
 }
