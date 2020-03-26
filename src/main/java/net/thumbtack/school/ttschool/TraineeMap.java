@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class TraineeMap {
+    // REVU: private
     Map<Trainee, String> dependency;
 
     public TraineeMap() {
@@ -35,6 +36,7 @@ public class TraineeMap {
     }
 
     public String getInstituteByTrainee(Trainee trainee) throws TrainingException {
+        //REVU лучше вынести dependency.get(trainee) в переменную, чтоб не делать операцию дважды
         if (dependency.get(trainee) == null) {
         throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }

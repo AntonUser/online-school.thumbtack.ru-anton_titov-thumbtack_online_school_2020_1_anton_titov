@@ -2,6 +2,8 @@ package net.thumbtack.school.ttschool;
 
 import java.util.Objects;
 
+//REVU: не нужно имплементировать Comparable, зато нужно - Serializable
+// на замену Comparable всегда можно написать функцию - компаратор
 public class Trainee implements Comparable<Trainee> {
 
     private String firstName;

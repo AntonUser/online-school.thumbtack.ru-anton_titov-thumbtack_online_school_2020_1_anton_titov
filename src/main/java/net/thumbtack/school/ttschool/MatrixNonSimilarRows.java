@@ -13,6 +13,7 @@ public class MatrixNonSimilarRows {
 
     public Set<int[]> getNonSimilarRows() {
         Set<Integer> add;
+        //REVU: попробуй использовать наоборот Map<Set<Integer>, int[]>
         Map<int[], Set<Integer>> map = new HashMap<>();
 
         for (int[] ints : matrix) {
@@ -20,8 +21,10 @@ public class MatrixNonSimilarRows {
             for (int anInt : ints) {
                 add.add(anInt);
             }
+            //REVU: может использовать другой метод, не put?
             map.put(ints, add);
         }
+        // тогда эта часть упростится до map.values() и преобразованию в Set
         for (int i = 0; i < map.size(); i++) {
             for (int j = 0; j < map.size(); j++) {
                 if (map.containsKey(matrix[i]) && map.containsKey(matrix[j])) {

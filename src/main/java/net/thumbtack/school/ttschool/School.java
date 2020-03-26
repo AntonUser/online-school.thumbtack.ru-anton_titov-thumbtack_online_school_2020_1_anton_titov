@@ -14,7 +14,7 @@ public class School {
     public School(String name, int year) throws TrainingException {
         setName(name);
         setYear(year);
-        groups = new HashSet<>();
+        groups = new HashSet<>(); //REVU: если использовать TreeSet с компаратором по имени, можно упростить часть методов
     }
 
     public String getName() {
@@ -41,6 +41,7 @@ public class School {
     }
 
     public void addGroup(Group group) throws TrainingException {
+        //REVU: можно смотреть на результат метод add, а не идти по циклу
         for (int i = 0; i < groups.size(); i++) {
             if (groups.iterator().next().getName().equals(group.getName())) {
                 throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.DUPLICATE_GROUP_NAME);
@@ -54,6 +55,7 @@ public class School {
     }
 
     public void removeGroup(String name) throws TrainingException {
+        //REVU: можно использовать метод removeIf и смотреть на его результат
         Iterator<Group> iter = groups.iterator();
         while (iter.hasNext()) {
             if (iter.next().getName().equals(name)) {

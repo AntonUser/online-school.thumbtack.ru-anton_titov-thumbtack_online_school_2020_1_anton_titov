@@ -2,7 +2,7 @@ package net.thumbtack.school.ttschool;
 
 import java.util.*;
 
-
+//REVU: не нужно имплементировать Comparable
 public class Group implements Comparator<Trainee> {
     private String name;
     private String room;
@@ -19,6 +19,7 @@ public class Group implements Comparator<Trainee> {
     }
 
     public void setName(String name) throws TrainingException {
+        //REVU: можно использовать name.isEmpty()
         if (name == null || name.equals("")) {
             throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.GROUP_WRONG_NAME);
         }
@@ -31,6 +32,7 @@ public class Group implements Comparator<Trainee> {
     }
 
     public void setRoom(String room) throws TrainingException {
+        //REVU: можно использовать room.isEmpty()
         if (room == null || room.equals("")) {
             throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.GROUP_WRONG_ROOM);
         }
@@ -89,6 +91,9 @@ public class Group implements Comparator<Trainee> {
 
     public void sortTraineeListByRatingDescendant() {
         students.sort((o1, o2) -> {
+            //REVU: в if и else ты возвращаешь одно и то же - -(o1.getRating() - o2.getRating()), можно объединить
+            // а если o1.getRating() == o2.getRating() вернется null
+            // поэтому всю конструкцию можно заменить на return -(o1.getRating() - o2.getRating())
             if (o1.getRating() - o2.getRating() < 0) {
                 return -(o1.getRating() - o2.getRating());
             } else if (o1.getRating() - o2.getRating() > 0) {
@@ -118,6 +123,8 @@ public class Group implements Comparator<Trainee> {
     }
 
     public boolean hasDuplicates() {
+        //REVU: можно сделать из List students другую коллекицю, которая не содержит дупликатов
+        // и сравнить размеры исходной коллекции с полученной
         for (int i = 0; i < students.size(); i++) {
             for (int j = i + 1; j < students.size(); j++) {
                 if (students.get(i).equals(students.get(j))) {
