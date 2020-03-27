@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class TraineeMap {
-    // REVU: private
-    Map<Trainee, String> dependency;
+
+    private Map<Trainee, String> dependency;
 
     public TraineeMap() {
         dependency = new HashMap<>();
@@ -36,22 +36,22 @@ public class TraineeMap {
     }
 
     public String getInstituteByTrainee(Trainee trainee) throws TrainingException {
-        //REVU лучше вынести dependency.get(trainee) в переменную, чтоб не делать операцию дважды
-        if (dependency.get(trainee) == null) {
-        throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
+        String nameInstitute = dependency.get(trainee);
+        if (nameInstitute == null) {
+            throw new TrainingException(TrainingErrorCode.TRAINEE_NOT_FOUND);
         }
-        return dependency.get(trainee);
+        return nameInstitute;
     }
 
-    public Set<Trainee> getAllTrainees(){
+    public Set<Trainee> getAllTrainees() {
         return dependency.keySet();
     }
 
-    public Set<String> getAllInstitutes(){
+    public Set<String> getAllInstitutes() {
         return new HashSet<>(dependency.values());
     }
 
-    public boolean isAnyFromInstitute(String institute){
+    public boolean isAnyFromInstitute(String institute) {
         return dependency.containsValue(institute);
     }
 

@@ -2,8 +2,7 @@ package net.thumbtack.school.ttschool;
 
 import java.util.*;
 
-//REVU: не нужно имплементировать Comparable
-public class Group implements Comparator<Trainee> {
+public class Group {
     private String name;
     private String room;
     private List<Trainee> students;
@@ -19,21 +18,20 @@ public class Group implements Comparator<Trainee> {
     }
 
     public void setName(String name) throws TrainingException {
-        //REVU: можно использовать name.isEmpty()
-        if (name == null || name.equals("")) {
+        //с одним name.isEmpty() в условии не проходит тест testWrongName
+        if (name == null || name.isEmpty()) {
             throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.GROUP_WRONG_NAME);
         }
         this.name = name;
     }
-
 
     public String getRoom() {
         return this.room;
     }
 
     public void setRoom(String room) throws TrainingException {
-        //REVU: можно использовать room.isEmpty()
-        if (room == null || room.equals("")) {
+        //с одним name.isEmpty() в условии не проходит тест testWrongRoom
+        if (room == null || room.isEmpty()) {
             throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.GROUP_WRONG_ROOM);
         }
         this.room = room;
@@ -42,7 +40,6 @@ public class Group implements Comparator<Trainee> {
     public List<Trainee> getTrainees() {
         return students;
     }
-
 
     public void addTrainee(Trainee trainee) {
         students.add(trainee);
@@ -91,14 +88,7 @@ public class Group implements Comparator<Trainee> {
 
     public void sortTraineeListByRatingDescendant() {
         students.sort((o1, o2) -> {
-            //REVU: в if и else ты возвращаешь одно и то же - -(o1.getRating() - o2.getRating()), можно объединить
-            // а если o1.getRating() == o2.getRating() вернется null
-            // поэтому всю конструкцию можно заменить на return -(o1.getRating() - o2.getRating())
-            if (o1.getRating() - o2.getRating() < 0) {
-                return -(o1.getRating() - o2.getRating());
-            } else if (o1.getRating() - o2.getRating() > 0) {
-                return -(o1.getRating() - o2.getRating());
-            } else return 0;
+            return -(o1.getRating() - o2.getRating());
         });
     }
 
@@ -123,16 +113,8 @@ public class Group implements Comparator<Trainee> {
     }
 
     public boolean hasDuplicates() {
-        //REVU: можно сделать из List students другую коллекицю, которая не содержит дупликатов
-        // и сравнить размеры исходной коллекции с полученной
-        for (int i = 0; i < students.size(); i++) {
-            for (int j = i + 1; j < students.size(); j++) {
-                if (students.get(i).equals(students.get(j))) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        Set<Trainee> studentNotDuplicates = new HashSet<>(students);
+        return studentNotDuplicates.size() != students.size();
     }
 
     @Override
@@ -150,8 +132,4 @@ public class Group implements Comparator<Trainee> {
         return Objects.hash(name, room, students);
     }
 
-    @Override
-    public int compare(net.thumbtack.school.ttschool.Trainee o1, net.thumbtack.school.ttschool.Trainee o2) {
-        return o1.getFirstName().compareTo(o2.getFirstName());
-    }
 }

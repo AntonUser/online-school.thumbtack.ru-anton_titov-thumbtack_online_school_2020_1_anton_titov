@@ -1,10 +1,9 @@
 package net.thumbtack.school.ttschool;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-//REVU: не нужно имплементировать Comparable, зато нужно - Serializable
-// на замену Comparable всегда можно написать функцию - компаратор
-public class Trainee implements Comparable<Trainee> {
+public class Trainee implements Serializable {
 
     private String firstName;
     private String lastName;
@@ -62,11 +61,5 @@ public class Trainee implements Comparable<Trainee> {
     @Override
     public int hashCode() {
         return Objects.hash(firstName, lastName, rating);
-    }
-
-
-    @Override
-    public int compareTo(Trainee o) {
-        return this.getFirstName().compareTo(o.getFirstName());
     }
 }

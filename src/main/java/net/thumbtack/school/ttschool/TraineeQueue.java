@@ -24,7 +24,6 @@ public class TraineeQueue {
     }
 
     public boolean isEmpty() {
-        //REVU: есть метод isEmpty у очереди
-        return queue.peek() == null;
+        return queue.isEmpty();
     }
 }

@@ -1,10 +1,7 @@
 package net.thumbtack.school.ttschool;
 
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class School {
     private String name;
@@ -14,7 +11,7 @@ public class School {
     public School(String name, int year) throws TrainingException {
         setName(name);
         setYear(year);
-        groups = new HashSet<>(); //REVU: если использовать TreeSet с компаратором по имени, можно упростить часть методов
+        groups = new HashSet<>();
     }
 
     public String getName() {
@@ -41,7 +38,6 @@ public class School {
     }
 
     public void addGroup(Group group) throws TrainingException {
-        //REVU: можно смотреть на результат метод add, а не идти по циклу
         for (int i = 0; i < groups.size(); i++) {
             if (groups.iterator().next().getName().equals(group.getName())) {
                 throw new TrainingException(net.thumbtack.school.ttschool.TrainingErrorCode.DUPLICATE_GROUP_NAME);
@@ -51,19 +47,13 @@ public class School {
     }
 
     public void removeGroup(Group group) throws TrainingException {
-       this.removeGroup(group.getName());
+        this.removeGroup(group.getName());
     }
 
     public void removeGroup(String name) throws TrainingException {
-        //REVU: можно использовать метод removeIf и смотреть на его результат
-        Iterator<Group> iter = groups.iterator();
-        while (iter.hasNext()) {
-            if (iter.next().getName().equals(name)) {
-                iter.remove();
-                return;
-            }
+        if (!groups.removeIf(n -> (n.getName().equals(name)))) {
+            throw new TrainingException(TrainingErrorCode.GROUP_NOT_FOUND);
         }
-        throw new TrainingException(TrainingErrorCode.GROUP_NOT_FOUND);
     }
 
     public boolean containsGroup(Group group) {
