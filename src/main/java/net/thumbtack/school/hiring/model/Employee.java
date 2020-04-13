@@ -5,7 +5,11 @@ import net.thumbtack.school.hiring.Exception.ServerException;
 
 import java.util.UUID;
 
+//REVU: Employee и Employer имеют схожие поля
+// возможно, будет удобно иметь класс User и от него наследовать эти два класса
 public class Employee {
+    //REVU:  удобнее сделать id строкой (String)
+    // UUID - способ получения уникальной строки
     private UUID id;
     private String firstName;
     private String patronymic;

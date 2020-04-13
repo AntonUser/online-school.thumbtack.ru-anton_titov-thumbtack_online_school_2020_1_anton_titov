@@ -1,3 +1,4 @@
+//REVU: Exception -> exception - все пакеты с маленькой буквы
 package net.thumbtack.school.hiring.Exception;
 
 public enum ErrorCode {

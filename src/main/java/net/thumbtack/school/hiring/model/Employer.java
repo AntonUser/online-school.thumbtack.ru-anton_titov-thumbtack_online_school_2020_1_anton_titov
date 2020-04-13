@@ -4,6 +4,7 @@ import net.thumbtack.school.hiring.Exception.ErrorCode;
 import net.thumbtack.school.hiring.Exception.ServerException;
 
 public class Employer {
+    //REVU: а почему у Employee есть id, а у этого класса нет?
     private String name;
     private String address;
     private String email;
