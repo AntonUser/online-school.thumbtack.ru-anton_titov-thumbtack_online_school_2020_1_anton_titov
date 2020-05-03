@@ -1,26 +1,21 @@
 package net.thumbtack.school.hiring.model;
 
-import net.thumbtack.school.hiring.Exception.ErrorCode;
-import net.thumbtack.school.hiring.Exception.ServerException;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 
-public class Employer {
-    //REVU: а почему у Employee есть id, а у этого класса нет?
+import java.util.Objects;
+
+public class Employer extends User {
     private String name;
     private String address;
     private String email;
-    private String firstName;
-    private String patronymic;
-    private String login;
-    private String password;
 
-    public Employer(String name, String address, String email, String firstName, String patronymic, String login, String password) throws ServerException {
+    public Employer(String name, String address, String email, String id, String firstName, String patronymic, String login, String password) throws ServerException {
+        super(id, firstName, patronymic, login, password);
         setAddress(address);
         setEmail(email);
-        setFirstName(firstName);
-        setLogin(login);
         setName(name);
-        setPassword(password);
-        setPatronymic(patronymic);
+
     }
 
     public String getName() {
@@ -56,44 +51,18 @@ public class Employer {
         this.email = email;
     }
 
-    public String getFirstName() {
-        return firstName;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employer employer = (Employer) o;
+        return Objects.equals(name, employer.name) &&
+                Objects.equals(address, employer.address) &&
+                Objects.equals(email, employer.email);
     }
 
-    public void setFirstName(String firstName) throws ServerException {
-        if (firstName == null || firstName.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
-        }
-        this.firstName = firstName;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) throws ServerException {
-        if (login == null || login.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
-        }
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) throws ServerException {
-        if (password == null || password.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
-        }
-        this.password = password;
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, address, email);
     }
 }

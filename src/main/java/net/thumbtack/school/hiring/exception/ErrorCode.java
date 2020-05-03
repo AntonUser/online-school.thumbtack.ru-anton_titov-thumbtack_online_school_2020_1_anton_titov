@@ -1,5 +1,4 @@
-//REVU: Exception -> exception - все пакеты с маленькой буквы
-package net.thumbtack.school.hiring.Exception;
+package net.thumbtack.school.hiring.exception;
 
 public enum ErrorCode {
     NULL_FIRST_NAME_EXCEPTION("first name is null"),
@@ -8,8 +7,9 @@ public enum ErrorCode {
     NULL_PASSWORD_EXCEPTION("password is null"),
     EMAIL_EXCEPTION("email is not entered or is entered incorrectly"),
     NULL_NAME_EXCEPTION("name is null"),
-    NULL_ADDRESS_EXCEPTION("address is null");
-
+    NULL_ADDRESS_EXCEPTION("address is null"),
+    REPEATING_EMPLOYEE("employee to not unique"),
+    REPEATING_EMPLOYER("employer to not unique");
     String errorCode;
 
     ErrorCode(String errorCode) {

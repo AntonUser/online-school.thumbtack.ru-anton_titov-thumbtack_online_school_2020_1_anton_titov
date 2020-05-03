@@ -1,4 +1,4 @@
-package net.thumbtack.school.hiring.Exception;
+package net.thumbtack.school.hiring.exception;
 
 
 import org.junit.Test;
