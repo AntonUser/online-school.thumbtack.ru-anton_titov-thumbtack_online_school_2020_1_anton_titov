@@ -5,8 +5,12 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
+//REVU: если набор полей ФИО разный, лучше не выделять общего, иначе появляются вопросы
+// а вот email можно вынести как общее поле
+// достаточно будет id, login, password, email полей
 public class User {
     private String id;
+    //REVU: странно, что есть firstName и patronymic, но нет lastName
     private String firstName;
     private String patronymic;
     private String login;
