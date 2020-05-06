@@ -1,78 +1,66 @@
 package net.thumbtack.school.hiring.dao;
 
-import com.google.gson.Gson;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employee;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class TestEmployeeDao {
     @Test
-    public void testGet() throws ServerException {
-        Gson gson = new Gson();
+    public void testGetAll() throws ServerException {
         DataBase dataBase = DataBase.getInstance();
-        EmployeeDao employeeDao = new EmployeeDao();
-        Employee employee1 = new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru");
-        Employee employee2 = new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
-        employeeDao.save(gson.toJson(employee1), dataBase);
-        employeeDao.save(gson.toJson(employee2), dataBase);
-        assertEquals(gson.toJson(employee1), employeeDao.get(employee1.getId(), dataBase));
+        EmployeeDao employeeDao = new EmployeeDao(dataBase);
+        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru"));
+        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru"));
+        assertEquals(2, employeeDao.getAll().size());
     }
 
     @Test
-    public void testGetAll() throws ServerException {
-        Gson gson = new Gson();
+    public void testGet() throws ServerException {
         DataBase dataBase = DataBase.getInstance();
-        EmployeeDao employeeDao = new EmployeeDao();
-        dataBase.setEmployeeList(new ArrayList<>());
-        employeeDao.save(gson.toJson(new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru")), dataBase);
-        employeeDao.save(gson.toJson(new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru")), dataBase);
-        assertEquals(2, employeeDao.getAll(dataBase).size());
+        EmployeeDao employeeDao = new EmployeeDao(dataBase);
+        Employee employee1 = new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru");
+        Employee employee2 = new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
+        employeeDao.save(employee1);
+        employeeDao.save(employee2);
+        assertEquals(employee1, employeeDao.get(employee1.getId()));
+        employeeDao.delete(employee1);
+        employeeDao.delete(employee2);
     }
 
     @Test
     public void testSave() throws ServerException {
-        Gson gson = new Gson();
         DataBase dataBase = DataBase.getInstance();
-        EmployeeDao employeeDao = new EmployeeDao();
+        EmployeeDao employeeDao = new EmployeeDao(dataBase);
         String id = UUID.randomUUID().toString();
-        employeeDao.save(gson.toJson(new Employee(id, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru")), dataBase);
+        Employee employee = new Employee(id, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru");
+        employeeDao.save(employee);
         try {
-            employeeDao.save(gson.toJson(new Employee(id, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru")), dataBase);
+            employeeDao.save(employee);
         } catch (ServerException se) {
             assertEquals(ErrorCode.REPEATING_EMPLOYEE, se.getErrorCode());
+        } finally {
+            employeeDao.delete(employee);
         }
     }
 
     @Test
     public void testUpdate() throws ServerException {
-        Gson gson = new Gson();
         DataBase dataBase = DataBase.getInstance();
-        EmployeeDao employeeDao = new EmployeeDao();
+        EmployeeDao employeeDao = new EmployeeDao(dataBase);
         String id = "25s5wef55wef85wef8wde5wef";
         Employee employee = new Employee(id, "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
         Employee newEmployee = new Employee(id, "Genadiy", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
-        employeeDao.save(gson.toJson(employee), dataBase);
-        employeeDao.update(gson.toJson(employee), gson.toJson(newEmployee), dataBase);
-        assertEquals(newEmployee, gson.fromJson(employeeDao.get(id, dataBase), Employee.class));
-    }
-
-    @Test
-    public void testDelete() throws ServerException {
-        Gson gson = new Gson();
-        DataBase dataBase = DataBase.getInstance();
-        EmployeeDao employeeDao = new EmployeeDao();
-        String id = "25s5wef55wef85wef8wde5wef";
-        Employee employee = new Employee(id, "Genadiy", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
-        employeeDao.delete(gson.toJson(employee), dataBase);
-        assertNull(employeeDao.get(id, dataBase));
+        employeeDao.save(employee);
+        employeeDao.update(employee, newEmployee);
+        assertEquals(newEmployee, employeeDao.get(id));
+        employeeDao.delete(newEmployee);
     }
 }

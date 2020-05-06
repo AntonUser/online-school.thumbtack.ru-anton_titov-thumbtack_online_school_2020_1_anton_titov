@@ -5,23 +5,17 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
-//REVU: если набор полей ФИО разный, лучше не выделять общего, иначе появляются вопросы
-// а вот email можно вынести как общее поле
-// достаточно будет id, login, password, email полей
 public class User {
     private String id;
-    //REVU: странно, что есть firstName и patronymic, но нет lastName
-    private String firstName;
-    private String patronymic;
     private String login;
     private String password;
+    private String email;
 
-    public User(String id, String firstName, String patronymic, String login, String password) throws ServerException {
+    public User(String id, String login, String password, String email) throws ServerException {
         setId(id);
-        setFirstName(firstName);
-        setPatronymic(patronymic);
         setLogin(login);
         setPassword(password);
+        setEmail(email);
     }
 
     public String getId() {
@@ -30,25 +24,6 @@ public class User {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) throws ServerException {
-        if (firstName == null || firstName.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
-        }
-        this.firstName = firstName;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
     }
 
     public String getLogin() {
@@ -72,6 +47,16 @@ public class User {
         }
         this.password = password;
     }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) throws ServerException {
+        if (email == null || email.isEmpty()) {
+            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
+        }
+        this.email = email;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -79,14 +64,13 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(firstName, user.firstName) &&
-                Objects.equals(patronymic, user.patronymic) &&
                 Objects.equals(login, user.login) &&
-                Objects.equals(password, user.password);
+                Objects.equals(password, user.password) &&
+                Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, patronymic, login, password);
+        return Objects.hash(id, login, password, email);
     }
 }

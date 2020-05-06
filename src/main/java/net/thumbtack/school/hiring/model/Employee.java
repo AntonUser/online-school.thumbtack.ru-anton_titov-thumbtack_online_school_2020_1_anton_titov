@@ -7,12 +7,33 @@ import java.util.Objects;
 
 public class Employee extends User {
     private String lastName;
-    private String email;
+    private String firstName;
+    private String patronymic;
 
     public Employee(String id, String firstName, String patronymic, String lastName, String login, String password, String email) throws ServerException {
-        super(id, firstName, patronymic, login, password);
+        super(id, login, password, email);
         setLastName(lastName);
-        setEmail(email);
+        setFirstName(firstName);
+        setPatronymic(patronymic);
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) throws ServerException {
+        if (firstName == null || firstName.isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+        }
+        this.firstName = firstName;
+    }
+
+    public String getPatronymic() {
+        return patronymic;
+    }
+
+    public void setPatronymic(String patronymic) {
+        this.patronymic = patronymic;
     }
 
     public String getLastName() {
@@ -27,28 +48,19 @@ public class Employee extends User {
     }
 
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) throws ServerException {
-        if (email == null || email.isEmpty()) {
-            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
-        }
-        this.email = email;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Employee employee = (Employee) o;
         return Objects.equals(lastName, employee.lastName) &&
-                Objects.equals(email, employee.email);
+                Objects.equals(firstName, employee.firstName) &&
+                Objects.equals(patronymic, employee.patronymic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lastName, email);
+        return Objects.hash(super.hashCode(), lastName, firstName, patronymic);
     }
 }

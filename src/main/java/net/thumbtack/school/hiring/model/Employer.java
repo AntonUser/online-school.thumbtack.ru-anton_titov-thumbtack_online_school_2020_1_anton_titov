@@ -7,16 +7,38 @@ import java.util.Objects;
 
 public class Employer extends User {
     //REVU: чем name отличается от firstName в User?
+    //name - это имя организации
+    //firstName имя представителя
     private String name;
     private String address;
-    private String email;
+    private String firstName;
+    private String patronymic;
 
     public Employer(String name, String address, String email, String id, String firstName, String patronymic, String login, String password) throws ServerException {
-        super(id, firstName, patronymic, login, password);
+        super(id, login, password, email);
         setAddress(address);
-        setEmail(email);
         setName(name);
+        setPatronymic(patronymic);
+        setFirstName(firstName);
+    }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) throws ServerException {
+        if (firstName == null || firstName.isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+        }
+        this.firstName = firstName;
+    }
+
+    public String getPatronymic() {
+        return patronymic;
+    }
+
+    public void setPatronymic(String patronymic) {
+        this.patronymic = patronymic;
     }
 
     public String getName() {
@@ -41,29 +63,20 @@ public class Employer extends User {
         this.address = address;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) throws ServerException {
-        if (email == null || email.isEmpty()) {
-            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
-        }
-        this.email = email;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Employer employer = (Employer) o;
         return Objects.equals(name, employer.name) &&
                 Objects.equals(address, employer.address) &&
-                Objects.equals(email, employer.email);
+                Objects.equals(firstName, employer.firstName) &&
+                Objects.equals(patronymic, employer.patronymic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, address, email);
+        return Objects.hash(super.hashCode(), name, address, firstName, patronymic);
     }
 }
