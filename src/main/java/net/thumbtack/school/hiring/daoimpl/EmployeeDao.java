@@ -1,20 +1,24 @@
-package net.thumbtack.school.hiring.dao;
+package net.thumbtack.school.hiring.daoimpl;
 
+import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employee;
 
 import java.util.List;
 
-public class EmployeeDao implements Dao<Employee> {
-    DataBase dataBase;
+public class EmployeeDao implements Dao<Employee, List<Employee>> {
+    private DataBase dataBase;
 
     public EmployeeDao(DataBase dataBase) {
         this.dataBase = dataBase;
     }
 
-    @Override
-    public Employee get(String id) {
+    public Employee getByLoginAndPassword(String login, String password) {
+        return dataBase.getEmployeeByLoginAndPassword(login, password);
+    }
+
+    public Employee getById(String id) {
         return dataBase.getEmployeeById(id);
     }
 
@@ -25,6 +29,10 @@ public class EmployeeDao implements Dao<Employee> {
 
     @Override
     public void save(Employee employee) throws ServerException {
+        if (employee.getAttainmentsList().size() != 0) {
+            DemandSkillDao demandSkillDao = new DemandSkillDao(dataBase);//если умения уже есть, то добавим их в общий список
+            demandSkillDao.saveSubList(employee.getNamesAttainments());
+        }
         dataBase.addEmployee(employee);
     }
 

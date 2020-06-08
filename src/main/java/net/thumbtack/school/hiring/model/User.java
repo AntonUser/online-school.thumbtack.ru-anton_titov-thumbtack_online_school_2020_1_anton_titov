@@ -12,8 +12,11 @@ public class User {
     private String email;
 
     public User(String id, String login, String password, String email) throws ServerException {
-        setId(id);
-        setLogin(login);
+        if (login == null || login.isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+        }
+        this.login = login;
+        this.id = id;
         setPassword(password);
         setEmail(email);
     }
@@ -22,20 +25,10 @@ public class User {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getLogin() {
         return login;
     }
 
-    public void setLogin(String login) throws ServerException {
-        if (login == null || login.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
-        }
-        this.login = login;
-    }
 
     public String getPassword() {
         return password;
@@ -47,6 +40,7 @@ public class User {
         }
         this.password = password;
     }
+
     public String getEmail() {
         return email;
     }

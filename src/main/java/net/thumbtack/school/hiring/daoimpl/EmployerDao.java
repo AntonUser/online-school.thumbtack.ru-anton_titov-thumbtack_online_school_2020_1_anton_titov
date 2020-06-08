@@ -1,20 +1,27 @@
-package net.thumbtack.school.hiring.dao;
+package net.thumbtack.school.hiring.daoimpl;
 
+import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employer;
 
 import java.util.List;
 
-public class EmployerDao implements Dao<Employer> {
-    DataBase dataBase;
+public class EmployerDao implements Dao<Employer, List<Employer>> {
+    private DataBase dataBase;
 
     public EmployerDao(DataBase dataBase) {
         this.dataBase = dataBase;
     }
 
-    @Override
-    public Employer get(String id) {
+
+    public Employer getByLoginAndPassword(String login, String password) {
+        return dataBase.getEmployerByLoginAndPassword(login, password);
+    }
+
+
+
+    public Employer getById(String id) {
         return dataBase.getEmployerById(id);
     }
 

@@ -1,5 +1,6 @@
 package net.thumbtack.school.hiring.dao;
 
+import net.thumbtack.school.hiring.daoimpl.EmployerDao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;

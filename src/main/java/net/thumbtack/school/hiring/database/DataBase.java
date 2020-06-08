@@ -2,21 +2,23 @@ package net.thumbtack.school.hiring.database;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Employee;
-import net.thumbtack.school.hiring.model.Employer;
+import net.thumbtack.school.hiring.model.*;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class DataBase {
     private static DataBase instance = null;
     private static List<Employer> employerList;
     private static List<Employee> employeeList;
+    private static List<Vacancy> vacanciesList;
+    private static Set<String> demandSkills;
 
     private DataBase() {
-        employeeList = new ArrayList<>();
+        employeeList = new ArrayList<Employee>();
         employerList = new ArrayList<>();
+        vacanciesList = new ArrayList<>();
+        demandSkills = new HashSet<>();
     }
 
     public static synchronized DataBase getInstance() {
@@ -27,18 +29,34 @@ public final class DataBase {
     }
 
     public List<Employee> getEmployeeList() {
-        return new ArrayList<>(employeeList);
+        return new ArrayList<Employee>(employeeList);
     }
 
     public List<Employer> getEmployerList() {
         return new ArrayList<>(employerList);
     }
 
-    public void addEmployee(Employee employee) throws ServerException {
+    public List<Vacancy> getVacanciesList() {
+        return new ArrayList<>(vacanciesList);
+    }
+
+    public Set<String> getDemandSkillsSet() {
+        return new HashSet<>(demandSkills);
+    }
+
+    public void addSubSet(Set<String> subSet) {
+        demandSkills.addAll(subSet);
+    }
+
+    public void addEmployee(Employee employee) throws ServerException {//исправить сравнение на сравнение по логину
         if (getEmployeeById(employee.getId()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYEE);
         }
         employeeList.add(employee);
+    }
+
+    public void addDemandSkill(String nameDemandSkill) {
+        demandSkills.add(nameDemandSkill);
     }
 
     public void addEmployer(Employer employer) throws ServerException {
@@ -48,9 +66,22 @@ public final class DataBase {
         employerList.add(employer);
     }
 
+    public void addVacancy(Vacancy vacancy) {
+        vacanciesList.add(vacancy);
+    }
+
     public Employee getEmployeeById(String id) {
         for (Employee employee : employeeList) {
             if (id.equals(employee.getId())) {
+                return employee;
+            }
+        }
+        return null;
+    }
+
+    public Employee getEmployeeByLoginAndPassword(String login, String password) {
+        for (Employee employee : employeeList) {
+            if (login.equals(employee.getLogin()) && password.equals(employee.getPassword())) {
                 return employee;
             }
         }
@@ -66,6 +97,15 @@ public final class DataBase {
         return null;
     }
 
+    public Employer getEmployerByLoginAndPassword(String login, String password) {
+        for (Employer employer : employerList) {
+            if (login.equals(employer.getLogin()) && password.equals(employer.getPassword())) {
+                return employer;
+            }
+        }
+        return null;
+    }
+
     public void updateEmployee(Employee oldEmployee, Employee newEmployee) {
         employeeList.set(employeeList.indexOf(oldEmployee), newEmployee);
     }
@@ -74,6 +114,11 @@ public final class DataBase {
         employerList.set(employerList.indexOf(oldEmployer), newEmployer);
     }
 
+    public void updateVacancy(Vacancy oldVacancy, Vacancy newVacancy) {
+        vacanciesList.set(vacanciesList.indexOf(oldVacancy), newVacancy);
+    }
+
+
     public void deleteEmployee(Employee employee) {
         employeeList.remove(employee);
     }
@@ -81,5 +126,10 @@ public final class DataBase {
     public void deleteEmployer(Employer employer) {
         employerList.remove(employer);
     }
+
+    public void deleteVacancy(Vacancy vacancy) {
+        vacanciesList.remove(vacancy);
+    }
+
 }
 
