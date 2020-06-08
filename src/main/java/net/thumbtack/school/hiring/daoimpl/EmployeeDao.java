@@ -29,7 +29,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
 
     @Override
     public void save(Employee employee) throws ServerException {
-        if (employee.getAttainmentsList().size() != 0) {
+        if (!employee.getAttainmentsList().isEmpty()) {
             DemandSkillDao demandSkillDao = new DemandSkillDao(dataBase);//если умения уже есть, то добавим их в общий список
             demandSkillDao.saveSubList(employee.getNamesAttainments());
         }

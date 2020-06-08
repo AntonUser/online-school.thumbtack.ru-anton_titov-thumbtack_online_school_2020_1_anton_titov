@@ -49,7 +49,7 @@ public final class DataBase {
     }
 
     public void addEmployee(Employee employee) throws ServerException {//исправить сравнение на сравнение по логину
-        if (getEmployeeById(employee.getId()) != null) {
+        if (getEmployeeByLoginAndPassword(employee.getLogin(), employee.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYEE);
         }
         employeeList.add(employee);
@@ -60,7 +60,7 @@ public final class DataBase {
     }
 
     public void addEmployer(Employer employer) throws ServerException {
-        if (getEmployerById(employer.getId()) != null) {
+        if (getEmployeeByLoginAndPassword(employer.getLogin(), employer.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYER);
         }
         employerList.add(employer);

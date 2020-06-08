@@ -4,10 +4,14 @@ import net.thumbtack.school.hiring.daoimpl.EmployeeDao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.model.Attainments;
 import net.thumbtack.school.hiring.model.Employee;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,8 +22,8 @@ public class TestEmployeeDao {
     public void testGetAll() throws ServerException {
         DataBase dataBase = DataBase.getInstance();
         EmployeeDao employeeDao = new EmployeeDao(dataBase);
-        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru"));
-        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru"));
+        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru", true, new ArrayList<>()));
+        employeeDao.save(new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru", true, new ArrayList<>()));
         assertEquals(2, employeeDao.getAll().size());
     }
 
@@ -27,11 +31,11 @@ public class TestEmployeeDao {
     public void testGet() throws ServerException {
         DataBase dataBase = DataBase.getInstance();
         EmployeeDao employeeDao = new EmployeeDao(dataBase);
-        Employee employee1 = new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru");
-        Employee employee2 = new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
+        Employee employee1 = new Employee(UUID.randomUUID().toString(), "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru", true, new ArrayList<>());
+        Employee employee2 = new Employee(UUID.randomUUID().toString(), "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru", true, new ArrayList<>());
         employeeDao.save(employee1);
         employeeDao.save(employee2);
-        assertEquals(employee1, employeeDao.get(employee1.getId()));
+        assertEquals(employee1, employeeDao.getById(employee1.getId()));
         employeeDao.delete(employee1);
         employeeDao.delete(employee2);
     }
@@ -41,7 +45,7 @@ public class TestEmployeeDao {
         DataBase dataBase = DataBase.getInstance();
         EmployeeDao employeeDao = new EmployeeDao(dataBase);
         String id = UUID.randomUUID().toString();
-        Employee employee = new Employee(id, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru");
+        Employee employee = new Employee(id, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru", true, new ArrayList<>());
         employeeDao.save(employee);
         try {
             employeeDao.save(employee);
@@ -52,16 +56,25 @@ public class TestEmployeeDao {
         }
     }
 
+
     @Test
-    public void testUpdate() throws ServerException {
+    public void testUpdate() {
         DataBase dataBase = DataBase.getInstance();
         EmployeeDao employeeDao = new EmployeeDao(dataBase);
-        String id = "25s5wef55wef85wef8wde5wef";
-        Employee employee = new Employee(id, "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
-        Employee newEmployee = new Employee(id, "Genadiy", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru");
+        String id = "25s5wef55wef85wef8wde5wsdf";
+        List<Attainments> attainments = new ArrayList<>();
+        attainments.add(new Attainments("ss", 4));
+        Employee employee = null;
+        try {
+            employee = new Employee(id, "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru", false, attainments);
+
+        Employee newEmployee = new Employee(id, "Genadiy", "Petrovich", "Petrovsky", "petr87", "wh45dssd5", "petr@mail.ru", true, attainments);
         employeeDao.save(employee);
         employeeDao.update(employee, newEmployee);
-        assertEquals(newEmployee, employeeDao.get(id));
+        assertEquals(newEmployee, employeeDao.getById(id));
         employeeDao.delete(newEmployee);
+        } catch (ServerException e) {
+            e.printStackTrace();
+        }
     }
 }

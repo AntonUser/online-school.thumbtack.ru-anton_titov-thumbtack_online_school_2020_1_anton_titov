@@ -12,6 +12,7 @@ public class Employee extends User {
     private List<Attainments> attainmentsList;
     private boolean status;
 
+
     public Employee(String id, String firstName, String patronymic, String lastName, String login, String password, String email, boolean status, List<Attainments> attainments) throws ServerException {
         super(id, login, password, email);
         setLastName(lastName);
@@ -100,4 +101,5 @@ public class Employee extends User {
     public int hashCode() {
         return Objects.hash(super.hashCode(), lastName, firstName, patronymic, attainmentsList, status);
     }
+
 }

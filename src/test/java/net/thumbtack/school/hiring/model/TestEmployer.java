@@ -92,16 +92,14 @@ public class TestEmployer {
         }
 
         try {
-            Employer employer = new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", "", "Ivan", "Sergeevich", "iva05", "w5464x52");
-            employer.setLogin("");
+            Employer employer = new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", "", "Ivan", "Sergeevich", "", "w5464x52");
             fail();
         } catch (ServerException e) {
             assertEquals(ErrorCode.NULL_LOGIN_EXCEPTION, e.getErrorCode());
         }
 
         try {
-            Employer employer = new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", "", "Ivan", "Sergeevich", "iva05", "w5464x52");
-            employer.setLogin(null);
+            Employer employer = new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", "", "Ivan", "Sergeevich", null, "w5464x52");
             fail();
         } catch (ServerException e) {
             assertEquals(ErrorCode.NULL_LOGIN_EXCEPTION, e.getErrorCode());

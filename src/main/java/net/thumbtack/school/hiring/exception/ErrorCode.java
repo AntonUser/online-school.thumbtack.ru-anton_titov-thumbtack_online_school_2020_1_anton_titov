@@ -10,8 +10,8 @@ public enum ErrorCode {
     NULL_ADDRESS_EXCEPTION("address is null"),
     REPEATING_EMPLOYEE("employee to not unique"),
     REPEATING_EMPLOYER("employer to not unique"),
-    ERRONEOUS_SKILL_EXCEPTION("skill more than 5 or less than 1"),
-    NECESSARY_EXCEPTION("necessary no ('necessary' or 'not necessary')");
+    ERRONEOUS_SKILL_EXCEPTION("skill more than 5 or less than 1");
+
     String errorCode;
 
     ErrorCode(String errorCode) {
