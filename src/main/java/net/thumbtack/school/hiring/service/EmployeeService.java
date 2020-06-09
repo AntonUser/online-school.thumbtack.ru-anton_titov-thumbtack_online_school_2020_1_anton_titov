@@ -21,22 +21,28 @@ import java.util.List;
 import java.util.UUID;
 
 public class EmployeeService {
+    //REVU: все поля должны быть private
     private DataBase dataBase;
     VacancyDao vacancyDao;
+    //REVU: а вот dto и списки для ответа сервера должны быть локальными переменными методов
     DtoSkills skills;
     List<Vacancy> vacancies;
     List<Vacancy> outVacancies;
 
     public EmployeeService(DataBase dataBase) {
+        //REVU: проинициализируй тут еще и все поля класса через new
         this.dataBase = dataBase;
     }
 
     public String registerEmployee(String json) {
         EmployeeDtoRegisterRequest employeeDtoRegisterRequest;
         Employee employee;
+        //REVU: gson лучше вынести в поле класса
         Gson gson = new Gson();
+        //REVU: зачем еще раз new Gson()?
         employeeDtoRegisterRequest = new Gson().fromJson(json, EmployeeDtoRegisterRequest.class);
         try {
+            //REVU: а будет валидация полей перед созданием employee? сейчас не вижу.
             employee = new Employee(UUID.randomUUID().toString(), employeeDtoRegisterRequest.getFirstName(),
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
@@ -45,6 +51,11 @@ public class EmployeeService {
         } catch (ServerException se) {
             return gson.toJson(new ErrorToken("Одно из полей employee - null"));
         }
+        //REVU: лучше сделать 1 try-catch блок, все равно ловишь одно и то же ServerException
+        // также вместо строк используй errorCode из ServerException
+        // то есть new ErrorToken(se.getErrorCode().getErrorCode())
+
+        //REVU: dao должно быть полем класса, а не локальной переменной метода
         EmployeeDao eDao = new EmployeeDao(dataBase);
         try {
             eDao.save(employee);
@@ -149,8 +160,14 @@ public class EmployeeService {
         return new Gson().toJson(outVacancies);
     }
 
+    //REVU: все поля должны инициализироваться в конструкторе
     private void init(String abilitiesJson) {
         vacancyDao = new VacancyDao(dataBase);
+        //REVU: а вспомогательные списки и dto - в методах, где они используются
+        // можно вынести отдельный метод при необходимости, но пусть он возвращает значение в локальную переменную
+//        private DtoSkills convertSkills(String abilitiesJson) {
+//            return gson.fromJson(abilitiesJson, DtoSkills.class);
+//        }
         skills = new Gson().fromJson(abilitiesJson, DtoSkills.class);
         vacancies = vacancyDao.getAll();
         outVacancies = new ArrayList<>();

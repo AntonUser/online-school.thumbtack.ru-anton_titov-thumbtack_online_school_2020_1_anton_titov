@@ -14,6 +14,7 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         this.dataBase = dataBase;
     }
 
+    //REVU: не реализованный метод
         public Vacancy getById(String id) {
         return null;
     }

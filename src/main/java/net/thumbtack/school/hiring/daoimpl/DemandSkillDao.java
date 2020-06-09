@@ -5,6 +5,7 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Set;
 
+//REVU: почему не имплементируется интерфейс Dao?
 public class DemandSkillDao {
     private DataBase dataBase;
 
@@ -21,7 +22,7 @@ public class DemandSkillDao {
     }
 
     public void saveSubList(Set<String>subSet) {
-
+        //REVU: пустое тело метода
     }
 
 }

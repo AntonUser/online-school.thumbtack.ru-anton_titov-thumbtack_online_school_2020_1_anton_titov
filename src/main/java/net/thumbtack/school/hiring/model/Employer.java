@@ -6,9 +6,6 @@ import net.thumbtack.school.hiring.exception.ServerException;
 import java.util.Objects;
 
 public class Employer extends User {
-    //REVU: чем name отличается от firstName в User?
-    //name - это имя организации
-    //firstName имя представителя
     private String name;
     private String address;
     private String firstName;
