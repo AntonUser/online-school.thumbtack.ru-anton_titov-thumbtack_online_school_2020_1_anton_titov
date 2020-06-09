@@ -5,10 +5,7 @@ import net.thumbtack.school.hiring.daoimpl.DemandSkillDao;
 import net.thumbtack.school.hiring.daoimpl.EmployeeDao;
 import net.thumbtack.school.hiring.daoimpl.VacancyDao;
 import net.thumbtack.school.hiring.database.DataBase;
-import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
-import net.thumbtack.school.hiring.dto.request.DtoSkillResponse;
-import net.thumbtack.school.hiring.dto.request.DtoSkills;
-import net.thumbtack.school.hiring.dto.request.EmployeeDtoRegisterRequest;
+import net.thumbtack.school.hiring.dto.request.*;
 import net.thumbtack.school.hiring.dto.responce.DtoAllDemandsSkillsResponse;
 import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
 import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
@@ -194,5 +191,52 @@ public class EmployeeService {
         return gson.toJson(new ErrorToken());
     }
 
+    public String updateEmployeeSkill(String oldSkillJson, String newSkillJson) {
+        Employee employee;
+        DtoSkillResponse oldSkill = gson.fromJson(oldSkillJson, DtoSkillResponse.class);
+        if (validateSkill(oldSkill)) {
+            return gson.toJson(new ErrorToken("Одно из полей oldSkill имеет неверное значение"));
+        }
+        Attainments oldAttainment = new Attainments(oldSkill.getNameSkill(), oldSkill.getSkill());
+        DtoSkillResponse newSkill = gson.fromJson(newSkillJson, DtoSkillResponse.class);
+        if (validateSkill(newSkill)) {
+            return gson.toJson(new ErrorToken("Одно из полей newSkill имеет неверное значение"));
+        }
+        Attainments newAttainments = new Attainments(newSkill.getNameSkill(), newSkill.getSkill());
+        employee = eDao.getById(oldSkill.getToken());
+        employee.updateAttainments(oldAttainment, newAttainments);
+        return gson.toJson(new ErrorToken());
+    }
+
+    public String removeEmployeeSkill(String skillJson) {
+        Employee employee;
+        DtoSkillResponse skill = gson.fromJson(skillJson, DtoSkillResponse.class);
+        if (validateSkill(skill)) {
+            return gson.toJson(new ErrorToken("Одно из полей skill имеет неверное значение"));
+        }
+        Attainments attainment = new Attainments(skill.getNameSkill(), skill.getSkill());
+        employee = eDao.getById(skill.getToken());
+        employee.removeAttainments(attainment);
+        return gson.toJson(new ErrorToken());
+    }
+
+    private boolean validateSkill(DtoSkillResponse dtoSkill) {
+        return dtoSkill.getNameSkill().isEmpty() || dtoSkill.getSkill() < 1 || dtoSkill.getSkill() > 5 || dtoSkill.getToken().isEmpty();
+    }
+
+    public String setStatus(String statusJson) {
+        DtoStatusEmployeeRequest dtoStatusEmployeeRequest = gson.fromJson(statusJson, DtoStatusEmployeeRequest.class);
+        if (dtoStatusEmployeeRequest.getToken().isEmpty()) {
+            return gson.toJson(new ErrorToken("Невалидное значение токена"));
+        }
+        Employee employee = eDao.getById(dtoStatusEmployeeRequest.getToken());
+        if (employee == null) {
+            return gson.toJson(new ErrorToken("Пользователь с таким id не найден"));
+        }
+        Employee newEmployee = employee;
+        newEmployee.setStatus(dtoStatusEmployeeRequest.isStatus());
+        eDao.update(employee, newEmployee);
+        return gson.toJson(new ErrorToken());
+    }
 }
 

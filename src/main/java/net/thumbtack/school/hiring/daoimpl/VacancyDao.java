@@ -14,6 +14,10 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         this.dataBase = dataBase;
     }
 
+    public Vacancy getVacancyByTokenAndName(String token, String namePost) {
+        return dataBase.getVacancyByTokenAndName(token, namePost);
+    }
+
     @Override
     public List<Vacancy> getAll() {
         return dataBase.getVacanciesList();

@@ -70,6 +70,15 @@ public final class DataBase {
         vacanciesList.add(vacancy);
     }
 
+    public Vacancy getVacancyByTokenAndName(String token, String namePost) {
+        for (Vacancy vacancy : vacanciesList) {
+            if (token.equals(vacancy.getToken()) && namePost.equals(vacancy.getNamePost())) {
+                return vacancy;
+            }
+        }
+        return null;
+    }
+
     public Employee getEmployeeById(String id) {
         for (Employee employee : employeeList) {
             if (id.equals(employee.getId())) {

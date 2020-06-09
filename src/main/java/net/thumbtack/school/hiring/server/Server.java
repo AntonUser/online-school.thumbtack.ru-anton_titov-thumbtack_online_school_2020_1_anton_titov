@@ -85,4 +85,24 @@ public class Server {
         return employerService.getEmployeeWithOneDemand(requestJsonString);
     }
 
+    //3 геттера на вакансии для компании(свои)
+    //методы для установки статуса вакансии/кандидатуры активная неактивная
+
+    public String setStatusEmployee(String requestJson) {
+        return employeeService.setStatus(requestJson);
+    }
+
+    public String setStatusVacancy(String requestJson) {
+        return employerService.setVacancyStatus(requestJson);
+    }
+
+    public String updateSkillEmployee(String oldRequestJson, String newRequestJson) {
+        return employeeService.updateEmployeeSkill(oldRequestJson, newRequestJson);
+    }
+
+    public String removeSkillEmployee(String json) {
+        return employeeService.removeEmployeeSkill(json);
+    }
+
+
 }

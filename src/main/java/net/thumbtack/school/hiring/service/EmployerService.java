@@ -183,7 +183,23 @@ public class EmployerService {
     private DtoDemands convertDemands(String demandsJson) {
         return gson.fromJson(demandsJson, DtoDemands.class);
     }
+
     private boolean validateDemand(DtoDemands dtoDemands) {
         return dtoDemands.getDemands().isEmpty() || dtoDemands.getToken().isEmpty();
+    }
+
+    public String setVacancyStatus(String statusJson) {
+        DtoStatusVacancyRequest dtoStatusRequest = gson.fromJson(statusJson, DtoStatusVacancyRequest.class);
+        if (dtoStatusRequest.getToken().isEmpty() || dtoStatusRequest.getNamePost().isEmpty()) {
+            return gson.toJson(new ErrorToken("Невалидное значение токена или названия должности"));
+        }
+        Vacancy vacancy = vacancyDao.getVacancyByTokenAndName(dtoStatusRequest.getToken(), dtoStatusRequest.getNamePost());
+        if (vacancy == null) {
+            return gson.toJson(new ErrorToken("Такой вакансии у данного работодателя не найдено"));
+        }
+        Vacancy newVacancy = vacancy;
+        newVacancy.setStatus(dtoStatusRequest.isStatus());
+        vacancyDao.update(vacancy, newVacancy);
+        return gson.toJson(new ErrorToken());
     }
 }
