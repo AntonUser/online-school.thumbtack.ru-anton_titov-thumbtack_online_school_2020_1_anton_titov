@@ -6,9 +6,7 @@ import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Attainments;
 import net.thumbtack.school.hiring.model.Employee;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,25 +54,18 @@ public class TestEmployeeDao {
         }
     }
 
-
     @Test
-    public void testUpdate() {
+    public void testUpdate1() throws ServerException {
         DataBase dataBase = DataBase.getInstance();
         EmployeeDao employeeDao = new EmployeeDao(dataBase);
-        String id = "25s5wef55wef85wef8wde5wsdf";
+        String id = UUID.randomUUID().toString();
         List<Attainments> attainments = new ArrayList<>();
         attainments.add(new Attainments("ss", 4));
-        Employee employee = null;
-        try {
-            employee = new Employee(id, "Ivan", "Petrovich", "Petrovsky", "petr87", "wh45dssdc9", "petr@mail.ru", false, attainments);
-
-        Employee newEmployee = new Employee(id, "Genadiy", "Petrovich", "Petrovsky", "petr87", "wh45dssd5", "petr@mail.ru", true, attainments);
+        Employee employee = new Employee(id,"Egor","Ivanovich","Ivanov","Egorka","eeeeee","egorkinmail@mail.ru",true,attainments);
+        Employee newEmployee = new Employee(id,"Egor","Nicolaevich","Ivanov","Egorka","ee444","egorkinmail@mail.ru",true,attainments);
         employeeDao.save(employee);
         employeeDao.update(employee, newEmployee);
-        assertEquals(newEmployee, employeeDao.getById(id));
+        assertEquals(newEmployee,employeeDao.getById(id));
         employeeDao.delete(newEmployee);
-        } catch (ServerException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -19,8 +19,6 @@ public class EmployerDao implements Dao<Employer, List<Employer>> {
         return dataBase.getEmployerByLoginAndPassword(login, password);
     }
 
-    //REVU: удали лишние отступы
-
     public Employer getById(String id) {
         return dataBase.getEmployerById(id);
     }

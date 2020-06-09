@@ -21,57 +21,44 @@ import java.util.List;
 import java.util.UUID;
 
 public class EmployeeService {
-    //REVU: все поля должны быть private
     private DataBase dataBase;
-    VacancyDao vacancyDao;
-    //REVU: а вот dto и списки для ответа сервера должны быть локальными переменными методов
-    DtoSkills skills;
-    List<Vacancy> vacancies;
-    List<Vacancy> outVacancies;
+    private VacancyDao vacancyDao;
+    private Gson gson;
+    private EmployeeDao eDao;
 
     public EmployeeService(DataBase dataBase) {
-        //REVU: проинициализируй тут еще и все поля класса через new
         this.dataBase = dataBase;
+        gson = new Gson();
+        eDao = new EmployeeDao(dataBase);
+        vacancyDao = new VacancyDao(dataBase);
     }
 
     public String registerEmployee(String json) {
         EmployeeDtoRegisterRequest employeeDtoRegisterRequest;
         Employee employee;
-        //REVU: gson лучше вынести в поле класса
-        Gson gson = new Gson();
-        //REVU: зачем еще раз new Gson()?
-        employeeDtoRegisterRequest = new Gson().fromJson(json, EmployeeDtoRegisterRequest.class);
+        employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
+        if (employeeDtoRegisterRequest.getFirstName().isEmpty() || employeeDtoRegisterRequest.getLastName().isEmpty() ||
+                employeeDtoRegisterRequest.getPatronymic().isEmpty() || employeeDtoRegisterRequest.getEmail().isEmpty() ||
+                employeeDtoRegisterRequest.getLogin().isEmpty() || employeeDtoRegisterRequest.getPassword().isEmpty()) {
+            return gson.toJson(new ErrorToken("Одно из полей employee имеет ошибочное значение"));
+        }
         try {
-            //REVU: а будет валидация полей перед созданием employee? сейчас не вижу.
             employee = new Employee(UUID.randomUUID().toString(), employeeDtoRegisterRequest.getFirstName(),
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
                     employeeDtoRegisterRequest.getEmail(), employeeDtoRegisterRequest.isStatus(),
                     employeeDtoRegisterRequest.getAttainmentsList());
-        } catch (ServerException se) {
-            return gson.toJson(new ErrorToken("Одно из полей employee - null"));
-        }
-        //REVU: лучше сделать 1 try-catch блок, все равно ловишь одно и то же ServerException
-        // также вместо строк используй errorCode из ServerException
-        // то есть new ErrorToken(se.getErrorCode().getErrorCode())
-
-        //REVU: dao должно быть полем класса, а не локальной переменной метода
-        EmployeeDao eDao = new EmployeeDao(dataBase);
-        try {
             eDao.save(employee);
         } catch (ServerException se) {
-            return gson.toJson(new ErrorToken("Повторяющийся employee"));
+            return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
         }
-
-        return new Gson().toJson(new DtoRegisterResponse(employee.getId()));
+        return gson.toJson(new DtoRegisterResponse(employee.getId()));
     }
 
     public String loginEmployee(String json) {
         DtoLoginRequest dtoLoginRequest;
         Employee employee;
-        Gson gson = new Gson();
-        EmployeeDao eDao = new EmployeeDao(dataBase);
-        dtoLoginRequest = new Gson().fromJson(json, DtoLoginRequest.class);
+        dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
         if (dtoLoginRequest.getLogin() == null || dtoLoginRequest.getPassword() == null) {
             return gson.toJson(new ErrorToken("логин или пароль пустой"));
         }
@@ -83,7 +70,12 @@ public class EmployeeService {
     }
 
     public String getVacanciesNotLess(String abilitiesJson) {
-        init(abilitiesJson);
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Vacancy> vacancies = vacancyDao.getAll();
+        List<Vacancy> outVacancies = new ArrayList<>();
+        if (validateSkills(skills)) {
+            return gson.toJson(new ErrorToken("Список умений пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Vacancy vacancy : vacancies) {//сортирую в новый список по совпадениям полей
             for (Demand demand : vacancy.getDemands()) {
@@ -97,11 +89,16 @@ public class EmployeeService {
                 outVacancies.add(vacancy);
             }
         }
-        return new Gson().toJson(outVacancies);
+        return gson.toJson(outVacancies);
     }
 
     public String getVacanciesObligatoryDemand(String abilitiesJson) {
-        init(abilitiesJson);
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Vacancy> vacancies = vacancyDao.getAll();
+        List<Vacancy> outVacancies = new ArrayList<>();
+        if (validateSkills(skills)) {
+            return gson.toJson(new ErrorToken("Список умений пуст или индентификатор пользователя null"));
+        }
         int i = 0, count = 0;
         for (Vacancy vacancy : vacancies) {//сортирую в новый список по совпадениям полей
             count = 0;
@@ -121,11 +118,16 @@ public class EmployeeService {
                 outVacancies.add(vacancy);
             }
         }
-        return new Gson().toJson(outVacancies);
+        return gson.toJson(outVacancies);
     }
 
     public String getVacancies(String abilitiesJson) {
-        init(abilitiesJson);
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Vacancy> vacancies = vacancyDao.getAll();
+        List<Vacancy> outVacancies = new ArrayList<>();
+        if (validateSkills(skills)) {
+            return gson.toJson(new ErrorToken("Список умений пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Vacancy vacancy : vacancies) {//сортирую в новый список по совпадениям полей
             for (Demand demand : vacancy.getDemands()) {
@@ -139,11 +141,16 @@ public class EmployeeService {
                 outVacancies.add(vacancy);
             }
         }
-        return new Gson().toJson(outVacancies);
+        return gson.toJson(outVacancies);
     }
 
     public String getVacanciesWithOneDemand(String abilitiesJson) {
-        init(abilitiesJson);
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Vacancy> vacancies = vacancyDao.getAll();
+        List<Vacancy> outVacancies = new ArrayList<>();
+        if (validateSkills(skills)) {
+            return gson.toJson(new ErrorToken("Список умений пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Vacancy vacancy : vacancies) {//сортирую в новый список по совпадениям полей
             for (Demand demand : vacancy.getDemands()) {
@@ -157,46 +164,34 @@ public class EmployeeService {
                 outVacancies.add(vacancy);
             }
         }
-        return new Gson().toJson(outVacancies);
+        return gson.toJson(outVacancies);
     }
 
-    //REVU: все поля должны инициализироваться в конструкторе
-    private void init(String abilitiesJson) {
-        vacancyDao = new VacancyDao(dataBase);
-        //REVU: а вспомогательные списки и dto - в методах, где они используются
-        // можно вынести отдельный метод при необходимости, но пусть он возвращает значение в локальную переменную
-//        private DtoSkills convertSkills(String abilitiesJson) {
-//            return gson.fromJson(abilitiesJson, DtoSkills.class);
-//        }
-        skills = new Gson().fromJson(abilitiesJson, DtoSkills.class);
-        vacancies = vacancyDao.getAll();
-        outVacancies = new ArrayList<>();
+    private DtoSkills convertSkills(String abilitiesJson) {
+        return gson.fromJson(abilitiesJson, DtoSkills.class);
+    }
+
+    private boolean validateSkills(DtoSkills dtoSkills) {
+        return dtoSkills.getSkills().isEmpty() || dtoSkills.getToken().isEmpty();
     }
 
     public String getAllDemandSkills() {
         vacancyDao = new VacancyDao(dataBase);
-        return new Gson().toJson(new DtoAllDemandsSkillsResponse(vacancyDao.getAllDemandSkills()));
+        return gson.toJson(new DtoAllDemandsSkillsResponse(vacancyDao.getAllDemandSkills()));
     }
 
     public String addEmployeeSkill(String skillJson) {
-        DtoSkillResponse skill = new Gson().fromJson(skillJson, DtoSkillResponse.class);
+        DtoSkillResponse skill = gson.fromJson(skillJson, DtoSkillResponse.class);
         if (skill.getNameSkill().isEmpty() || skill.getSkill() < 1 || skill.getSkill() > 5 || skill.getToken().isEmpty()) {
-            return new Gson().toJson(new ErrorToken("Одно из полей имеет ошибочное значение!"));
+            return gson.toJson(new ErrorToken("Одно из полей имеет ошибочное значение!"));
         }
         DemandSkillDao demandSkillDao = new DemandSkillDao(dataBase);
-
-        try {
-            demandSkillDao.save(skill.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
-        } catch (ServerException e) {
-            return new Gson().toJson(new ErrorToken("Поле названия умения имеет ошибку!"));
-        }
-
-        EmployeeDao employeeDao = new EmployeeDao(dataBase);
-        Employee oldEmployee = employeeDao.getById(skill.getToken());
+        demandSkillDao.save(skill.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
+        Employee oldEmployee = eDao.getById(skill.getToken());
         Employee newEmployee = oldEmployee;
         newEmployee.addAttainments(new Attainments(skill.getNameSkill(), skill.getSkill()));
-        employeeDao.update(oldEmployee, newEmployee);
-        return new Gson().toJson(new ErrorToken());
+        eDao.update(oldEmployee, newEmployee);
+        return gson.toJson(new ErrorToken());
     }
 
 }

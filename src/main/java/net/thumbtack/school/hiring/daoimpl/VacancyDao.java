@@ -14,11 +14,6 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         this.dataBase = dataBase;
     }
 
-    //REVU: не реализованный метод
-        public Vacancy getById(String id) {
-        return null;
-    }
-
     @Override
     public List<Vacancy> getAll() {
         return dataBase.getVacanciesList();
@@ -39,8 +34,7 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         dataBase.deleteVacancy(object);
     }
 
-    public Set<String> getAllDemandSkills(){
+    public Set<String> getAllDemandSkills() {
         return dataBase.getDemandSkillsSet();
     }
-
 }

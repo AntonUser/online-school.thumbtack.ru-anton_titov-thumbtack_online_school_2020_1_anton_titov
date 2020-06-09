@@ -18,5 +18,7 @@ public enum ErrorCode {
         this.errorCode = errorCode;
     }
 
-    //REVU: добавь getErrorCode метод
+    public String getErrorCode() {
+        return errorCode;
+    }
 }

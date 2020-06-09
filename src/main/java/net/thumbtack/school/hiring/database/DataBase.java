@@ -15,7 +15,7 @@ public final class DataBase {
     private static Set<String> demandSkills;
 
     private DataBase() {
-        employeeList = new ArrayList<Employee>();
+        employeeList = new ArrayList<>();
         employerList = new ArrayList<>();
         vacanciesList = new ArrayList<>();
         demandSkills = new HashSet<>();
@@ -29,7 +29,7 @@ public final class DataBase {
     }
 
     public List<Employee> getEmployeeList() {
-        return new ArrayList<Employee>(employeeList);
+        return new ArrayList<>(employeeList);
     }
 
     public List<Employer> getEmployerList() {
@@ -48,7 +48,7 @@ public final class DataBase {
         demandSkills.addAll(subSet);
     }
 
-    public void addEmployee(Employee employee) throws ServerException {//исправить сравнение на сравнение по логину
+    public void addEmployee(Employee employee) throws ServerException {
         if (getEmployeeByLoginAndPassword(employee.getLogin(), employee.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYEE);
         }
@@ -118,6 +118,10 @@ public final class DataBase {
         vacanciesList.set(vacanciesList.indexOf(oldVacancy), newVacancy);
     }
 
+    public void updateDemandSkill(String oldName, String newName) {
+        demandSkills.remove(oldName);
+        demandSkills.add(newName);
+    }
 
     public void deleteEmployee(Employee employee) {
         employeeList.remove(employee);
@@ -131,5 +135,8 @@ public final class DataBase {
         vacanciesList.remove(vacancy);
     }
 
+    public void deleteDemandSkill(String name) {
+        demandSkills.remove(name);
+    }
 }
 

@@ -1,28 +1,40 @@
 package net.thumbtack.school.hiring.daoimpl;
 
+import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
-import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Set;
 
-//REVU: почему не имплементируется интерфейс Dao?
-public class DemandSkillDao {
+public class DemandSkillDao implements Dao<String, Set<String>> {
     private DataBase dataBase;
 
     public DemandSkillDao(DataBase dataBase) {
         this.dataBase = dataBase;
     }
 
+    @Override
     public Set<String> getAll() {
         return dataBase.getDemandSkillsSet();
     }
 
-    public void save(String name) throws ServerException {
+    @Override
+    public void save(String name) {
         dataBase.addDemandSkill(name);
     }
 
-    public void saveSubList(Set<String>subSet) {
-        //REVU: пустое тело метода
+    @Override
+    public void update(String oldObject, String newObject) {
+        dataBase.updateDemandSkill(oldObject, newObject);
+    }
+
+    @Override
+    public void delete(String name) {
+        dataBase.deleteDemandSkill(name);
+    }
+
+    public void saveSubList(Set<String> subSet) {
+        dataBase.addSubSet(subSet);
+
     }
 
 }

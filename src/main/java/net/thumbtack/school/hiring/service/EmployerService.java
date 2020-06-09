@@ -6,10 +6,7 @@ import net.thumbtack.school.hiring.daoimpl.EmployeeDao;
 import net.thumbtack.school.hiring.daoimpl.EmployerDao;
 import net.thumbtack.school.hiring.daoimpl.VacancyDao;
 import net.thumbtack.school.hiring.database.DataBase;
-import net.thumbtack.school.hiring.dto.request.DtoAddVacancyRequest;
-import net.thumbtack.school.hiring.dto.request.DtoDemands;
-import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
-import net.thumbtack.school.hiring.dto.request.EmployerDtoRegisterRequest;
+import net.thumbtack.school.hiring.dto.request.*;
 import net.thumbtack.school.hiring.dto.responce.DtoEmployeesResponse;
 import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
 import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
@@ -24,43 +21,44 @@ import java.util.UUID;
 public class EmployerService {
     private DataBase dataBase;
     private EmployeeDao employeeDao;
-    private List<Employee> allEmployee;
-    private DtoDemands dtoDemands;
-    private List<Employee> outList;
+    private Gson gson;
+    private VacancyDao vacancyDao;
 
     public EmployerService(DataBase dataBase) {
         this.dataBase = dataBase;
+        employeeDao = new EmployeeDao(dataBase);
+        gson = new Gson();
+        vacancyDao = new VacancyDao(dataBase);
     }
 
     public String registerEmployer(String json) {
         EmployerDtoRegisterRequest employerDtoRegisterRequest;
         Employer employer;
-        Gson gson = new Gson();
-        employerDtoRegisterRequest = new Gson().fromJson(json, EmployerDtoRegisterRequest.class);
+        employerDtoRegisterRequest = gson.fromJson(json, EmployerDtoRegisterRequest.class);
+        if (employerDtoRegisterRequest.getFirstName().isEmpty() || employerDtoRegisterRequest.getLastName().isEmpty() ||
+                employerDtoRegisterRequest.getPatronymic().isEmpty() || employerDtoRegisterRequest.getEmail().isEmpty() ||
+                employerDtoRegisterRequest.getLogin().isEmpty() || employerDtoRegisterRequest.getPassword().isEmpty() ||
+                employerDtoRegisterRequest.getAddress().isEmpty() || employerDtoRegisterRequest.getName().isEmpty()) {
+            return gson.toJson(new ErrorToken("Одно из полей employer имеет ошибочное значение"));
+        }
         try {
             employer = new Employer(employerDtoRegisterRequest.getName(), employerDtoRegisterRequest.getAddress(),
                     employerDtoRegisterRequest.getEmail(), UUID.randomUUID().toString(),
                     employerDtoRegisterRequest.getFirstName(), employerDtoRegisterRequest.getPatronymic(),
                     employerDtoRegisterRequest.getLogin(), employerDtoRegisterRequest.getPassword());
-        } catch (ServerException se) {
-            return gson.toJson(new ErrorToken("Одно из полей employer - null"));
-        }
-        EmployerDao eDao = new EmployerDao(dataBase);
-        try {
+            EmployerDao eDao = new EmployerDao(dataBase);
             eDao.save(employer);
         } catch (ServerException se) {
-            return gson.toJson(new ErrorToken("Повторяющийся employer"));
+            return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
         }
-
-        return new Gson().toJson(new DtoRegisterResponse(employer.getId()));
+        return gson.toJson(new DtoRegisterResponse(employer.getId()));
     }
 
     public String loginEmployer(String json) {
         DtoLoginRequest dtoLoginRequest;
         Employer employer;
-        Gson gson = new Gson();
         EmployerDao eDao = new EmployerDao(dataBase);
-        dtoLoginRequest = new Gson().fromJson(json, DtoLoginRequest.class);
+        dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
         if (dtoLoginRequest.getLogin() == null || dtoLoginRequest.getPassword() == null) {
             return gson.toJson(new ErrorToken("логин или пароль пустой"));
         }
@@ -72,22 +70,27 @@ public class EmployerService {
     }
 
     public String addVacancy(String vacancyJson) {
-        DtoAddVacancyRequest dtoAddVacancyRequest = new Gson().fromJson(vacancyJson, DtoAddVacancyRequest.class);
+        DtoAddVacancyRequest dtoAddVacancyRequest = gson.fromJson(vacancyJson, DtoAddVacancyRequest.class);
         if (dtoAddVacancyRequest.getNamePost().isEmpty() ||
                 dtoAddVacancyRequest.getSalary() < 0 ||
                 dtoAddVacancyRequest.getToken().isEmpty()) {
-            return new Gson().toJson(new ErrorToken("Одно из полей, кроме, обязанностей, имееет  неверное значение"));
+            return gson.toJson(new ErrorToken("Одно из полей, кроме, требований, имееет  неверное значение"));
         }
-        VacancyDao vacancyDao = new VacancyDao(dataBase);
+
         Vacancy vacancy = new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), dtoAddVacancyRequest.getDemands(), dtoAddVacancyRequest.getToken());
         vacancyDao.save(vacancy);
         DemandSkillDao demandSkillDao = new DemandSkillDao(dataBase);
         demandSkillDao.saveSubList(vacancy.getNamesDemands());
-        return new Gson().toJson(new ErrorToken());
+        return gson.toJson(new ErrorToken());
     }
 
     public String getEmployeeListNotLess(String demandsJson) {
-        init(demandsJson);
+        List<Employee> allEmployee = employeeDao.getAll();
+        DtoDemands dtoDemands = convertDemands(demandsJson);
+        List<Employee> outList = new ArrayList<>();
+        if (validateDemand(dtoDemands)) {
+            return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
@@ -101,11 +104,16 @@ public class EmployerService {
                 outList.add(employee);
             }
         }
-        return new Gson().toJson(new DtoEmployeesResponse(outList));
+        return gson.toJson(new DtoEmployeesResponse(outList));
     }
 
     public String getEmployeeObligatoryDemand(String demandsJson) {
-        init(demandsJson);
+        List<Employee> allEmployee = employeeDao.getAll();
+        DtoDemands dtoDemands = convertDemands(demandsJson);
+        List<Employee> outList = new ArrayList<>();
+        if (validateDemand(dtoDemands)) {
+            return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
+        }
         int i = 0, count = 0;
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
@@ -122,11 +130,16 @@ public class EmployerService {
                 outList.add(employee);
             }
         }
-        return new Gson().toJson(new DtoEmployeesResponse(outList));
+        return gson.toJson(new DtoEmployeesResponse(outList));
     }
 
     public String getEmployee(String demandsJson) {
-        init(demandsJson);
+        List<Employee> allEmployee = employeeDao.getAll();
+        DtoDemands dtoDemands = convertDemands(demandsJson);
+        List<Employee> outList = new ArrayList<>();
+        if (validateDemand(dtoDemands)) {
+            return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
@@ -141,11 +154,16 @@ public class EmployerService {
                 outList.add(employee);
             }
         }
-        return new Gson().toJson(new DtoEmployeesResponse(outList));
+        return gson.toJson(new DtoEmployeesResponse(outList));
     }
 
     public String getEmployeeWithOneDemand(String demandsJson) {
-        init(demandsJson);
+        List<Employee> allEmployee = employeeDao.getAll();
+        DtoDemands dtoDemands = convertDemands(demandsJson);
+        List<Employee> outList = new ArrayList<>();
+        if (validateDemand(dtoDemands)) {
+            return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
+        }
         int i = 0;
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
@@ -159,13 +177,13 @@ public class EmployerService {
                 outList.add(employee);
             }
         }
-        return new Gson().toJson(new DtoEmployeesResponse(outList));
+        return gson.toJson(new DtoEmployeesResponse(outList));
     }
 
-    private void init(String demandsJson) {
-        employeeDao = new EmployeeDao(dataBase);
-        allEmployee = employeeDao.getAll();
-        dtoDemands = new Gson().fromJson(demandsJson, DtoDemands.class);
-        outList = new ArrayList<>();
+    private DtoDemands convertDemands(String demandsJson) {
+        return gson.fromJson(demandsJson, DtoDemands.class);
+    }
+    private boolean validateDemand(DtoDemands dtoDemands) {
+        return dtoDemands.getDemands().isEmpty() || dtoDemands.getToken().isEmpty();
     }
 }
