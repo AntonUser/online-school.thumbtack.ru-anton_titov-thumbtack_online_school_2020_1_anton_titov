@@ -79,6 +79,16 @@ public final class DataBase {
         return null;
     }
 
+    public List<Vacancy> getVacanciesListByToken(String token) {
+        List<Vacancy> outVacanciesList = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {
+            if (vacancy.getToken().equals(token)) {
+                outVacanciesList.add(vacancy);
+            }
+        }
+        return outVacanciesList;
+    }
+
     public Employee getEmployeeById(String id) {
         for (Employee employee : employeeList) {
             if (id.equals(employee.getId())) {

@@ -7,10 +7,10 @@ import java.util.*;
 public class DtoAddVacancyRequest {
     private String namePost;
     private int salary;
-    private ArrayList<Demand> demands;
+    private List<Demand> demands;
     private String token;
 
-    public DtoAddVacancyRequest(String namePost, int salary, ArrayList<Demand> demands, String token) {
+    public DtoAddVacancyRequest(String namePost, int salary, List<Demand> demands, String token) {
         this.namePost = namePost;
         this.salary = salary;
         this.demands = demands;
@@ -49,7 +49,7 @@ public class DtoAddVacancyRequest {
         return outSet;
     }
 
-    public void setDemands(ArrayList<Demand> demands) {
+    public void setDemands(List<Demand> demands) {
         this.demands = demands;
     }
 

@@ -3,6 +3,7 @@ package net.thumbtack.school.hiring.model;
 import net.thumbtack.school.hiring.dto.request.DtoAddVacancyRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Vacancy extends DtoAddVacancyRequest {
 
@@ -10,6 +11,7 @@ public class Vacancy extends DtoAddVacancyRequest {
 
     public Vacancy(String namePost, int salary, ArrayList<Demand> demands, String idEmployer) {
         super(namePost, salary, demands, idEmployer);
+        this.status = true;
     }
 
     public boolean isStatus() {
@@ -17,7 +19,12 @@ public class Vacancy extends DtoAddVacancyRequest {
     }
 
     public void setStatus(boolean status) {
-
         this.status = status;
+    }
+
+    public void updateDemand(Demand oldDemand, Demand newDemand) {
+        List<Demand> allDemands =getDemands();
+        allDemands.set(allDemands.indexOf(oldDemand),newDemand);
+        setDemands(allDemands);
     }
 }

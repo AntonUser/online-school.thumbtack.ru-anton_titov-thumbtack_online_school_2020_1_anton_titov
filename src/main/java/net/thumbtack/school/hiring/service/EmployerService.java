@@ -7,10 +7,7 @@ import net.thumbtack.school.hiring.daoimpl.EmployerDao;
 import net.thumbtack.school.hiring.daoimpl.VacancyDao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.dto.request.*;
-import net.thumbtack.school.hiring.dto.responce.DtoEmployeesResponse;
-import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
-import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
-import net.thumbtack.school.hiring.dto.responce.ErrorToken;
+import net.thumbtack.school.hiring.dto.responce.*;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.*;
 
@@ -180,6 +177,47 @@ public class EmployerService {
         return gson.toJson(new DtoEmployeesResponse(outList));
     }
 
+    public String getAllVacancies(String tokenJson) {
+        DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+        if (dtoToken.getToken().isEmpty()) {
+            return gson.toJson(new ErrorToken("Токен пуст"));
+        }
+        DtoVacanciesResponse dtoVacanciesResponse = new DtoVacanciesResponse(vacancyDao.getVacanciesListByToken(dtoToken.getToken()));
+        return gson.toJson(dtoVacanciesResponse);
+    }
+
+    public String getActivityVacancies(String tokenJson) {
+        DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+        if (dtoToken.getToken().isEmpty()) {
+            return gson.toJson(new ErrorToken("Токен пуст"));
+        }
+        List<Vacancy> allVacancies = vacancyDao.getVacanciesListByToken(dtoToken.getToken());
+        List<Vacancy> outVacanciesList = new ArrayList<>();
+        for (Vacancy vacancy : allVacancies) {
+            if (vacancy.isStatus()) {
+                outVacanciesList.add(vacancy);
+            }
+        }
+        DtoVacanciesResponse dtoVacanciesResponse = new DtoVacanciesResponse(outVacanciesList);
+        return gson.toJson(dtoVacanciesResponse);
+    }
+
+    public String getNotActivityVacancies(String tokenJson) {
+        DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+        if (dtoToken.getToken().isEmpty()) {
+            return gson.toJson(new ErrorToken("Токен пуст"));
+        }
+        List<Vacancy> allVacancies = vacancyDao.getVacanciesListByToken(dtoToken.getToken());
+        List<Vacancy> outVacanciesList = new ArrayList<>();
+        for (Vacancy vacancy : allVacancies) {
+            if (!vacancy.isStatus()) {
+                outVacanciesList.add(vacancy);
+            }
+        }
+        DtoVacanciesResponse dtoVacanciesResponse = new DtoVacanciesResponse(outVacanciesList);
+        return gson.toJson(dtoVacanciesResponse);
+    }
+
     private DtoDemands convertDemands(String demandsJson) {
         return gson.fromJson(demandsJson, DtoDemands.class);
     }
@@ -200,6 +238,44 @@ public class EmployerService {
         Vacancy newVacancy = vacancy;
         newVacancy.setStatus(dtoStatusRequest.isStatus());
         vacancyDao.update(vacancy, newVacancy);
+        return gson.toJson(new ErrorToken());
+    }
+
+    public String updateDemandsInVacancy(String oldDemandJson, String newDemandJson) {
+        Vacancy vacancy;
+        try {
+            DtoUpdateDemandRequest dtoOldDemand = gson.fromJson(oldDemandJson, DtoUpdateDemandRequest.class);
+            if (validateDemand(dtoOldDemand)) {
+                return gson.toJson(new ErrorToken("Невалидный объект"));
+            }
+            Demand oldDemand = new Demand(dtoOldDemand.getNameDemand(), dtoOldDemand.getSkill(), dtoOldDemand.isNecessary());
+            DtoUpdateDemandRequest dtoNewDemand = gson.fromJson(newDemandJson, DtoUpdateDemandRequest.class);
+            if (validateDemand(dtoNewDemand)) {
+                return gson.toJson(new ErrorToken("Невалидный объект"));
+            }
+            Demand newDemand = new Demand(dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary());
+            vacancy = vacancyDao.getVacancyByTokenAndName(dtoOldDemand.getToken(), dtoOldDemand.getNameVacancy());
+            vacancy.updateDemand(oldDemand, newDemand);
+        } catch (ServerException se) {
+            return gson.toJson(new ErrorToken("Ошибка в оценке навыка"));
+        }
+        return gson.toJson(new ErrorToken());
+    }
+
+    public boolean validateDemand(DtoUpdateDemandRequest dtoOldDemand) {
+        return dtoOldDemand.getNameVacancy().isEmpty() || dtoOldDemand.getToken().isEmpty() ||
+                dtoOldDemand.getNameDemand().isEmpty() || dtoOldDemand.getSkill() < 1 ||
+                dtoOldDemand.getSkill() < 1 || dtoOldDemand.getSkill() > 5;
+    }
+
+    public String removeVacancy(String vacancyJson) {
+        DtoRemoveVacancyRequest dtoRemoveVacancyRequest = gson.fromJson(vacancyJson, DtoRemoveVacancyRequest.class);
+        if (dtoRemoveVacancyRequest.getDemands().size() == 0 || dtoRemoveVacancyRequest.getNamePost().isEmpty() ||
+                dtoRemoveVacancyRequest.getSalary() < 0 || dtoRemoveVacancyRequest.getToken().isEmpty()) {
+            return gson.toJson(new ErrorToken("Невалидный объект(одно из полей имеет ошибку)"));
+        }
+        Vacancy vacancy = new Vacancy(dtoRemoveVacancyRequest.getNamePost(), dtoRemoveVacancyRequest.getSalary(), dtoRemoveVacancyRequest.getDemands(), dtoRemoveVacancyRequest.getToken());
+        vacancyDao.delete(vacancy);
         return gson.toJson(new ErrorToken());
     }
 }

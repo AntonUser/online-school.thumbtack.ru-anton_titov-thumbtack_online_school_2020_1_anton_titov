@@ -18,6 +18,10 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         return dataBase.getVacancyByTokenAndName(token, namePost);
     }
 
+    public List<Vacancy> getVacanciesListByToken(String token) {
+        return dataBase.getVacanciesListByToken(token);
+    }
+
     @Override
     public List<Vacancy> getAll() {
         return dataBase.getVacanciesList();
