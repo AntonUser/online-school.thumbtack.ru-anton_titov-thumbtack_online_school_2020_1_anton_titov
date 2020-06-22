@@ -5,6 +5,8 @@ import net.thumbtack.school.hiring.dto.request.DtoAddVacancyRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+//REVU: модель не должна зависеть от dto
+// даже если поля одни и те же, они должны дублироваться в dto и модели
 public class Vacancy extends DtoAddVacancyRequest {
 
     private boolean status;

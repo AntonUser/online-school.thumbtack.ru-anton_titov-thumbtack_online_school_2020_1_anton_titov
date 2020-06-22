@@ -4,7 +4,9 @@ import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.service.EmployeeService;
 import net.thumbtack.school.hiring.service.EmployerService;
 
+//REVU: добавь end-to-end тесты для методов сервера
 public class Server {
+    // REVU: БД не поле класса Сервер, это поле класса DAO
     private DataBase dataBase;
     EmployeeService employeeService;
     EmployerService employerService;
@@ -17,9 +19,11 @@ public class Server {
 
     //при выходе с сервера удалять инфу о работадателе и работнике
     public void startServer(String savedDataFileName) {
+        //REVU: пустой метод
     }
 
     public void stopServer(String saveDataFileName) {
+        //REVU: пустой метод
     }
 
     // public String <имя-метода>(String requestJsonString)
@@ -47,6 +51,9 @@ public class Server {
         return employeeService.addEmployeeSkill(requestJsonString);
     }
 
+    //REVU: этот метод может вызвать любой пользователь, даже не залогиненный и незарегистрированный
+    // это ожидаемое поведение?
+    // остальные методы тоже нужно проверить на ситуацию, если пользователь не залогинен
     public String getAllDemandsSkills(String requestJsonString) {
         return employeeService.getAllDemandSkills();
     }

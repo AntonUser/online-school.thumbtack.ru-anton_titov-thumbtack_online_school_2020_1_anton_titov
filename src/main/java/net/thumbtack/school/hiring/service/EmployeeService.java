@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+//REVU: посмотри замечания в EmployerService и примени их сюда
 public class EmployeeService {
     private DataBase dataBase;
     private VacancyDao vacancyDao;

@@ -15,7 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+//REVU: обычно методы распологают следующий образом:
+// конструкторы, затем public и потом private
+// так удобнее читать код
+
+//REVU: также, общие замечания:
+// * dao - поле класса, не создавай объекты dao в методах
+// * валидацию нужно вынести в dto классы
+// * используй enum со строкой-описанием для ошибок вместо строк
 public class EmployerService {
+    //REVU: database не должно быть в сервисе - это поле dao
     private DataBase dataBase;
     private EmployeeDao employeeDao;
     private Gson gson;
@@ -32,10 +41,14 @@ public class EmployerService {
         EmployerDtoRegisterRequest employerDtoRegisterRequest;
         Employer employer;
         employerDtoRegisterRequest = gson.fromJson(json, EmployerDtoRegisterRequest.class);
+        //REVU: вынесы валидацию в класс EmployerDtoRegisterRequest, а тут его вызывай и отлавливай исключение
+        // кроме того, если какое-то из полей будет null, будет NullPointerException, чего нужно избегать
         if (employerDtoRegisterRequest.getFirstName().isEmpty() || employerDtoRegisterRequest.getLastName().isEmpty() ||
                 employerDtoRegisterRequest.getPatronymic().isEmpty() || employerDtoRegisterRequest.getEmail().isEmpty() ||
                 employerDtoRegisterRequest.getLogin().isEmpty() || employerDtoRegisterRequest.getPassword().isEmpty() ||
                 employerDtoRegisterRequest.getAddress().isEmpty() || employerDtoRegisterRequest.getName().isEmpty()) {
+            //REVU: для ошибок используй enum с описанием, а не строки
+            // также лучше сделать отдельные ошибки для полей, а то не понятно, что за ошибочное значение и какое поле неверно
             return gson.toJson(new ErrorToken("Одно из полей employer имеет ошибочное значение"));
         }
         try {
@@ -43,6 +56,7 @@ public class EmployerService {
                     employerDtoRegisterRequest.getEmail(), UUID.randomUUID().toString(),
                     employerDtoRegisterRequest.getFirstName(), employerDtoRegisterRequest.getPatronymic(),
                     employerDtoRegisterRequest.getLogin(), employerDtoRegisterRequest.getPassword());
+            //REVU: dao поле класса, зачем тут новый объект?
             EmployerDao eDao = new EmployerDao(dataBase);
             eDao.save(employer);
         } catch (ServerException se) {
@@ -59,6 +73,7 @@ public class EmployerService {
         if (dtoLoginRequest.getLogin() == null || dtoLoginRequest.getPassword() == null) {
             return gson.toJson(new ErrorToken("логин или пароль пустой"));
         }
+        //REVU: выбрасывай исключение в методе БД, если такого юзера нет в БД
         employer = eDao.getByLoginAndPassword(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
         if (employer == null) {
             return gson.toJson(new ErrorToken("не верный логин или пароль"));
@@ -89,6 +104,8 @@ public class EmployerService {
             return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
         }
         int i = 0;
+        //REVU: логику с фильтрацией лучше убрать в БД
+        // то есть сделать методы типа getEmployeesBy...
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : dtoDemands.getDemands()) {
@@ -112,6 +129,7 @@ public class EmployerService {
             return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
         }
         int i = 0, count = 0;
+        //REVU: логику с фильтрацией лучше убрать в БД
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : dtoDemands.getDemands()) {
@@ -138,6 +156,7 @@ public class EmployerService {
             return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
         }
         int i = 0;
+        //REVU: логику с фильтрацией лучше убрать в БД
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : dtoDemands.getDemands()) {
@@ -162,6 +181,7 @@ public class EmployerService {
             return gson.toJson(new ErrorToken("Список требований пуст или индентификатор пользователя null"));
         }
         int i = 0;
+        //REVU: логику с фильтрацией лучше убрать в БД
         for (Employee employee : allEmployee) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : dtoDemands.getDemands()) {
@@ -193,6 +213,8 @@ public class EmployerService {
         }
         List<Vacancy> allVacancies = vacancyDao.getVacanciesListByToken(dtoToken.getToken());
         List<Vacancy> outVacanciesList = new ArrayList<>();
+        //REVU: логику с фильтрацией лучше убрать в БД
+        // можно сделать метод getVacanciesByStatus(boolean status)
         for (Vacancy vacancy : allVacancies) {
             if (vacancy.isStatus()) {
                 outVacanciesList.add(vacancy);
@@ -209,6 +231,8 @@ public class EmployerService {
         }
         List<Vacancy> allVacancies = vacancyDao.getVacanciesListByToken(dtoToken.getToken());
         List<Vacancy> outVacanciesList = new ArrayList<>();
+        //REVU: логику с фильтрацией лучше убрать в БД
+        // можно сделать метод getVacanciesByStatus(boolean status)
         for (Vacancy vacancy : allVacancies) {
             if (!vacancy.isStatus()) {
                 outVacanciesList.add(vacancy);
@@ -235,12 +259,17 @@ public class EmployerService {
         if (vacancy == null) {
             return gson.toJson(new ErrorToken("Такой вакансии у данного работодателя не найдено"));
         }
+        //REVU: переменная newVacancy не нужна
         Vacancy newVacancy = vacancy;
         newVacancy.setStatus(dtoStatusRequest.isStatus());
         vacancyDao.update(vacancy, newVacancy);
+        //REVU: почему возвращается ErrorToken? можно вернуть Dto с обновленной вакансией
         return gson.toJson(new ErrorToken());
     }
 
+    //REVU: все должно приходить в одном json
+    // также, зачем тебе oldDemandJson, если для обновления достаточно newDemandJson и, например, индекса oldDemand?
+    // ну или чего-то, по чему можно понять, что за объект обновляется (id, index, или что-то такое)
     public String updateDemandsInVacancy(String oldDemandJson, String newDemandJson) {
         Vacancy vacancy;
         try {
@@ -276,6 +305,7 @@ public class EmployerService {
         }
         Vacancy vacancy = new Vacancy(dtoRemoveVacancyRequest.getNamePost(), dtoRemoveVacancyRequest.getSalary(), dtoRemoveVacancyRequest.getDemands(), dtoRemoveVacancyRequest.getToken());
         vacancyDao.delete(vacancy);
+        //REVU: почему возвращается ErrorToken? можно вернуть Dto с id удаленной вакансии
         return gson.toJson(new ErrorToken());
     }
 }
