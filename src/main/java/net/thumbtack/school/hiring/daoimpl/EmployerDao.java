@@ -25,12 +25,14 @@ public class EmployerDao implements Dao<Employer, List<Employer>> {
     }
 
     public void setAccountStatus(String token, boolean status) {
+        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
         Employer employer = getById(token);
         employer.setActivity(status);
         dataBase.updateEmployer(employer, employer);
     }
 
     public boolean isActivity(String token) {
+        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
         Employer employer = dataBase.getEmployerById(token);
         if (employer != null) {
             return employer.isActivity();

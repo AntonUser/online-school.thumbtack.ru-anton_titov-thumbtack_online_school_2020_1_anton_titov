@@ -41,6 +41,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
     }
 
     public boolean isActivity(String token) {
+        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
         Employee employee = dataBase.getEmployeeById(token);
         if (employee != null) {
             return employee.isActivity();
@@ -49,6 +50,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
     }
 
     public void setAccountStatus(String token, boolean status) {
+        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
         Employee employee = getById(token);
         employee.setActivity(status);
         dataBase.updateEmployee(employee, employee);
@@ -61,6 +63,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
 
     @Override
     public void save(Employee employee) throws ServerException {
+        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
         if (!employee.getAttainmentsList().isEmpty()) {
             //если умения уже есть, то добавим их в общий список
             dataBase.addSubSet(employee.getNamesAttainments());

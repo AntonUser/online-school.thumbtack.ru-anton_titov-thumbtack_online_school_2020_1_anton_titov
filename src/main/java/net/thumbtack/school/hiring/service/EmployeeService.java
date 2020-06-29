@@ -19,10 +19,13 @@ import java.util.UUID;
 //+список ошибок
 //+валидация в dto
 //+экземпляры dao
+//REVU: проверь все свои валидации
+// там не должно быть NullPointerException, используй свой ServerException и лови тут его
 public class EmployeeService {
     private VacancyDao vacancyDao;
     private Gson gson;
     private EmployeeDao eDao;
+    // REVU: private
     DemandSkillDao demandSkillDao;
 
     public EmployeeService() {
@@ -32,12 +35,15 @@ public class EmployeeService {
         demandSkillDao = new DemandSkillDao();
     }
 
+    //REVU: сделай 1 try-catch
     public String registerEmployee(String json) {
         EmployeeDtoRegisterRequest employeeDtoRegisterRequest;
         Employee employee;
         employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
         try {
             employeeDtoRegisterRequest.validate();
+            //REVU: зачем ловить NPE?
+            // лови свое исключение ServerException
         } catch (NullPointerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
@@ -60,9 +66,11 @@ public class EmployeeService {
         dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
         try {
             dtoLoginRequest.validate();
+            //REVU: зачем ловить NPE?
         } catch (NullPointerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
+        //REVU перенеси эту логику в БД в метод login
         employee = eDao.getByLoginAndPassword(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
         if (employee == null) {
             return gson.toJson(new ErrorToken(ErrorStrings.AUTHORISATION_ERROR.getStringMessage()));
@@ -75,6 +83,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
+            //REVU: зачем ловить NPE?
         } catch (NullPointerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
@@ -86,6 +95,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
+            //REVU: зачем ловить NPE?
         } catch (NullPointerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
@@ -97,6 +107,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
+            //REVU: зачем ловить NPE?
         } catch (NullPointerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
@@ -134,6 +145,8 @@ public class EmployeeService {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skill.getToken());
+        //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
+        // то есть сохранение demand skill + добавление attainment и обновление employee
         demandSkillDao.save(skill.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
         Employee employee = eDao.getById(skill.getToken());
         employee.addAttainments(new Attainments(skill.getNameSkill(), skill.getSkill()));
@@ -150,6 +163,7 @@ public class EmployeeService {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(newSkill.getToken());
+        //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
         Attainments newAttainments = new Attainments(newSkill.getNameSkill(), newSkill.getSkill());
         employee = eDao.getById(newSkill.getToken());
         employee.updateAttainments(newSkill.getOldNameSkill(), newAttainments);
@@ -165,6 +179,8 @@ public class EmployeeService {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skill.getToken());
+        //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
+        // то есть не надо тут брать employee by id, передай id в БД
         Attainments attainment = new Attainments(skill.getNameSkill(), skill.getSkill());
         employee = eDao.getById(skill.getToken());
         employee.removeAttainments(attainment);

@@ -26,9 +26,12 @@ public class Server {
         DataBase dataBase;
         File savedFile = new File(savedDataFileName);
         if (savedFile.length() != 0) {
+            //REVU: try-with-resource
             FileReader fileReader = new FileReader(savedFile);
             Scanner scanner = new Scanner(fileReader);
             String dataString = scanner.next();
+            //REVU: а что потом с database происходит?
+            // надо же этим объектом проиницализировать DataBase instance
             dataBase = new Gson().fromJson(dataString, DataBase.class);
         }
     }
@@ -40,6 +43,7 @@ public class Server {
         conditionServer = false;
         DataBase dataBase = DataBase.getInstance();
         File savedFile = new File(saveDataFileName);
+        //REVU: try-with-resource
         FileWriter fileWriter = new FileWriter(savedFile);
         fileWriter.write(new Gson().toJson(dataBase));
         DataBase.cleanDataBase();

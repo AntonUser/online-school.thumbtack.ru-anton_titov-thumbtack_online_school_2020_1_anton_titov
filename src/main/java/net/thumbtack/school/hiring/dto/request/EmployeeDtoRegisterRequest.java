@@ -94,6 +94,7 @@ public class EmployeeDtoRegisterRequest {
 
     public void validate() throws NullPointerException {
         if (getFirstName().isEmpty()) {
+            //REVU: выбрасывай свое исключение (ServeException)
             throw new NullPointerException(ErrorStrings.FIRST_NAME_ERROR.getStringMessage());
         } else if (getLastName() == null || getLastName().isEmpty()) {
             throw new NullPointerException(ErrorStrings.LAST_NAME_ERROR.getStringMessage());
