@@ -10,9 +10,9 @@ public class Demand {
     private int skill;
     private boolean necessary;
 
-    public Demand(String nameDemand, int skillLevel, boolean necessary) throws ServerException {
+    public Demand(String nameDemand, int skillLevel, boolean necessary) {
         this.nameDemand = nameDemand;
-        setSkill(skillLevel);
+        this.skill = skillLevel;
         setNecessary(necessary);
     }
 
@@ -39,7 +39,7 @@ public class Demand {
         return necessary;
     }
 
-    public void setNecessary(boolean necessary) throws ServerException {
+    public void setNecessary(boolean necessary) {
         this.necessary = necessary;
     }
 

@@ -1,5 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
+import net.thumbtack.school.hiring.exception.ErrorStrings;
+
 import java.util.Objects;
 
 public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
@@ -28,6 +30,25 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
         this.address = address;
     }
 
+    public void validate() throws NullPointerException {
+        if (getFirstName() == null || getFirstName().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.FIRST_NAME_ERROR.getStringMessage());
+        } else if (getLastName() == null || getLastName().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.LAST_NAME_ERROR.getStringMessage());
+        } else if (getEmail() == null || getEmail().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.EMAIL_ERROR.getStringMessage());
+        } else if (getLogin() == null || getLogin().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.LOGIN_ERROR.getStringMessage());
+        } else if (getPassword() == null || getPassword().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.PASSWORD_ERROR.getStringMessage());
+        } else if (getAddress() == null || getAddress().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.ADDRESS_ERROR.getStringMessage());
+        } else if (getName() == null || getName().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.NAME_ERROR.getStringMessage());
+        }
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -42,4 +63,5 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
     public int hashCode() {
         return Objects.hash(super.hashCode(), name, address);
     }
+
 }

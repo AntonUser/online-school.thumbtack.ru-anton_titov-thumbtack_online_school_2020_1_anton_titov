@@ -1,5 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
+import net.thumbtack.school.hiring.exception.ErrorStrings;
+
 public class DtoStatusEmployeeRequest {
     private String token;
     private boolean status;
@@ -23,5 +25,11 @@ public class DtoStatusEmployeeRequest {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public void validate() throws NullPointerException{
+        if (token == null || token.isEmpty()) {
+            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+        }
     }
 }

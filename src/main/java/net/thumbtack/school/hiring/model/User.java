@@ -10,8 +10,9 @@ public class User {
     private String login;
     private String password;
     private String email;
+    private boolean activity;//true профиль активен, false нет
 
-    public User(String id, String login, String password, String email) throws ServerException {
+    public User(String id, String login, String password, String email, boolean activity) throws ServerException {
         if (login == null || login.isEmpty()) {
             throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
         }
@@ -19,6 +20,7 @@ public class User {
         this.id = id;
         setPassword(password);
         setEmail(email);
+        this.activity = activity;
     }
 
     public String getId() {
@@ -50,6 +52,14 @@ public class User {
             throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
         }
         this.email = email;
+    }
+
+    public boolean isActivity() {
+        return activity;
+    }
+
+    public void setActivity(boolean activity) {
+        this.activity = activity;
     }
 
     @Override

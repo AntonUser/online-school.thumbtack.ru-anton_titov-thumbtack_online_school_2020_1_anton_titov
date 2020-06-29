@@ -10,7 +10,7 @@ public interface Dao<T, K> {
     // почему нельзя вернуть List<T> ? чтоб не вводить переменную K
 
     //Потому что в одной из имплементаций содержится set
-       K getAll();
+    K getAll();
 
     void save(T object) throws ServerException;
 

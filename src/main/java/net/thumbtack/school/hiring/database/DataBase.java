@@ -40,6 +40,84 @@ public final class DataBase {
         return new ArrayList<>(vacanciesList);
     }
 
+    public List<Vacancy> getVacanciesListNotLess(List<Demand> skills) {
+        int i = 0;
+        List<Vacancy> outVacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
+            for (Demand demand : vacancy.getDemands()) {
+                for (Demand demandSkill : skills) {
+                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) && demandSkill.getSkill() >= demand.getSkill()) {
+                        i++;
+                    }
+                }
+            }
+            if (i == vacancy.getDemands().size()) {
+                outVacancies.add(vacancy);
+            }
+        }
+        return outVacancies;
+    }
+
+    public List<Vacancy> getVacanciesListObligatoryDemand(List<Demand> skills) {
+        int i = 0, count;
+        List<Vacancy> outVacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
+            count = 0;
+            for (Demand demand : vacancy.getDemands()) {
+                for (Demand demandSkill : skills) {
+                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) &&
+                            demandSkill.getSkill() >= demand.getSkill() &&
+                            demandSkill.isNecessary()) {
+                        i++;
+                    }
+                    if (demandSkill.isNecessary()) {
+                        count++;
+                    }
+                }
+            }
+            if (i == count) {
+                outVacancies.add(vacancy);
+            }
+        }
+        return outVacancies;
+    }
+
+    public List<Vacancy> getVacanciesListOnlyName(List<Demand> skills) {
+        int i = 0;
+        List<Vacancy> outVacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
+            for (Demand demand : vacancy.getDemands()) {
+                for (Demand demandSkill : skills) {
+                    if (demandSkill.getNameDemand().equals(demand.getNameDemand())) {
+                        i++;
+                    }
+                }
+            }
+            if (i == vacancy.getDemands().size()) {
+                outVacancies.add(vacancy);
+            }
+        }
+        return outVacancies;
+    }
+
+    public List<Vacancy> getVacanciesListWithOneDemand(List<Demand> skills) {
+        int i = 0;
+        List<Vacancy> outVacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
+            for (Demand demand : vacancy.getDemands()) {
+                for (Demand demandSkill : skills) {
+                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) && demandSkill.getSkill() >= demand.getSkill()) {
+                        i++;
+                    }
+                }
+            }
+            if (i != 0) {
+                outVacancies.add(vacancy);
+            }
+        }
+        return outVacancies;
+    }
+
     public Set<String> getDemandSkillsSet() {
         return new HashSet<>(demandSkills);
     }
@@ -89,6 +167,26 @@ public final class DataBase {
         return outVacanciesList;
     }
 
+    public List<Vacancy> getActivityVacanciesListByToken(String token) {
+        List<Vacancy> vacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {
+            if (vacancy.isStatus() && vacancy.getToken().equals(token)) {
+                vacancies.add(vacancy);
+            }
+        }
+        return vacancies;
+    }
+
+    public List<Vacancy> getNotActivityVacanciesListByToken(String token) {
+        List<Vacancy> vacancies = new ArrayList<>();
+        for (Vacancy vacancy : vacanciesList) {
+            if (!vacancy.isStatus() && vacancy.getToken().equals(token)) {
+                vacancies.add(vacancy);
+            }
+        }
+        return vacancies;
+    }
+
     public Employee getEmployeeById(String id) {
         for (Employee employee : employeeList) {
             if (id.equals(employee.getId())) {
@@ -107,6 +205,81 @@ public final class DataBase {
         return null;
     }
 
+    public List<Employee> getEmployeeListNotLessByDemands(List<Demand> demands) {
+        int i = 0;
+        List<Employee> outList = new ArrayList<>();
+        for (Employee employee : employeeList) {
+            for (Attainments attainments : employee.getAttainmentsList()) {
+                for (Demand demand : demands) {
+                    if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill() && demand.isNecessary()) {
+                        i++;
+                    }
+                }
+            }
+            if (i == demands.size()) {
+                outList.add(employee);
+            }
+        }
+        return outList;
+    }
+
+    public List<Employee> getEmployeeListObligatoryDemandByDemands(List<Demand> demands) {
+        int i = 0, count = 0;
+        List<Employee> outList = new ArrayList<>();
+        for (Employee employee : employeeList) {
+            for (Attainments attainments : employee.getAttainmentsList()) {
+                for (Demand demand : demands) {
+                    if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill()) {
+                        i++;
+                    }
+                    if (demand.isNecessary()) {
+                        count++;
+                    }
+                }
+            }
+            if (i == count) {
+                outList.add(employee);
+            }
+        }
+        return outList;
+    }
+
+    public List<Employee> getEmployeeListByDemands(List<Demand> demands) {
+        int i = 0;
+        List<Employee> outList = new ArrayList<>();
+        for (Employee employee : employeeList) {
+            for (Attainments attainments : employee.getAttainmentsList()) {
+                for (Demand demand : demands) {
+                    if (demand.getNameDemand().equals(attainments.getNameSkill())) {
+                        i++;
+                    }
+                }
+            }
+            if (i == demands.size()) {
+                outList.add(employee);
+            }
+        }
+        return outList;
+    }
+
+    public List<Employee> getEmployeeListWithOneDemandByDemands(List<Demand> demands) {
+        int i = 0;
+        List<Employee> outList = new ArrayList<>();
+        for (Employee employee : employeeList) {
+            for (Attainments attainments : employee.getAttainmentsList()) {
+                for (Demand demand : demands) {
+                    if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill() && demand.isNecessary()) {
+                        i++;
+                    }
+                }
+            }
+            if (i != 0) {
+                outList.add(employee);
+            }
+        }
+        return outList;
+    }
+
     public Employer getEmployerById(String id) {
         for (Employer employer : employerList) {
             if (id.equals(employer.getId())) {
@@ -116,17 +289,17 @@ public final class DataBase {
         return null;
     }
 
-    public Employer getEmployerByLoginAndPassword(String login, String password) {
+    public Employer getEmployerByLoginAndPassword(String login, String password) throws ServerException {
         for (Employer employer : employerList) {
             if (login.equals(employer.getLogin()) && password.equals(employer.getPassword())) {
                 return employer;
             }
         }
-        return null;
+        throw new ServerException(ErrorCode.GET_USER_EXCEPTION);
     }
 
     public void updateEmployee(Employee oldEmployee, Employee newEmployee) {
-        employeeList.set(employeeList.indexOf(oldEmployee), newEmployee);
+        employeeList.set(employeeList.indexOf(getEmployeeById(oldEmployee.getId())), newEmployee);
     }
 
     public void updateEmployer(Employer oldEmployer, Employer newEmployer) {
@@ -134,7 +307,7 @@ public final class DataBase {
     }
 
     public void updateVacancy(Vacancy oldVacancy, Vacancy newVacancy) {
-        vacanciesList.set(vacanciesList.indexOf(oldVacancy), newVacancy);
+        vacanciesList.set(vacanciesList.indexOf(getVacancyByTokenAndName(oldVacancy.getToken(), oldVacancy.getNamePost())), newVacancy);
     }
 
     public void updateDemandSkill(String oldName, String newName) {
@@ -154,8 +327,24 @@ public final class DataBase {
         vacanciesList.remove(vacancy);
     }
 
+    public void removeAllVacanciesByToken(String token) {
+        List<Vacancy> vacancies = this.getVacanciesList();
+        for (Vacancy vacancy : vacancies) {
+            if (vacancy.getToken().equals(token)) {
+                this.deleteVacancy(vacancy);
+            }
+        }
+    }
+
     public void deleteDemandSkill(String name) {
         demandSkills.remove(name);
+    }
+
+    public static void cleanDataBase() {
+        vacanciesList.clear();
+        employeeList.clear();
+        employerList.clear();
+        demandSkills.clear();
     }
 }
 

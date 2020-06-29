@@ -1,5 +1,6 @@
 package net.thumbtack.school.hiring.dto.request;
 
+import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Demand;
 
 import java.util.ArrayList;
@@ -18,5 +19,9 @@ public class DtoRemoveVacancyRequest extends DtoAddVacancyRequest {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public void validate() throws NullPointerException, ServerException {
+        super.validate();
     }
 }

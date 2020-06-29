@@ -1,5 +1,6 @@
 package net.thumbtack.school.hiring.dto.request;
 
+import net.thumbtack.school.hiring.exception.ErrorStrings;
 import net.thumbtack.school.hiring.model.Demand;
 
 import java.util.List;
@@ -30,5 +31,13 @@ public class DtoSkills {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void validate() throws NullPointerException{
+        if (getSkills().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.SKILLS_LIST_ERROR.getStringMessage());
+        } else if (getToken() == null || getToken().isEmpty()) {
+            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+        }
     }
 }

@@ -13,8 +13,8 @@ public class Employee extends User {
     private boolean status;
 
 
-    public Employee(String id, String firstName, String patronymic, String lastName, String login, String password, String email, boolean status, List<Attainments> attainments) throws ServerException {
-        super(id, login, password, email);
+    public Employee(String id, String firstName, String patronymic, String lastName, String login, String password, String email, boolean status, List<Attainments> attainments, boolean activity) throws ServerException {
+        super(id, login, password, email, activity);
         setLastName(lastName);
         setFirstName(firstName);
         setPatronymic(patronymic);
@@ -56,8 +56,12 @@ public class Employee extends User {
         attainmentsList.add(attainments);
     }
 
-    public void updateAttainments(Attainments oldAttainments, Attainments newAttainments) {
-        attainmentsList.set(attainmentsList.indexOf(oldAttainments), newAttainments);
+    public void updateAttainments(String oldAttainments, Attainments newAttainments) {
+        for (Attainments attainments : attainmentsList) {
+            if (oldAttainments.equals(attainments.getNameSkill())) {
+                attainmentsList.set(attainmentsList.indexOf(attainments), newAttainments);
+            }
+        }
     }
 
     public void removeAttainments(Attainments attainments) {

@@ -11,8 +11,8 @@ public class Employer extends User {
     private String firstName;
     private String patronymic;
 
-    public Employer(String name, String address, String email, String id, String firstName, String patronymic, String login, String password) throws ServerException {
-        super(id, login, password, email);
+    public Employer(String name, String address, String email, String id, String firstName, String patronymic, String login, String password, boolean activity) throws ServerException {
+        super(id, login, password, email, activity);
         setAddress(address);
         setName(name);
         setPatronymic(patronymic);

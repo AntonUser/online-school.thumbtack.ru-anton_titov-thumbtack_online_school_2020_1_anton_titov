@@ -1,133 +1,198 @@
 package net.thumbtack.school.hiring.server;
 
+import com.google.gson.Gson;
 import net.thumbtack.school.hiring.database.DataBase;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.service.EmployeeService;
 import net.thumbtack.school.hiring.service.EmployerService;
 
+import java.io.*;
+import java.util.Scanner;
+
 //REVU: добавь end-to-end тесты для методов сервера
 public class Server {
-    // REVU: БД не поле класса Сервер, это поле класса DAO
-    private DataBase dataBase;
-    EmployeeService employeeService;
-    EmployerService employerService;
+    private EmployeeService employeeService;
+    private EmployerService employerService;
+    private boolean conditionServer;
 
     public Server() {
-        dataBase = dataBase.getInstance();
-        this.employeeService = new EmployeeService(dataBase);
-        this.employerService = new EmployerService(dataBase);
+        this.employeeService = new EmployeeService();
+        this.employerService = new EmployerService();
     }
 
-    //при выходе с сервера удалять инфу о работадателе и работнике
-    public void startServer(String savedDataFileName) {
-        //REVU: пустой метод
+    public void startServer(String savedDataFileName) throws FileNotFoundException {
+        conditionServer = true;
+        DataBase dataBase;
+        File savedFile = new File(savedDataFileName);
+        if (savedFile.length() != 0) {
+            FileReader fileReader = new FileReader(savedFile);
+            Scanner scanner = new Scanner(fileReader);
+            String dataString = scanner.next();
+            dataBase = new Gson().fromJson(dataString, DataBase.class);
+        }
     }
 
-    public void stopServer(String saveDataFileName) {
-        //REVU: пустой метод
+    public void stopServer(String saveDataFileName) throws IOException, ServerException {
+        if (!conditionServer) {
+            throw new ServerException(ErrorCode.SERVER_STOPPED_EXCEPTION);
+        }
+        conditionServer = false;
+        DataBase dataBase = DataBase.getInstance();
+        File savedFile = new File(saveDataFileName);
+        FileWriter fileWriter = new FileWriter(savedFile);
+        fileWriter.write(new Gson().toJson(dataBase));
+        DataBase.cleanDataBase();
     }
 
-    // public String <имя-метода>(String requestJsonString)
-    public String registerEmployee(String requestJsonString) {
+
+    public String registerEmployee(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.registerEmployee(requestJsonString);
     }
 
-    public String loginEmployee(String requestJsonString) {
+    public String loginEmployee(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.loginEmployee(requestJsonString);
     }
 
-    public String registerEmployer(String requestJsonString) {
+    public String registerEmployer(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.registerEmployer(requestJsonString);
     }
 
-    public String loginEmployer(String requestJsonString) {
+    public String loginEmployer(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.loginEmployer(requestJsonString);
     }
 
-    public String addVacancy(String requestJsonString) {
+    public String addVacancy(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.addVacancy(requestJsonString);
     }
 
-    public String addSkillEmployee(String requestJsonString) {
+    public String addSkillEmployee(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.addEmployeeSkill(requestJsonString);
     }
 
-    //REVU: этот метод может вызвать любой пользователь, даже не залогиненный и незарегистрированный
-    // это ожидаемое поведение?
-    // остальные методы тоже нужно проверить на ситуацию, если пользователь не залогинен
-    public String getAllDemandsSkills(String requestJsonString) {
-        return employeeService.getAllDemandSkills();
+    public String getAllDemandsSkills(String requestJsonString) throws ServerException {
+        validateActivityServer();
+        return employeeService.getAllDemandSkills(requestJsonString);
     }
 
     //4 геттера на вакансии
-    public String getVacanciesNotLess(String requestJsonString) {
+    public String getVacanciesNotLess(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.getVacanciesNotLess(requestJsonString);
     }
 
-    public String getVacanciesObligatoryDemand(String requestJsonString) {
+    public String getVacanciesObligatoryDemand(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.getVacanciesObligatoryDemand(requestJsonString);
     }
 
-    public String getVacancies(String requestJsonString) {
+    public String getVacancies(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.getVacancies(requestJsonString);
     }
 
-    public String getVacanciesWithOneDemand(String requestJsonString) {
+    public String getVacanciesWithOneDemand(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employeeService.getVacanciesWithOneDemand(requestJsonString);
     }
 
     //4 геттера на сотрудников
-    public String getEmployeesNotLess(String requestJsonString) {
+    public String getEmployeesNotLess(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.getEmployeeListNotLess(requestJsonString);
     }
 
-    public String getEmployeesObligatoryDemand(String requestJsonString) {
-        return employerService.getEmployeeObligatoryDemand(requestJsonString);
+    public String getEmployeesObligatoryDemand(String requestJsonString) throws ServerException {
+        validateActivityServer();
+        return employerService.getEmployeeListObligatoryDemand(requestJsonString);
     }
 
-    public String getEmployees(String requestJsonString) {
+    public String getEmployees(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.getEmployee(requestJsonString);
     }
 
-    public String getEmployeeWithOneDemand(String requestJsonString) {
+    public String getEmployeesWithOneDemand(String requestJsonString) throws ServerException {
+        validateActivityServer();
         return employerService.getEmployeeWithOneDemand(requestJsonString);
     }
 
     //3 геттера на вакансии для компании(свои)
-    public String getAllVacancyByToken(String requestJsonString) {//1
+    public String getAllVacancyByToken(String requestJsonString) throws ServerException {//1
+        validateActivityServer();
         return employerService.getAllVacancies(requestJsonString);
     }
 
-    public String getActivityVacanciesByToken(String requestStringJson) {//2
+    public String getActivityVacanciesByToken(String requestStringJson) throws ServerException {//2
+        validateActivityServer();
         return employerService.getActivityVacancies(requestStringJson);
     }
 
-    public String getNotActivityVacanciesByToken(String requestStringJson) {//3
+    public String getNotActivityVacanciesByToken(String requestStringJson) throws ServerException {//3
+        validateActivityServer();
         return employerService.getNotActivityVacancies(requestStringJson);
     }
 
-    public String setStatusEmployee(String requestJson) {
+    public String setStatusEmployee(String requestJson) throws ServerException {
+        validateActivityServer();
         return employeeService.setStatus(requestJson);
     }
 
-    public String setStatusVacancy(String requestJson) {
+    public String setStatusVacancy(String requestJson) throws ServerException {
+        validateActivityServer();
         return employerService.setVacancyStatus(requestJson);
     }
 
-    public String updateSkillEmployee(String oldRequestJson, String newRequestJson) {
-        return employeeService.updateEmployeeSkill(oldRequestJson, newRequestJson);
+    public String updateSkillEmployee(String newRequestJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeeSkill(newRequestJson);
     }
 
-    public String updateDemands(String oldRequestJson, String newRequestJson) {
-        return employerService.updateDemandsInVacancy(oldRequestJson, newRequestJson);
+    public String updateDemands(String newRequestJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateDemandsInVacancy(newRequestJson);
     }
 
-    public String removeSkillEmployee(String json) {
+    public String removeSkillEmployee(String json) throws ServerException {
+        validateActivityServer();
         return employeeService.removeEmployeeSkill(json);
     }
 
     //удаление вакансии
-    public String removeVacancy(String json) {
+    public String removeVacancy(String json) throws ServerException {
+        validateActivityServer();
         return employerService.removeVacancy(json);
     }
 
+    public String exitEmployee(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.setAccountStatus(tokenJson);
+    }
+
+    public String exitEmployer(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.setAccountStatus(tokenJson);
+    }
+
+    public String removeAccountEmployee(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.removeEmployee(tokenJson);
+    }
+
+    public String removeAccountEmployer(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.removeAccountEmployer(tokenJson);
+    }
+
+    private void validateActivityServer() throws ServerException {
+        if (!conditionServer) {
+            throw new ServerException(ErrorCode.SERVER_STOPPED_EXCEPTION);
+        }
+    }
 }

@@ -1,22 +1,22 @@
-package net.thumbtack.school.hiring.model;
+package net.thumbtack.school.hiring.dto.responce;
 
-import java.util.HashSet;
+import net.thumbtack.school.hiring.model.Demand;
+
 import java.util.List;
-import java.util.Set;
 
-public class Vacancy {
+public class DtoVacancyResponse {
     private String namePost;
     private int salary;
     private List<Demand> demands;
     private String token;
     private boolean status;
 
-    public Vacancy(String namePost, int salary, List<Demand> demands, String token) {
+    public DtoVacancyResponse(String namePost, int salary, List<Demand> demands, String token, boolean status) {
         this.namePost = namePost;
         this.salary = salary;
         this.demands = demands;
         this.token = token;
-        this.status = true;
+        this.status = status;
     }
 
     public String getNamePost() {
@@ -57,24 +57,5 @@ public class Vacancy {
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public void updateDemand(String nameDemand, Demand newDemand) {
-        List<Demand> allDemands = getDemands();
-        for (Demand demand : allDemands) {
-            if (demand.getNameDemand().equals(nameDemand)) {
-                allDemands.set(allDemands.indexOf(demand), newDemand);
-                setDemands(allDemands);
-                break;
-            }
-        }
-    }
-
-    public Set<String> getNamesDemands() {
-        Set<String> outSet = new HashSet<>();
-        for (Demand demand : demands) {
-            outSet.add(demand.getNameDemand());
-        }
-        return outSet;
     }
 }

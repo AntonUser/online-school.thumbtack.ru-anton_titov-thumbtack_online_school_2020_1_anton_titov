@@ -8,8 +8,8 @@ import java.util.Set;
 public class DemandSkillDao implements Dao<String, Set<String>> {
     private DataBase dataBase;
 
-    public DemandSkillDao(DataBase dataBase) {
-        this.dataBase = dataBase;
+    public DemandSkillDao() {
+        this.dataBase = DataBase.getInstance();
     }
 
     @Override

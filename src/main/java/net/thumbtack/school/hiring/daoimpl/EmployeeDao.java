@@ -3,15 +3,17 @@ package net.thumbtack.school.hiring.daoimpl;
 import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.model.Demand;
 import net.thumbtack.school.hiring.model.Employee;
+import net.thumbtack.school.hiring.model.Employer;
 
 import java.util.List;
 
 public class EmployeeDao implements Dao<Employee, List<Employee>> {
     private DataBase dataBase;
 
-    public EmployeeDao(DataBase dataBase) {
-        this.dataBase = dataBase;
+    public EmployeeDao() {
+        this.dataBase = DataBase.getInstance();
     }
 
     public Employee getByLoginAndPassword(String login, String password) {
@@ -20,6 +22,36 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
 
     public Employee getById(String id) {
         return dataBase.getEmployeeById(id);
+    }
+
+    public List<Employee> getEmployeeListNotLessByDemand(List<Demand> demands) {
+        return dataBase.getEmployeeListNotLessByDemands(demands);
+    }
+
+    public List<Employee> getEmployeeListObligatoryDemandByDemands(List<Demand> demands) {
+        return dataBase.getEmployeeListObligatoryDemandByDemands(demands);
+    }
+
+    public List<Employee> getEmployeeListByDemands(List<Demand> demands) {
+        return dataBase.getEmployeeListByDemands(demands);
+    }
+
+    public List<Employee> getEmployeeListWithOneDemandByDemands(List<Demand> demands) {
+        return dataBase.getEmployeeListWithOneDemandByDemands(demands);
+    }
+
+    public boolean isActivity(String token) {
+        Employee employee = dataBase.getEmployeeById(token);
+        if (employee != null) {
+            return employee.isActivity();
+        }
+        return false;
+    }
+
+    public void setAccountStatus(String token, boolean status) {
+        Employee employee = getById(token);
+        employee.setActivity(status);
+        dataBase.updateEmployee(employee, employee);
     }
 
     @Override
