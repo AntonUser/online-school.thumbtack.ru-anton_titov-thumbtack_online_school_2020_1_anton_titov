@@ -2,6 +2,7 @@ package net.thumbtack.school.hiring.daoimpl;
 
 import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
+import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Demand;
 import net.thumbtack.school.hiring.model.Vacancy;
 
@@ -15,9 +16,6 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         this.dataBase = DataBase.getInstance();
     }
 
-    public Vacancy getVacancyByTokenAndName(String token, String namePost) {
-        return dataBase.getVacancyByTokenAndName(token, namePost);
-    }
 
     public List<Vacancy> getVacanciesListByToken(String token) {
         return dataBase.getVacanciesListByToken(token);
@@ -47,8 +45,12 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         return dataBase.getVacanciesListWithOneDemand(skills);
     }
 
-    public void removeAllVacanciesByToken(String token) {
-        dataBase.removeAllVacanciesByToken(token);
+    public Vacancy setStatus(String token, String namePost, boolean status) throws ServerException {
+        return dataBase.setVacancyStatus(token, namePost, status);
+    }
+
+    public void updateDemandInVacancy(Demand demand, String token, String nameVacancy, String oldNameDemand) throws ServerException {
+        dataBase.updateDemandInVacancy(demand, token, nameVacancy, oldNameDemand);
     }
 
     @Override
@@ -62,13 +64,20 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
     }
 
     @Override
-    public void update(Vacancy oldObject, Vacancy newObject) {
-        dataBase.updateVacancy(oldObject, newObject);
+//не знаю что с этим сделать только в этом классе имплементации не совсем подходят в других Dao все как нужно
+    public void update(String string, Vacancy vacancy) {
     }
 
-    @Override
-    public void delete(Vacancy object) {
-        dataBase.deleteVacancy(object);
+    public void update(String namePost, String tokenEmployer, Vacancy newVacancy) throws ServerException {
+        dataBase.updateVacancy(namePost, tokenEmployer, newVacancy);
+    }
+
+    @Override//не знаю что с этим сделать
+    public void delete(String string) {
+    }
+
+    public void delete(String namePost, String tokenEmployer) throws ServerException {
+        dataBase.deleteVacancy(tokenEmployer, namePost);
     }
 
     public Set<String> getAllDemandSkills() {

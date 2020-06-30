@@ -1,6 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorStrings;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 
 public class DtoToken {
     private String token;
@@ -17,9 +18,9 @@ public class DtoToken {
         this.token = token;
     }
 
-    public void validate() throws NullPointerException {
+    public void validate() throws ServerException {
         if (token == null || token.isEmpty()) {
-            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         }
     }
 }

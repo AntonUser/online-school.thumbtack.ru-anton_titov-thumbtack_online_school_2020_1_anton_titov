@@ -1,6 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorStrings;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Demand;
 
 import java.util.List;
@@ -33,11 +34,11 @@ public class DtoSkills {
         this.token = token;
     }
 
-    public void validate() throws NullPointerException{
+    public void validate() throws ServerException {
         if (getSkills().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.SKILLS_LIST_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.SKILLS_LIST_EXCEPTION);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         }
     }
 }

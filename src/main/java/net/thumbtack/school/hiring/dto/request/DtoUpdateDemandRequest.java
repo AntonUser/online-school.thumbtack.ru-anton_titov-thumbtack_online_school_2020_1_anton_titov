@@ -1,7 +1,6 @@
 package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ErrorStrings;
 import net.thumbtack.school.hiring.exception.ServerException;
 
 public class DtoUpdateDemandRequest {
@@ -69,15 +68,15 @@ public class DtoUpdateDemandRequest {
         this.necessary = necessary;
     }
 
-    public void validate() throws NullPointerException, ServerException {
+    public void validate() throws ServerException {
         if (getNameVacancy() == null || getNameVacancy().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.NAME_VACANCY_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_VACANCY);
         } else if (getOldNameDemand() == null || getOldNameDemand().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.DEMAND_NAME_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_DEMAND);
         } else if (getNameDemand() == null || getNameDemand().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.DEMAND_NAME_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_DEMAND);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         } else if (getSkill() < 1 || getSkill() > 5) {
             throw new ServerException(ErrorCode.SKILL_BORDER_EXCEPTION);
         }

@@ -31,8 +31,8 @@ public class TestEmployeeDao {
         employeeDao.save(employee1);
         employeeDao.save(employee2);
         assertEquals(employee1, employeeDao.getById(employee1.getId()));
-        employeeDao.delete(employee1);
-        employeeDao.delete(employee2);
+        employeeDao.delete(employee1.getId());
+        employeeDao.delete(employee2.getId());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class TestEmployeeDao {
         } catch (ServerException se) {
             assertEquals(ErrorCode.REPEATING_EMPLOYEE, se.getErrorCode());
         } finally {
-            employeeDao.delete(employee);
+            employeeDao.delete(employee.getId());
         }
     }
 
@@ -59,8 +59,8 @@ public class TestEmployeeDao {
         Employee employee = new Employee(id, "Egor", "Ivanovich", "Ivanov", "Egorka", "eeeeee", "egorkinmail@mail.ru", true, attainments, true);
         Employee newEmployee = new Employee(id, "Egor", "Nicolaevich", "Ivanov", "Egorka", "ee444", "egorkinmail@mail.ru", true, attainments, true);
         employeeDao.save(employee);
-        employeeDao.update(employee, newEmployee);
+        employeeDao.update(employee.getId(), newEmployee);
         assertEquals(newEmployee, employeeDao.getById(id));
-        employeeDao.delete(newEmployee);
+        employeeDao.delete(newEmployee.getId());
     }
 }

@@ -32,9 +32,5 @@ public class DemandSkillDao implements Dao<String, Set<String>> {
         dataBase.deleteDemandSkill(name);
     }
 
-    public void saveSubList(Set<String> subSet) {
-        dataBase.addSubSet(subSet);
-
-    }
 
 }

@@ -1,7 +1,6 @@
 package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ErrorStrings;
 import net.thumbtack.school.hiring.exception.ServerException;
 
 public class DtoSkillRequest {
@@ -49,15 +48,15 @@ public class DtoSkillRequest {
         this.oldNameSkill = oldNameSkill;
     }
 
-    public void validate() throws ServerException, NullPointerException {
+    public void validate() throws ServerException {
         if (getNameSkill() == null || getNameSkill().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.NAME_SKILL_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_SKILL_EXCEPTION);
         } else if (getSkill() < 1 || getSkill() > 5) {
             throw new ServerException(ErrorCode.SKILL_BORDER_EXCEPTION);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         } else if (getOldNameSkill() == null || getOldNameSkill().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.NAME_SKILL_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_SKILL_EXCEPTION);
         }
     }
 }

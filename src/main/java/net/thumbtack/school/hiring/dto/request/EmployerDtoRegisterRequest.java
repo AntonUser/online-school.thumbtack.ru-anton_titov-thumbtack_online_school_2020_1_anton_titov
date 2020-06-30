@@ -1,6 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorStrings;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
@@ -30,21 +31,21 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
         this.address = address;
     }
 
-    public void validate() throws NullPointerException {
+    public void validate() throws ServerException {
         if (getFirstName() == null || getFirstName().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.FIRST_NAME_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
         } else if (getLastName() == null || getLastName().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.LAST_NAME_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
         } else if (getEmail() == null || getEmail().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.EMAIL_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
         } else if (getLogin() == null || getLogin().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.LOGIN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
         } else if (getPassword() == null || getPassword().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.PASSWORD_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
         } else if (getAddress() == null || getAddress().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.ADDRESS_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_ADDRESS_EXCEPTION);
         } else if (getName() == null || getName().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.NAME_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_NAME_EXCEPTION);
         }
     }
 

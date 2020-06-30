@@ -1,7 +1,6 @@
 package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ErrorStrings;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Demand;
 
@@ -57,12 +56,12 @@ public class DtoAddVacancyRequest {
     }
 
     public void validate() throws ServerException, NullPointerException {
-        if (getNamePost()==null||getNamePost().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.NAME_POST_ERROR.getStringMessage());
+        if (getNamePost() == null || getNamePost().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_NAME_POST_EXCEPTION);
         } else if (getSalary() < 0) {
             throw new ServerException(ErrorCode.SALARY_EXCEPTION);
-        } else if (getToken()==null||getToken().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.TOKEN_ERROR.getStringMessage());
+        } else if (getToken() == null || getToken().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         }
     }
 

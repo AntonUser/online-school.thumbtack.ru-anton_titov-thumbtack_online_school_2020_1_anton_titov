@@ -1,11 +1,16 @@
 package net.thumbtack.school.hiring.database;
 
+import net.thumbtack.school.hiring.dto.request.*;
+import net.thumbtack.school.hiring.dto.responce.DtoTokenResponse;
+import net.thumbtack.school.hiring.dto.responce.ErrorToken;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.*;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class DataBase {
     private static DataBase instance = null;
@@ -26,6 +31,10 @@ public final class DataBase {
             return instance = new DataBase();
         }
         return instance;
+    }
+
+    public static synchronized void setInstance(DataBase newInstance) {
+        instance = newInstance;
     }
 
     public List<Employee> getEmployeeList() {
@@ -130,11 +139,22 @@ public final class DataBase {
         if (getEmployeeByLoginAndPassword(employee.getLogin(), employee.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYEE);
         }
+        if (!employee.getAttainmentsList().isEmpty()) {
+            //если умения уже есть, то добавим их в общий список
+            this.addSubSet(employee.getNamesAttainments());
+        }
         employeeList.add(employee);
     }
 
     public void addDemandSkill(String nameDemandSkill) {
         demandSkills.add(nameDemandSkill);
+    }
+
+    public void addSkillForEmployee(Attainments attainments, String token) {
+        this.addDemandSkill(attainments.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
+        Employee employee = getEmployeeById(token);
+        employee.addAttainments(attainments);
+        updateEmployee(employee.getId(), employee);
     }
 
     public void addEmployer(Employer employer) throws ServerException {
@@ -146,6 +166,7 @@ public final class DataBase {
 
     public void addVacancy(Vacancy vacancy) {
         vacanciesList.add(vacancy);
+        this.addSubSet(vacancy.getNamesDemands());
     }
 
     public Vacancy getVacancyByTokenAndName(String token, String namePost) {
@@ -185,6 +206,23 @@ public final class DataBase {
             }
         }
         return vacancies;
+    }
+
+    public String loginEmployee(String login, String password) throws ServerException {
+        Employee employee = this.getEmployeeByLoginAndPassword(login, password);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.AUTHORIZATION_EXCEPTION);
+        }
+        setAccountEmployeeStatus(employee.getId(), true);
+        return employee.getId();
+    }
+
+    public boolean isActivityEmployee(String token) {
+        Employee employee = this.getEmployeeById(token);
+        if (employee != null) {
+            return employee.isActivity();
+        }
+        return false;
     }
 
     public Employee getEmployeeById(String id) {
@@ -280,6 +318,23 @@ public final class DataBase {
         return outList;
     }
 
+    public String loginEmployer(String login, String password) throws ServerException {
+        Employer employer = this.getEmployerByLoginAndPassword(login, password);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        setAccountEmployerStatus(employer.getId(), true);
+        return employer.getId();
+    }
+
+    public boolean isActivityEmployer(String token) {
+        Employer employer = this.getEmployerById(token);
+        if (employer != null) {
+            return employer.isActivity();
+        }
+        return false;
+    }
+
     public Employer getEmployerById(String id) {
         for (Employer employer : employerList) {
             if (id.equals(employer.getId())) {
@@ -298,16 +353,20 @@ public final class DataBase {
         throw new ServerException(ErrorCode.GET_USER_EXCEPTION);
     }
 
-    public void updateEmployee(Employee oldEmployee, Employee newEmployee) {
-        employeeList.set(employeeList.indexOf(getEmployeeById(oldEmployee.getId())), newEmployee);
+    public void updateEmployee(String id, Employee newEmployee) {
+        employeeList.set(employeeList.indexOf(getEmployeeById(id)), newEmployee);
     }
 
-    public void updateEmployer(Employer oldEmployer, Employer newEmployer) {
-        employerList.set(employerList.indexOf(oldEmployer), newEmployer);
+    public void updateEmployer(String id, Employer newEmployer) {
+        employerList.set(employerList.indexOf(this.getEmployerById(id)), newEmployer);
     }
 
-    public void updateVacancy(Vacancy oldVacancy, Vacancy newVacancy) {
-        vacanciesList.set(vacanciesList.indexOf(getVacancyByTokenAndName(oldVacancy.getToken(), oldVacancy.getNamePost())), newVacancy);
+    public void updateVacancy(String nameVacancy, String tokenEmployer, Vacancy newVacancy) throws ServerException {
+        Vacancy vacancy = getVacancyByTokenAndName(tokenEmployer, nameVacancy);
+        if (vacancy == null) {
+            throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
+        }
+        vacanciesList.set(vacanciesList.indexOf(vacancy), newVacancy);
     }
 
     public void updateDemandSkill(String oldName, String newName) {
@@ -315,15 +374,32 @@ public final class DataBase {
         demandSkills.add(newName);
     }
 
-    public void deleteEmployee(Employee employee) {
-        employeeList.remove(employee);
+    public void updateDemandInVacancy(Demand demand, String token, String nameVacancy, String oldNameDemand) throws ServerException {
+        Vacancy vacancy = this.getVacancyByTokenAndName(token, nameVacancy);
+        if (vacancy == null) {
+            throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
+        }
+        vacancy.updateDemand(oldNameDemand, demand);
     }
 
-    public void deleteEmployer(Employer employer) {
-        employerList.remove(employer);
+    public void deleteEmployee(String id) {
+        employeeList.remove(this.getEmployeeById(id));
     }
 
-    public void deleteVacancy(Vacancy vacancy) {
+    public void deleteEmployer(String id) {
+        employerList.remove(this.getEmployerById(id));
+    }
+
+    public void removeAccountEmployer(String token) {
+        this.removeAllVacanciesByToken(token);
+        this.deleteEmployer(token);//пока что так
+    }
+
+    public void deleteVacancy(String token, String namePost) throws ServerException {
+        Vacancy vacancy = getVacancyByTokenAndName(token, namePost);
+        if (vacancy == null) {
+            throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
+        }
         vacanciesList.remove(vacancy);
     }
 
@@ -331,13 +407,161 @@ public final class DataBase {
         List<Vacancy> vacancies = this.getVacanciesList();
         for (Vacancy vacancy : vacancies) {
             if (vacancy.getToken().equals(token)) {
-                this.deleteVacancy(vacancy);
+                try {
+                    this.deleteVacancy(vacancy.getToken(), vacancy.getNamePost());
+                } catch (ServerException e) {
+                }
             }
         }
     }
 
     public void deleteDemandSkill(String name) {
         demandSkills.remove(name);
+    }
+
+    public void setAccountEmployeeStatus(String token, boolean status) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setActivity(status);
+        this.updateEmployee(employee.getId(), employee);
+    }
+
+    public void setAccountEmployerStatus(String token, boolean status) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setActivity(status);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public Vacancy setVacancyStatus(String token, String namePost, boolean status) throws ServerException {
+        Vacancy vacancy = this.getVacancyByTokenAndName(token, namePost);
+        if (vacancy == null) {
+            throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
+        }
+        vacancy.setStatus(status);
+        updateVacancy(vacancy.getNamePost(), vacancy.getToken(), vacancy);
+        return vacancy;
+    }
+
+    public void setEmployeeStatus(String token, boolean status) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setStatus(status);
+        updateEmployee(employee.getId(), employee);
+    }
+
+    public void updateEmployerFirstName(String token, String firstName) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setFirstName(firstName);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerPatronymic(String token, String patronymic) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setPatronymic(patronymic);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerLastName(String token, String lastName) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setLastName(lastName);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerEmail(String token, String email) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setEmail(email);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerPassword(String token, String password) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setPassword(password);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerNameCompany(String token, String nameCompany) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setName(nameCompany);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployerAddress(String token, String address) throws ServerException {
+        Employer employer = this.getEmployerById(token);
+        if (employer == null) {
+            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
+        }
+        employer.setAddress(address);
+        updateEmployer(employer.getId(), employer);
+    }
+
+    public void updateEmployeeFirstName(String token, String firstName) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setFirstName(firstName);
+        this.updateEmployee(token, employee);
+    }
+
+    public void updateEmployeePatronymic(String token, String patronymic) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setPatronymic(patronymic);
+        this.updateEmployee(token, employee);
+    }
+
+    public void updateEmployeeLastName(String token, String lastName) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setLastName(lastName);
+        this.updateEmployee(token, employee);
+    }
+
+    public void updateEmployeeEmail(String token, String email) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setEmail(email);
+        this.updateEmployee(token, employee);
+    }
+
+    public void updateEmployeePassword(String token, String password) throws ServerException {
+        Employee employee = getEmployeeById(token);
+        if (employee == null) {
+            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
+        }
+        employee.setPassword(password);
+        this.updateEmployee(token, employee);
     }
 
     public static void cleanDataBase() {

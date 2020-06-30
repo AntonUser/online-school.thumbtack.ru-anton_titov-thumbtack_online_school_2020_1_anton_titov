@@ -15,7 +15,19 @@ public enum ErrorCode {
     SALARY_EXCEPTION("salary is negative"),
     SKILL_BORDER_EXCEPTION("skill assessment value transcends"),
     AUTHORIZATION_EXCEPTION("you are not logged in, only logged in users have access to this method"),
-    SERVER_STOPPED_EXCEPTION("error, server stopped");
+    SERVER_STOPPED_EXCEPTION("error, server stopped"),
+    SERVER_STARTED_EXCEPTION("error, server is already running"),
+    NULL_TOKEN_EXCEPTION("Token field is NULL or empty"),
+    NULL_PATRONYMIC_EXCEPTION("Patronymic field is NULL or empty"),
+    NULL_NAME_POST_EXCEPTION("namePost is NULL"),
+    DEMANDS_LIST_EXCEPTION("demand list is empty"),
+    NULL_NAME_SKILL_EXCEPTION("nameSkill is NULL"),
+    NULL_NAME_VACANCY("nameVacancy is NULL"),
+    NULL_NAME_DEMAND("nameDemand is NULL"),
+    SKILLS_LIST_EXCEPTION("skill list is empty"),
+    EMPLOYER_EXCEPTION("employer for the specified id not found"),
+    EMPLOYEE_EXCEPTION("employee for the specified id not found"),
+    VACANCY_EXCEPTION("this employer has not found such a vacancy");
 
     String errorCode;
 

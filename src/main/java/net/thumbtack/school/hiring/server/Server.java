@@ -21,18 +21,20 @@ public class Server {
         this.employerService = new EmployerService();
     }
 
-    public void startServer(String savedDataFileName) throws FileNotFoundException {
+    public void startServer(String savedDataFileName) throws ServerException, IOException {
+        if (conditionServer) {
+            throw new ServerException(ErrorCode.SERVER_STARTED_EXCEPTION);
+        }
         conditionServer = true;
         DataBase dataBase;
         File savedFile = new File(savedDataFileName);
         if (savedFile.length() != 0) {
-            //REVU: try-with-resource
-            FileReader fileReader = new FileReader(savedFile);
-            Scanner scanner = new Scanner(fileReader);
-            String dataString = scanner.next();
-            //REVU: а что потом с database происходит?
-            // надо же этим объектом проиницализировать DataBase instance
-            dataBase = new Gson().fromJson(dataString, DataBase.class);
+            try (FileReader fileReader = new FileReader(savedFile)) {
+                Scanner scanner = new Scanner(fileReader);
+                String dataString = scanner.next();
+                dataBase = new Gson().fromJson(dataString, DataBase.class);
+                DataBase.setInstance(dataBase);
+            }
         }
     }
 
@@ -43,12 +45,11 @@ public class Server {
         conditionServer = false;
         DataBase dataBase = DataBase.getInstance();
         File savedFile = new File(saveDataFileName);
-        //REVU: try-with-resource
-        FileWriter fileWriter = new FileWriter(savedFile);
-        fileWriter.write(new Gson().toJson(dataBase));
+        try (FileWriter fileWriter = new FileWriter(savedFile)) {
+            fileWriter.write(new Gson().toJson(dataBase));
+        }
         DataBase.cleanDataBase();
     }
-
 
     public String registerEmployee(String requestJsonString) throws ServerException {
         validateActivityServer();
@@ -163,6 +164,68 @@ public class Server {
         return employerService.updateDemandsInVacancy(newRequestJson);
     }
 
+    //обновление данных профиля у пользователей
+    public String updateEmployeeFirstName(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeeFirstName(tokenJson);
+    }
+
+    public String updateEmployeePatronymic(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeePatronymic(tokenJson);
+    }
+
+    public String updateEmployeeLastName(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeeLastName(tokenJson);
+    }
+
+    public String updateEmployeeEmail(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeeEmail(tokenJson);
+    }
+
+    public String updateEmployeePassword(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employeeService.updateEmployeePassword(tokenJson);
+    }
+
+    public String updateEmployerFirstName(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerFirstName(tokenJson);
+    }
+
+    public String updateEmployerPatronymic(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerPatronymic(tokenJson);
+    }
+
+    public String updateEmployerLastName(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerLastName(tokenJson);
+    }
+
+    public String updateEmployerEmail(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerEmail(tokenJson);
+    }
+
+    public String updateEmployerAddress(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerAddress(tokenJson);
+    }
+
+    public String updateEmployerNameCompany(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerNameCompany(tokenJson);
+    }
+
+    public String updateEmployerPassword(String tokenJson) throws ServerException {
+        validateActivityServer();
+        return employerService.updateEmployerPassword(tokenJson);
+    }
+
+    //
     public String removeSkillEmployee(String json) throws ServerException {
         validateActivityServer();
         return employeeService.removeEmployeeSkill(json);

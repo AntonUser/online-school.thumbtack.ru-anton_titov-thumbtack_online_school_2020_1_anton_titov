@@ -3,13 +3,13 @@ package net.thumbtack.school.hiring.dto.request;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 
-public class DtoRemoveVacancyRequest {
+public class DtoUpdateFirstName {
     private String token;
-    private String namePost;
+    private String firstName;
 
-    public DtoRemoveVacancyRequest(String token, String namePost) {
+    public DtoUpdateFirstName(String token, String firstName) {
         this.token = token;
-        this.namePost = namePost;
+        this.firstName = firstName;
     }
 
     public String getToken() {
@@ -20,19 +20,19 @@ public class DtoRemoveVacancyRequest {
         this.token = token;
     }
 
-    public String getNamePost() {
-        return namePost;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setNamePost(String namePost) {
-        this.namePost = namePost;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public void validate() throws ServerException {
         if (token == null || token.isEmpty()) {
             throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
-        } else if (namePost == null || namePost.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_POST_EXCEPTION);
+        } else if (firstName == null || firstName.isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
         }
     }
 }

@@ -7,7 +7,7 @@ public interface Dao<T, K> {
 
     void save(T object) throws ServerException;
 
-    void update(T oldObject, T newObject);
+    void update(String id, T newObject);
 
-    void delete(T object);
+    void delete(String id);
 }

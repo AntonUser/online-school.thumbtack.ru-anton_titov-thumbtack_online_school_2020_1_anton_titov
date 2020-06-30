@@ -7,26 +7,19 @@ import net.thumbtack.school.hiring.daoimpl.VacancyDao;
 import net.thumbtack.school.hiring.dto.request.*;
 import net.thumbtack.school.hiring.dto.responce.*;
 import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ErrorStrings;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Attainments;
 import net.thumbtack.school.hiring.model.Employee;
 
 import java.util.UUID;
 
-//+перенос логики в бд
-//+правильное расположение
-//+список ошибок
-//+валидация в dto
-//+экземпляры dao
 //REVU: проверь все свои валидации
 // там не должно быть NullPointerException, используй свой ServerException и лови тут его
 public class EmployeeService {
     private VacancyDao vacancyDao;
     private Gson gson;
     private EmployeeDao eDao;
-    // REVU: private
-    DemandSkillDao demandSkillDao;
+    private DemandSkillDao demandSkillDao;
 
     public EmployeeService() {
         gson = new Gson();
@@ -35,19 +28,11 @@ public class EmployeeService {
         demandSkillDao = new DemandSkillDao();
     }
 
-    //REVU: сделай 1 try-catch
     public String registerEmployee(String json) {
-        EmployeeDtoRegisterRequest employeeDtoRegisterRequest;
+        EmployeeDtoRegisterRequest employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
         Employee employee;
-        employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
         try {
             employeeDtoRegisterRequest.validate();
-            //REVU: зачем ловить NPE?
-            // лови свое исключение ServerException
-        } catch (NullPointerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        try {
             employee = new Employee(UUID.randomUUID().toString(), employeeDtoRegisterRequest.getFirstName(),
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
@@ -62,29 +47,22 @@ public class EmployeeService {
 
     public String loginEmployee(String json) {
         DtoLoginRequest dtoLoginRequest;
-        Employee employee;
+        String employeeToken;
         dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
         try {
             dtoLoginRequest.validate();
-            //REVU: зачем ловить NPE?
-        } catch (NullPointerException ex) {
+            employeeToken = eDao.loginEmployee(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
-        //REVU перенеси эту логику в БД в метод login
-        employee = eDao.getByLoginAndPassword(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
-        if (employee == null) {
-            return gson.toJson(new ErrorToken(ErrorStrings.AUTHORISATION_ERROR.getStringMessage()));
-        }
-        eDao.setAccountStatus(employee.getId(), true);
-        return gson.toJson(new DtoLoginResponse(employee.getId()));
+        return gson.toJson(new DtoLoginResponse(employeeToken));
     }
 
     public String getVacanciesNotLess(String abilitiesJson) throws ServerException {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
-            //REVU: зачем ловить NPE?
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skills.getToken());
@@ -95,8 +73,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
-            //REVU: зачем ловить NPE?
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skills.getToken());
@@ -107,8 +84,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
-            //REVU: зачем ловить NPE?
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skills.getToken());
@@ -119,7 +95,7 @@ public class EmployeeService {
         DtoSkills skills = convertSkills(abilitiesJson);
         try {
             skills.validate();
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skills.getToken());
@@ -130,7 +106,7 @@ public class EmployeeService {
         DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
         try {
             token.validate();
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(token.getToken());
@@ -141,16 +117,11 @@ public class EmployeeService {
         DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
         try {
             skill.validate();
-        } catch (ServerException | NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skill.getToken());
-        //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
-        // то есть сохранение demand skill + добавление attainment и обновление employee
-        demandSkillDao.save(skill.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
-        Employee employee = eDao.getById(skill.getToken());
-        employee.addAttainments(new Attainments(skill.getNameSkill(), skill.getSkill()));
-        eDao.update(employee, employee);
+        eDao.addSkillForEmployee(new Attainments(skill.getNameSkill(), skill.getSkill()), skill.getToken());
         return gson.toJson(new DtoAttainmentsResponse(skill.getNameSkill(), skill.getSkill()));
     }
 
@@ -159,7 +130,7 @@ public class EmployeeService {
         DtoSkillRequest newSkill = gson.fromJson(newSkillJson, DtoSkillRequest.class);
         try {
             newSkill.validate();
-        } catch (ServerException | NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(newSkill.getToken());
@@ -175,7 +146,7 @@ public class EmployeeService {
         DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
         try {
             skill.validate();
-        } catch (NullPointerException | ServerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(skill.getToken());
@@ -189,30 +160,25 @@ public class EmployeeService {
 
     public String setStatus(String statusJson) throws ServerException {
         DtoStatusEmployeeRequest dtoStatusEmployeeRequest = gson.fromJson(statusJson, DtoStatusEmployeeRequest.class);
+        validateActivity(dtoStatusEmployeeRequest.getToken());
         try {
             dtoStatusEmployeeRequest.validate();
-        } catch (NullPointerException ex) {
+            eDao.setEmployeeStatus(dtoStatusEmployeeRequest.getToken(), dtoStatusEmployeeRequest.isStatus());
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
-        validateActivity(dtoStatusEmployeeRequest.getToken());
-        Employee employee = eDao.getById(dtoStatusEmployeeRequest.getToken());
-        if (employee == null) {
-            return gson.toJson(new ErrorToken(ErrorStrings.EMPLOYEE_ERROR.getStringMessage()));
-        }
-        employee.setStatus(dtoStatusEmployeeRequest.isStatus());
-        eDao.update(employee, employee);
         return gson.toJson(new ErrorToken());
     }
 
     public String setAccountStatus(String jsonStatus) throws ServerException {
         DtoToken dtoToken = gson.fromJson(jsonStatus, DtoToken.class);
+        validateActivity(dtoToken.getToken());
         try {
             dtoToken.validate();
-        } catch (NullPointerException ex) {
+            eDao.setAccountStatus(dtoToken.getToken(), false);
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
-        validateActivity(dtoToken.getToken());
-        eDao.setAccountStatus(dtoToken.getToken(), false);
         return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
     }
 
@@ -220,12 +186,72 @@ public class EmployeeService {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
         try {
             dtoToken.validate();
-        } catch (NullPointerException ex) {
+        } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(dtoToken.getToken());
-        eDao.delete(eDao.getById(dtoToken.getToken()));
+        eDao.delete(dtoToken.getToken());
         return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
+    }
+
+    public String updateEmployeeFirstName(String tokenJson) throws ServerException {
+        DtoUpdateFirstName dtoUpdateFirstName = gson.fromJson(tokenJson, DtoUpdateFirstName.class);
+        validateActivity(dtoUpdateFirstName.getToken());
+        try {
+            dtoUpdateFirstName.validate();
+            eDao.updateEmployeeFirstName(dtoUpdateFirstName.getToken(), dtoUpdateFirstName.getFirstName());
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorToken(ex.getMessage()));
+        }
+        return gson.toJson(new DtoTokenResponse(dtoUpdateFirstName.getToken()));
+    }
+
+    public String updateEmployeePatronymic(String tokenJson) throws ServerException {
+        DtoUpdatePatronymic dtoUpdatePatronymic = gson.fromJson(tokenJson, DtoUpdatePatronymic.class);
+        validateActivity(dtoUpdatePatronymic.getToken());
+        try {
+            dtoUpdatePatronymic.validate();
+            eDao.updateEmployeePatronymic(dtoUpdatePatronymic.getToken(), dtoUpdatePatronymic.getPatronymic());
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorToken(ex.getMessage()));
+        }
+        return gson.toJson(new DtoTokenResponse(dtoUpdatePatronymic.getToken()));
+    }
+
+    public String updateEmployeeLastName(String tokenJson) throws ServerException {
+        DtoUpdateLastName dtoUpdateLastName = gson.fromJson(tokenJson, DtoUpdateLastName.class);
+        validateActivity(dtoUpdateLastName.getToken());
+        try {
+            dtoUpdateLastName.validate();
+            eDao.updateEmployeeLastName(dtoUpdateLastName.getToken(), dtoUpdateLastName.getLastName());
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorToken(ex.getMessage()));
+        }
+        return gson.toJson(new DtoTokenResponse(dtoUpdateLastName.getToken()));
+    }
+
+    public String updateEmployeeEmail(String tokenJson) throws ServerException {
+        DtoUpdateEmail dtoUpdateEmail = gson.fromJson(tokenJson, DtoUpdateEmail.class);
+        validateActivity(dtoUpdateEmail.getToken());
+        try {
+            dtoUpdateEmail.validate();
+            eDao.updateEmployeeEmail(dtoUpdateEmail.getToken(), dtoUpdateEmail.getEmail());
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorToken(ex.getMessage()));
+        }
+        return gson.toJson(new DtoTokenResponse(dtoUpdateEmail.getToken()));
+    }
+
+    public String updateEmployeePassword(String tokenJson) throws ServerException {
+        DtoUpdatePassword dtoUpdatePassword = gson.fromJson(tokenJson, DtoUpdatePassword.class);
+        validateActivity(dtoUpdatePassword.getToken());
+        try {
+            dtoUpdatePassword.validate();
+            eDao.updateEmployeePassword(dtoUpdatePassword.getToken(), dtoUpdatePassword.getPassword());
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorToken(ex.getMessage()));
+        }
+        return gson.toJson(new DtoTokenResponse(dtoUpdatePassword.getToken()));
     }
 
     private DtoSkills convertSkills(String abilitiesJson) {

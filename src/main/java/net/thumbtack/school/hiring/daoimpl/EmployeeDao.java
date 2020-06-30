@@ -3,9 +3,9 @@ package net.thumbtack.school.hiring.daoimpl;
 import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.model.Attainments;
 import net.thumbtack.school.hiring.model.Demand;
 import net.thumbtack.school.hiring.model.Employee;
-import net.thumbtack.school.hiring.model.Employer;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
         this.dataBase = DataBase.getInstance();
     }
 
-    public Employee getByLoginAndPassword(String login, String password) {
-        return dataBase.getEmployeeByLoginAndPassword(login, password);
+    public String loginEmployee(String login, String password) throws ServerException {
+        return dataBase.loginEmployee(login, password);
     }
 
     public Employee getById(String id) {
@@ -41,19 +41,39 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
     }
 
     public boolean isActivity(String token) {
-        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
-        Employee employee = dataBase.getEmployeeById(token);
-        if (employee != null) {
-            return employee.isActivity();
-        }
-        return false;
+        return dataBase.isActivityEmployee(token);
     }
 
-    public void setAccountStatus(String token, boolean status) {
-        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
-        Employee employee = getById(token);
-        employee.setActivity(status);
-        dataBase.updateEmployee(employee, employee);
+    public void setAccountStatus(String token, boolean status) throws ServerException {
+        dataBase.setAccountEmployeeStatus(token, status);
+    }
+
+    public void addSkillForEmployee(Attainments attainments, String token) {
+        dataBase.addSkillForEmployee(attainments, token);
+    }
+
+    public void setEmployeeStatus(String token, boolean status) throws ServerException {
+        dataBase.setEmployeeStatus(token, status);
+    }
+
+    public void updateEmployeeFirstName(String token, String firstName) throws ServerException {
+        dataBase.updateEmployeeFirstName(token, firstName);
+    }
+
+    public void updateEmployeePatronymic(String token, String patronymic) throws ServerException {
+        dataBase.updateEmployeePatronymic(token, patronymic);
+    }
+
+    public void updateEmployeeLastName(String token, String lastName) throws ServerException {
+        dataBase.updateEmployeeLastName(token, lastName);
+    }
+
+    public void updateEmployeeEmail(String token, String email) throws ServerException {
+        dataBase.updateEmployeeEmail(token, email);
+    }
+
+    public void updateEmployeePassword(String token, String password) throws ServerException {
+        dataBase.updateEmployeePassword(token, password);
     }
 
     @Override
@@ -63,21 +83,16 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
 
     @Override
     public void save(Employee employee) throws ServerException {
-        //REVU: не добавляй тут логику, сделай метод в БД, который делает то же самое
-        if (!employee.getAttainmentsList().isEmpty()) {
-            //если умения уже есть, то добавим их в общий список
-            dataBase.addSubSet(employee.getNamesAttainments());
-        }
         dataBase.addEmployee(employee);
     }
 
     @Override
-    public void update(Employee oldEmployee, Employee newEmployee) {
-        dataBase.updateEmployee(oldEmployee, newEmployee);
+    public void update(String id, Employee newEmployee) {
+        dataBase.updateEmployee(id, newEmployee);
     }
 
     @Override
-    public void delete(Employee employee) {
-        dataBase.deleteEmployee(employee);
+    public void delete(String id) {
+        dataBase.deleteEmployee(id);
     }
 }

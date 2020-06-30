@@ -1,6 +1,7 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorStrings;
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
@@ -29,11 +30,11 @@ public class DtoLoginRequest {
         this.password = password;
     }
 
-    public void validate() throws NullPointerException {
+    public void validate() throws ServerException {
         if (getPassword() == null || getPassword().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.PASSWORD_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
         } else if (getLogin() == null || getLogin().isEmpty()) {
-            throw new NullPointerException(ErrorStrings.LOGIN_ERROR.getStringMessage());
+            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
         }
     }
 
