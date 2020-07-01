@@ -1,8 +1,5 @@
 package net.thumbtack.school.hiring.database;
 
-import net.thumbtack.school.hiring.dto.request.*;
-import net.thumbtack.school.hiring.dto.responce.DtoTokenResponse;
-import net.thumbtack.school.hiring.dto.responce.ErrorToken;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.*;
@@ -49,6 +46,12 @@ public final class DataBase {
         return new ArrayList<>(vacanciesList);
     }
 
+    //REVU: сейчас поиск нужных вакансий идет по всему списку, то есть полным перебором
+    // обычно в базе создается конструкция, позволяющая быстро получать нужные вакансии
+    // посмотри в сторону доп коллекции
+    // https://guava.dev/releases/19.0/api/docs/com/google/common/collect/TreeMultimap.html
+    // Сортированный Map с Comparator по ключам
+    // подумай, как организовать хранение, чтобы не делать полный перебор каждый раз
     public List<Vacancy> getVacanciesListNotLess(List<Demand> skills) {
         int i = 0;
         List<Vacancy> outVacancies = new ArrayList<>();
@@ -225,6 +228,8 @@ public final class DataBase {
         return false;
     }
 
+    //REVU: то же самое
+    // удобно сделать конструкцию для хранения token-employee, чтоб не делать полный перебор
     public Employee getEmployeeById(String id) {
         for (Employee employee : employeeList) {
             if (id.equals(employee.getId())) {
@@ -320,6 +325,7 @@ public final class DataBase {
 
     public String loginEmployer(String login, String password) throws ServerException {
         Employer employer = this.getEmployerByLoginAndPassword(login, password);
+        //REVU: null уже быть не может
         if (employer == null) {
             throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
         }
@@ -392,6 +398,7 @@ public final class DataBase {
 
     public void removeAccountEmployer(String token) {
         this.removeAllVacanciesByToken(token);
+        //REVU: а как сохраняются данные (прогресс) после удаления, если идет удаление из списка?
         this.deleteEmployer(token);//пока что так
     }
 
@@ -410,6 +417,7 @@ public final class DataBase {
                 try {
                     this.deleteVacancy(vacancy.getToken(), vacancy.getNamePost());
                 } catch (ServerException e) {
+                    //REVU: не нужно отлавливать тут исключение
                 }
             }
         }

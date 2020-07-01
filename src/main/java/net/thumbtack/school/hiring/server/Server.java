@@ -164,6 +164,9 @@ public class Server {
         return employerService.updateDemandsInVacancy(newRequestJson);
     }
 
+    // REVU: должен быть 1 метод updateEmployee
+    // и если поле null, в запросе, то оно не обновляется
+    // иначе - обновляется
     //обновление данных профиля у пользователей
     public String updateEmployeeFirstName(String tokenJson) throws ServerException {
         validateActivityServer();
