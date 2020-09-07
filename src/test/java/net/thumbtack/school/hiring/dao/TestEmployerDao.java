@@ -14,8 +14,8 @@ public class TestEmployerDao {
     @Test
     public void testGetAll() throws ServerException {
         EmployerDao employerDao = new EmployerDao();
-        Employer employer = employerDao.getByLoginAndPassword("iva01", "w5464x52");
-        employerDao.delete(employer.getId());
+//        Employer employer = employerDao.getByLoginAndPassword("iva01", "w5464x52");
+    //    employerDao.delete(employer.getId());
         employerDao.save(new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", UUID.randomUUID().toString(), "Vasily", "Sergeevich", "Petrov", "iva11", "w5464x52", true));
         employerDao.save(new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", UUID.randomUUID().toString(), "Vasily", "Sergeevich", "Petrov", "iva07", "w5464x42", true));
         assertEquals(2, employerDao.getAll().size());

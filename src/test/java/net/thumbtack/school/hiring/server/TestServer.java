@@ -41,7 +41,7 @@ public class TestServer {
     @Test
     public void testRegisterEmployee() {
         List<Attainments> attainments = new ArrayList<>();
-        attainments.add(new Attainments("язык Java", 4));
+        attainments.add(new Attainments("language Java", 4));
         EmployeeDtoRegisterRequest employeeDtoRegisterRequest = new EmployeeDtoRegisterRequest("Nicolay", "Pushkin", "Nicolaevich", "Kolyok78", "dddd", "kolyan@mtech.ru", true, attainments);
         try {
             server.startServer("dat.txt");
@@ -57,7 +57,6 @@ public class TestServer {
         } catch (ServerException | IOException e) {
             e.getStackTrace();
         }
-
     }
 
 }

@@ -1,13 +1,19 @@
 package net.thumbtack.school.hiring.server;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.listmultimapadapter.ListMultimapAdapter;
 import net.thumbtack.school.hiring.service.EmployeeService;
 import net.thumbtack.school.hiring.service.EmployerService;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 //REVU: добавь end-to-end тесты для методов сервера
@@ -28,10 +34,12 @@ public class Server {
         conditionServer = true;
         DataBase dataBase;
         File savedFile = new File(savedDataFileName);
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ArrayListMultimap.class, new ListMultimapAdapter());
         if (savedFile.length() != 0) {
             try (FileReader fileReader = new FileReader(savedFile)) {
                 Scanner scanner = new Scanner(fileReader);
-                String dataString = scanner.next();
+                String dataString = scanner.nextLine();
                 dataBase = new Gson().fromJson(dataString, DataBase.class);
                 DataBase.setInstance(dataBase);
             }
@@ -43,12 +51,17 @@ public class Server {
             throw new ServerException(ErrorCode.SERVER_STOPPED_EXCEPTION);
         }
         conditionServer = false;
+        String writeJson;
         DataBase dataBase = DataBase.getInstance();
         File savedFile = new File(saveDataFileName);
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ArrayListMultimap.class, new ListMultimapAdapter());
+        Gson gson = gsonBuilder.create();
         try (FileWriter fileWriter = new FileWriter(savedFile)) {
-            fileWriter.write(new Gson().toJson(dataBase));
+            writeJson = gson.toJson(dataBase);
+            fileWriter.write(writeJson);
         }
-        DataBase.cleanDataBase();
+        dataBase.cleanDataBase();
     }
 
     public String registerEmployee(String requestJsonString) throws ServerException {
@@ -164,68 +177,14 @@ public class Server {
         return employerService.updateDemandsInVacancy(newRequestJson);
     }
 
-    // REVU: должен быть 1 метод updateEmployee
-    // и если поле null, в запросе, то оно не обновляется
-    // иначе - обновляется
-    //обновление данных профиля у пользователей
-    public String updateEmployeeFirstName(String tokenJson) throws ServerException {
+    public String updateEmployee(String tokenJson) throws ServerException {
         validateActivityServer();
-        return employeeService.updateEmployeeFirstName(tokenJson);
+        return employeeService.updateEmployee(tokenJson);
     }
 
-    public String updateEmployeePatronymic(String tokenJson) throws ServerException {
+    public String updateEmployer(String tokenJson) throws ServerException {
         validateActivityServer();
-        return employeeService.updateEmployeePatronymic(tokenJson);
-    }
-
-    public String updateEmployeeLastName(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employeeService.updateEmployeeLastName(tokenJson);
-    }
-
-    public String updateEmployeeEmail(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employeeService.updateEmployeeEmail(tokenJson);
-    }
-
-    public String updateEmployeePassword(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employeeService.updateEmployeePassword(tokenJson);
-    }
-
-    public String updateEmployerFirstName(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerFirstName(tokenJson);
-    }
-
-    public String updateEmployerPatronymic(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerPatronymic(tokenJson);
-    }
-
-    public String updateEmployerLastName(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerLastName(tokenJson);
-    }
-
-    public String updateEmployerEmail(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerEmail(tokenJson);
-    }
-
-    public String updateEmployerAddress(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerAddress(tokenJson);
-    }
-
-    public String updateEmployerNameCompany(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerNameCompany(tokenJson);
-    }
-
-    public String updateEmployerPassword(String tokenJson) throws ServerException {
-        validateActivityServer();
-        return employerService.updateEmployerPassword(tokenJson);
+        return employerService.updateEmployer(tokenJson);
     }
 
     //

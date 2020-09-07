@@ -68,7 +68,7 @@ public class EmployerService {
             return gson.toJson(new ErrorToken(e.getMessage()));
         }
         validateActivity(dtoAddVacancyRequest.getToken());
-        vacancyDao.save(new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), dtoAddVacancyRequest.getDemands(), dtoAddVacancyRequest.getToken()));
+        vacancyDao.save(new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), dtoAddVacancyRequest.getObligatoryDemands(), dtoAddVacancyRequest.getNotObligatoryDemands(), dtoAddVacancyRequest.getToken()));
         return gson.toJson(new DtoTokenResponse(dtoAddVacancyRequest.getToken()));
     }
 
@@ -159,7 +159,7 @@ public class EmployerService {
         } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
-        return gson.toJson(new DtoVacancyResponse(vacancy.getNamePost(), vacancy.getSalary(), vacancy.getDemands(), vacancy.getToken(), vacancy.isStatus()));
+        return gson.toJson(new DtoVacancyResponse(vacancy.getNamePost(), vacancy.getSalary(), vacancy.getObligatoryDemands(), vacancy.getNotObligatoryDemands(), vacancy.getToken(), vacancy.isStatus()));
     }
 
     public String setAccountStatus(String jsonStatus) throws ServerException {
@@ -186,88 +186,20 @@ public class EmployerService {
         return gson.toJson(new DtoDemandResponse(dtoNewDemand.getToken(), dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary()));
     }
 
-    public String updateEmployerFirstName(String tokenJson) throws ServerException {
-        DtoUpdateFirstName dtoUpdateFirstName = gson.fromJson(tokenJson, DtoUpdateFirstName.class);
-        validateActivity(dtoUpdateFirstName.getToken());
+    public String updateEmployer(String tokenJson) throws ServerException {
+        DtoUpdateEmployerRequest dtoUpdateFirstName = gson.fromJson(tokenJson, DtoUpdateEmployerRequest.class);
+        validateActivity(dtoUpdateFirstName.getId());
         try {
             dtoUpdateFirstName.validate();
-            employerDao.updateEmployerFirstName(dtoUpdateFirstName.getToken(), dtoUpdateFirstName.getFirstName());
+            employerDao.update(dtoUpdateFirstName.getId(), new Employer(dtoUpdateFirstName.getName(), dtoUpdateFirstName.getAddress(),
+                    dtoUpdateFirstName.getEmail(), dtoUpdateFirstName.getId(),
+                    dtoUpdateFirstName.getFirstName(), dtoUpdateFirstName.getPatronymic(),
+                    dtoUpdateFirstName.getLastName(), dtoUpdateFirstName.getLogin(),
+                    dtoUpdateFirstName.getPassword(), dtoUpdateFirstName.isActivity()));
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
         }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateFirstName.getToken()));
-    }
-
-    public String updateEmployerPatronymic(String tokenJson) throws ServerException {
-        DtoUpdatePatronymic dtoUpdatePatronymic = gson.fromJson(tokenJson, DtoUpdatePatronymic.class);
-        validateActivity(dtoUpdatePatronymic.getToken());
-        try {
-            dtoUpdatePatronymic.validate();
-            employerDao.updateEmployerPatronymic(dtoUpdatePatronymic.getToken(), dtoUpdatePatronymic.getPatronymic());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdatePatronymic.getToken()));
-    }
-
-    public String updateEmployerLastName(String tokenJson) throws ServerException {
-        DtoUpdateLastName dtoUpdateLastName = gson.fromJson(tokenJson, DtoUpdateLastName.class);
-        validateActivity(dtoUpdateLastName.getToken());
-        try {
-            dtoUpdateLastName.validate();
-            employerDao.updateEmployerLastName(dtoUpdateLastName.getToken(), dtoUpdateLastName.getLastName());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateLastName.getToken()));
-    }
-
-    public String updateEmployerEmail(String tokenJson) throws ServerException {
-        DtoUpdateEmail dtoUpdateEmail = gson.fromJson(tokenJson, DtoUpdateEmail.class);
-        validateActivity(dtoUpdateEmail.getToken());
-        try {
-            dtoUpdateEmail.validate();
-            employerDao.updateEmployerEmail(dtoUpdateEmail.getToken(), dtoUpdateEmail.getEmail());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateEmail.getToken()));
-    }
-
-    public String updateEmployerPassword(String tokenJson) throws ServerException {
-        DtoUpdatePassword dtoUpdatePassword = gson.fromJson(tokenJson, DtoUpdatePassword.class);
-        validateActivity(dtoUpdatePassword.getToken());
-        try {
-            dtoUpdatePassword.validate();
-            employerDao.updateEmployerPassword(dtoUpdatePassword.getToken(), dtoUpdatePassword.getPassword());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdatePassword.getToken()));
-    }
-
-    public String updateEmployerNameCompany(String tokenJson) throws ServerException {
-        DtoUpdateNameCompany dtoUpdateNameCompany = gson.fromJson(tokenJson, DtoUpdateNameCompany.class);
-        validateActivity(dtoUpdateNameCompany.getToken());
-        try {
-            dtoUpdateNameCompany.validate();
-            employerDao.updateEmployerNameCompany(dtoUpdateNameCompany.getToken(), dtoUpdateNameCompany.getNameCompany());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateNameCompany.getToken()));
-    }
-
-    public String updateEmployerAddress(String tokenJson) throws ServerException {
-        DtoUpdateAddress dtoUpdateAddress = gson.fromJson(tokenJson, DtoUpdateAddress.class);
-        validateActivity(dtoUpdateAddress.getToken());
-        try {
-            dtoUpdateAddress.validate();
-            employerDao.updateEmployerAddress(dtoUpdateAddress.getToken(), dtoUpdateAddress.getAddress());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateAddress.getToken()));
+        return gson.toJson(new DtoTokenResponse(dtoUpdateFirstName.getId()));
     }
 
     public String removeVacancy(String vacancyJson) throws ServerException {

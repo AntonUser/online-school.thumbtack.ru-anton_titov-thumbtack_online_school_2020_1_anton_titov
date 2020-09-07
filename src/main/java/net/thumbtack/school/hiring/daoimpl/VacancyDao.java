@@ -7,6 +7,7 @@ import net.thumbtack.school.hiring.model.Demand;
 import net.thumbtack.school.hiring.model.Vacancy;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
@@ -29,19 +30,19 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         return dataBase.getNotActivityVacanciesListByToken(token);
     }
 
-    public List<Vacancy> getVacanciesListNotLess(List<Demand> skills) {
+    public List<Vacancy> getVacanciesListNotLess(Map<String, Integer> skills) {
         return dataBase.getVacanciesListNotLess(skills);
     }
 
-    public List<Vacancy> getVacanciesListObligatoryDemand(List<Demand> skills) {
+    public List<Vacancy> getVacanciesListObligatoryDemand(Map<String, Integer> skills) {
         return dataBase.getVacanciesListObligatoryDemand(skills);
     }
 
-    public List<Vacancy> getVacanciesListOnlyName(List<Demand> skills) {
+    public List<Vacancy> getVacanciesListOnlyName(Map<String, Integer> skills) {
         return dataBase.getVacanciesListOnlyName(skills);
     }
 
-    public List<Vacancy> getVacanciesListWithOneDemand(List<Demand> skills) {
+    public List<Vacancy> getVacanciesListWithOneDemand(Map<String, Integer> skills) {
         return dataBase.getVacanciesListWithOneDemand(skills);
     }
 
@@ -64,7 +65,7 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
     }
 
     @Override
-//не знаю что с этим сделать только в этом классе имплементации не совсем подходят в других Dao все как нужно
+//не знаю что с этим сделать только в этом классе имплементации не совсем подходят, в других Dao все как нужно
     public void update(String string, Vacancy vacancy) {
     }
 

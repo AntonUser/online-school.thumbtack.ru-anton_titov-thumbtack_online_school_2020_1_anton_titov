@@ -8,7 +8,6 @@ import java.util.Objects;
 public class Employer extends User {
     private String name;
     private String address;
-    private String patronymic;
 
     public Employer(String name, String address, String email, String id, String firstName, String patronymic, String lastName, String login, String password, boolean activity) throws ServerException {
         super(id, login, password, email, activity);
@@ -18,14 +17,6 @@ public class Employer extends User {
         setLastName(lastName);
         setFirstName(firstName);
         setPatronymic(patronymic);
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
     }
 
     public String getName() {
@@ -57,12 +48,11 @@ public class Employer extends User {
         if (!super.equals(o)) return false;
         Employer employer = (Employer) o;
         return Objects.equals(name, employer.name) &&
-                Objects.equals(address, employer.address) &&
-                Objects.equals(patronymic, employer.patronymic);
+                Objects.equals(address, employer.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, address, patronymic);
+        return Objects.hash(super.hashCode(), name, address);
     }
 }

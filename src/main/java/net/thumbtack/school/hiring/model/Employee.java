@@ -2,9 +2,10 @@ package net.thumbtack.school.hiring.model;
 
 import net.thumbtack.school.hiring.exception.ServerException;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Employee extends User {
+public class Employee  extends User implements Serializable{
     private List<Attainments> attainmentsList;
     private boolean status;
 
@@ -44,6 +45,10 @@ public class Employee extends User {
             outSet.add(attainments.getNameSkill());
         }
         return outSet;
+    }
+
+    public void setAttainmentsList(List<Attainments> attainmentsList) {
+        this.attainmentsList = attainmentsList;
     }
 
     public boolean isStatus() {

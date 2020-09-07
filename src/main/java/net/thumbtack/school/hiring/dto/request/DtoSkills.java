@@ -5,12 +5,13 @@ import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Demand;
 
 import java.util.List;
+import java.util.Map;
 
 public class DtoSkills {
-    private List<Demand> skills;
+    private Map<String, Integer> skills;
     private String token;
 
-    public DtoSkills(List<Demand> skills, String token) {
+    public DtoSkills(Map<String, Integer> skills, String token) {
         this.skills = skills;
         this.token = token;
     }
@@ -18,11 +19,11 @@ public class DtoSkills {
     public DtoSkills() {
     }
 
-    public List<Demand> getSkills() {
+    public Map<String, Integer> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<Demand> skills) {
+    public void setSkills(Map<String, Integer> skills) {
         this.skills = skills;
     }
 

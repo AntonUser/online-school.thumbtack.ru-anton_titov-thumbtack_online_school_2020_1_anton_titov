@@ -1,22 +1,23 @@
 package net.thumbtack.school.hiring.model;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+//cделать 2 коллекции в одной обязательные требования в другой нет(коллекция пара-ключ)
 public class Vacancy {
     private String namePost;
     private int salary;
-    private List<Demand> demands;
+    private Map<String, Integer> obligatoryDemands;
+    private Map<String, Integer> notObligatoryDemands;
     private String token;
     private boolean status;
 
-    public Vacancy(String namePost, int salary, List<Demand> demands, String token) {
+    public Vacancy(String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
         this.namePost = namePost;
         this.salary = salary;
-        this.demands = demands;
         this.token = token;
         this.status = true;
+        this.obligatoryDemands = obligatoryDemands;
+        this.notObligatoryDemands = notObligatoryDemands;
     }
 
     public String getNamePost() {
@@ -35,12 +36,12 @@ public class Vacancy {
         this.salary = salary;
     }
 
-    public List<Demand> getDemands() {
-        return demands;
+    public Map<String, Integer> getObligatoryDemands() {
+        return obligatoryDemands;
     }
 
-    public void setDemands(List<Demand> demands) {
-        this.demands = demands;
+    public Map<String, Integer> getNotObligatoryDemands() {
+        return notObligatoryDemands;
     }
 
     public String getToken() {
@@ -60,21 +61,37 @@ public class Vacancy {
     }
 
     public void updateDemand(String nameDemand, Demand newDemand) {
-        List<Demand> allDemands = getDemands();
-        for (Demand demand : allDemands) {
-            if (demand.getNameDemand().equals(nameDemand)) {
-                allDemands.set(allDemands.indexOf(demand), newDemand);
-                setDemands(allDemands);
-                break;
-            }
+        if (newDemand.isNecessary()) {
+            obligatoryDemands.remove(nameDemand, obligatoryDemands.get(nameDemand));
+            obligatoryDemands.put(newDemand.getNameDemand(), newDemand.getSkill());
+        } else {
+            notObligatoryDemands.remove(nameDemand, notObligatoryDemands.get(nameDemand));
+            notObligatoryDemands.put(newDemand.getNameDemand(), newDemand.getSkill());
         }
     }
 
     public Set<String> getNamesDemands() {
         Set<String> outSet = new HashSet<>();
-        for (Demand demand : demands) {
-            outSet.add(demand.getNameDemand());
-        }
+        outSet.addAll(obligatoryDemands.keySet());
+        outSet.addAll(notObligatoryDemands.keySet());
         return outSet;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vacancy vacancy = (Vacancy) o;
+        return salary == vacancy.salary &&
+                status == vacancy.status &&
+                Objects.equals(namePost, vacancy.namePost) &&
+                Objects.equals(obligatoryDemands, vacancy.obligatoryDemands) &&
+                Objects.equals(notObligatoryDemands, vacancy.notObligatoryDemands) &&
+                Objects.equals(token, vacancy.token);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(namePost, salary, obligatoryDemands, notObligatoryDemands, token, status);
     }
 }

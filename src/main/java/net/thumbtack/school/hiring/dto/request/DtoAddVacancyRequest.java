@@ -9,13 +9,15 @@ import java.util.*;
 public class DtoAddVacancyRequest {
     private String namePost;
     private int salary;
-    private List<Demand> demands;
+    private Map<String, Integer> obligatoryDemands;
+    private Map<String, Integer> notObligatoryDemands;
     private String token;
 
-    public DtoAddVacancyRequest(String namePost, int salary, List<Demand> demands, String token) {
+    public DtoAddVacancyRequest(String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
         this.namePost = namePost;
         this.salary = salary;
-        this.demands = demands;
+        this.obligatoryDemands = obligatoryDemands;
+        this.notObligatoryDemands = notObligatoryDemands;
         this.token = token;
     }
 
@@ -39,20 +41,20 @@ public class DtoAddVacancyRequest {
         return token;
     }
 
-    public ArrayList<Demand> getDemands() {
-        return new ArrayList<>(demands);
+    public Map<String, Integer> getObligatoryDemands() {
+        return obligatoryDemands;
     }
 
-    public Set<String> getNamesDemands() {
-        Set<String> outSet = new HashSet<>();
-        for (Demand demand : demands) {
-            outSet.add(demand.getNameDemand());
-        }
-        return outSet;
+    public void setObligatoryDemands(Map<String, Integer> obligatoryDemands) {
+        this.obligatoryDemands = obligatoryDemands;
     }
 
-    public void setDemands(List<Demand> demands) {
-        this.demands = demands;
+    public Map<String, Integer> getNotObligatoryDemands() {
+        return notObligatoryDemands;
+    }
+
+    public void setNotObligatoryDemands(Map<String, Integer> notObligatoryDemands) {
+        this.notObligatoryDemands = notObligatoryDemands;
     }
 
     public void validate() throws ServerException, NullPointerException {
@@ -72,11 +74,13 @@ public class DtoAddVacancyRequest {
         DtoAddVacancyRequest that = (DtoAddVacancyRequest) o;
         return salary == that.salary &&
                 Objects.equals(namePost, that.namePost) &&
-                Objects.equals(demands, that.demands);
+                Objects.equals(obligatoryDemands, that.obligatoryDemands) &&
+                Objects.equals(notObligatoryDemands, that.notObligatoryDemands) &&
+                Objects.equals(token, that.token);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(namePost, salary, demands);
+        return Objects.hash(namePost, salary, obligatoryDemands, notObligatoryDemands, token);
     }
 }

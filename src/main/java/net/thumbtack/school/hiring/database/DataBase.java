@@ -1,24 +1,23 @@
 package net.thumbtack.school.hiring.database;
 
+import com.google.common.collect.ArrayListMultimap;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
-public final class DataBase {
+public final class DataBase implements Serializable {
     private static DataBase instance = null;
-    private static List<Employer> employerList;
-    private static List<Employee> employeeList;
-    private static List<Vacancy> vacanciesList;
-    private static Set<String> demandSkills;
+    private ArrayListMultimap<String, Employer> employerList;
+    private ArrayList<Vacancy> vacanciesList;
+    private Set<String> demandSkills;
+    private ArrayListMultimap<String, Employee> employeeList;
 
     private DataBase() {
-        employeeList = new ArrayList<>();
-        employerList = new ArrayList<>();
+        employeeList = ArrayListMultimap.create();
+        employerList = ArrayListMultimap.create();
         vacanciesList = new ArrayList<>();
         demandSkills = new HashSet<>();
     }
@@ -35,99 +34,109 @@ public final class DataBase {
     }
 
     public List<Employee> getEmployeeList() {
-        return new ArrayList<>(employeeList);
+        return new ArrayList<>(employeeList.values());
     }
 
     public List<Employer> getEmployerList() {
-        return new ArrayList<>(employerList);
+        return new ArrayList<>(employerList.values());
     }
 
     public List<Vacancy> getVacanciesList() {
         return new ArrayList<>(vacanciesList);
     }
 
-    //REVU: сейчас поиск нужных вакансий идет по всему списку, то есть полным перебором
-    // обычно в базе создается конструкция, позволяющая быстро получать нужные вакансии
-    // посмотри в сторону доп коллекции
-    // https://guava.dev/releases/19.0/api/docs/com/google/common/collect/TreeMultimap.html
-    // Сортированный Map с Comparator по ключам
-    // подумай, как организовать хранение, чтобы не делать полный перебор каждый раз
-    public List<Vacancy> getVacanciesListNotLess(List<Demand> skills) {
-        int i = 0;
-        List<Vacancy> outVacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
-            for (Demand demand : vacancy.getDemands()) {
-                for (Demand demandSkill : skills) {
-                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) && demandSkill.getSkill() >= demand.getSkill()) {
-                        i++;
+    public List<Vacancy> getVacanciesListNotLess(Map<String, Integer> skills) {
+        int i;
+        List<Vacancy> outList = new ArrayList<>();
+        Map<String, Integer> demands = new HashMap();
+        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
+        for (Vacancy vacancy : vacancies) {
+            demands.putAll(vacancy.getNotObligatoryDemands());
+            demands.putAll(vacancy.getObligatoryDemands());
+            if (skills.keySet().containsAll(demands.keySet())) {
+                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
+                i = 0;
+                while (itr.hasNext()) {
+                    Map.Entry<String, Integer> entry = itr.next();
+                    if (skills.get(entry.getKey()) < entry.getValue()) {
+                        break;
                     }
+                    i++;
                 }
-            }
-            if (i == vacancy.getDemands().size()) {
-                outVacancies.add(vacancy);
+                if (i == demands.size()) {
+                    outList.add(vacancy);
+                }
+                demands.clear();
             }
         }
-        return outVacancies;
+        return outList;
     }
 
-    public List<Vacancy> getVacanciesListObligatoryDemand(List<Demand> skills) {
-        int i = 0, count;
-        List<Vacancy> outVacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
-            count = 0;
-            for (Demand demand : vacancy.getDemands()) {
-                for (Demand demandSkill : skills) {
-                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) &&
-                            demandSkill.getSkill() >= demand.getSkill() &&
-                            demandSkill.isNecessary()) {
-                        i++;
+    public List<Vacancy> getVacanciesListObligatoryDemand(Map<String, Integer> skills) {
+        int i;
+        List<Vacancy> outList = new ArrayList<>();
+        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
+        for (Vacancy vacancy : vacancies) {
+            if (skills.keySet().containsAll(vacancy.getObligatoryDemands().keySet())) {
+                Iterator<Map.Entry<String, Integer>> itr = vacancy.getObligatoryDemands().entrySet().iterator();
+                i = 0;
+                while (itr.hasNext()) {
+                    Map.Entry<String, Integer> entry = itr.next();
+                    if (skills.get(entry.getKey()) < entry.getValue()) {
+                        break;
                     }
-                    if (demandSkill.isNecessary()) {
-                        count++;
-                    }
+                    i++;
+                }
+                if (i == vacancy.getObligatoryDemands().size()) {
+                    outList.add(vacancy);
                 }
             }
-            if (i == count) {
-                outVacancies.add(vacancy);
-            }
         }
-        return outVacancies;
+        return outList;
     }
 
-    public List<Vacancy> getVacanciesListOnlyName(List<Demand> skills) {
-        int i = 0;
-        List<Vacancy> outVacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
-            for (Demand demand : vacancy.getDemands()) {
-                for (Demand demandSkill : skills) {
-                    if (demandSkill.getNameDemand().equals(demand.getNameDemand())) {
-                        i++;
-                    }
-                }
+    public List<Vacancy> getVacanciesListOnlyName(Map<String, Integer> skills) {
+        List<Vacancy> outList = new ArrayList<>();
+        Map<String, Integer> demands = new HashMap();
+        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
+        for (Vacancy vacancy : vacancies) {
+            demands.putAll(vacancy.getNotObligatoryDemands());
+            demands.putAll(vacancy.getObligatoryDemands());
+            if (skills.keySet().containsAll(demands.keySet())) {
+                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
+                outList.add(vacancy);
             }
-            if (i == vacancy.getDemands().size()) {
-                outVacancies.add(vacancy);
-            }
+            demands.clear();
         }
-        return outVacancies;
+        return outList;
     }
 
-    public List<Vacancy> getVacanciesListWithOneDemand(List<Demand> skills) {
-        int i = 0;
-        List<Vacancy> outVacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {//сортирую в новый список по совпадениям полей
-            for (Demand demand : vacancy.getDemands()) {
-                for (Demand demandSkill : skills) {
-                    if (demandSkill.getNameDemand().equals(demand.getNameDemand()) && demandSkill.getSkill() >= demand.getSkill()) {
-                        i++;
+    public List<Vacancy> getVacanciesListWithOneDemand(Map<String, Integer> skills) {//!!!!!!
+        int i;
+        List<Vacancy> outList = new ArrayList<>();
+        Map<String, Integer> demands = new HashMap();
+        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
+        for (Vacancy vacancy : vacancies) {
+            demands.putAll(vacancy.getNotObligatoryDemands());
+            demands.putAll(vacancy.getObligatoryDemands());
+            demands.keySet().retainAll(skills.keySet());
+            if (demands.size() != 0) {
+                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
+                i = 0;
+                while (itr.hasNext()) {
+                    Map.Entry<String, Integer> entry = itr.next();
+                    if (skills.get(entry.getKey()) < entry.getValue()) {
+                        break;
                     }
+                    i++;
                 }
-            }
-            if (i != 0) {
-                outVacancies.add(vacancy);
+                if (i != 0) {
+                    outList.add(vacancy);
+                }
+                demands.clear();
             }
         }
-        return outVacancies;
+        return outList;
     }
 
     public Set<String> getDemandSkillsSet() {
@@ -146,14 +155,14 @@ public final class DataBase {
             //если умения уже есть, то добавим их в общий список
             this.addSubSet(employee.getNamesAttainments());
         }
-        employeeList.add(employee);
+        employeeList.put(employee.getId(), employee);
     }
 
     public void addDemandSkill(String nameDemandSkill) {
         demandSkills.add(nameDemandSkill);
     }
 
-    public void addSkillForEmployee(Attainments attainments, String token) {
+    public void addSkillForEmployee(Attainments attainments, String token) throws ServerException {
         this.addDemandSkill(attainments.getNameSkill());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
         Employee employee = getEmployeeById(token);
         employee.addAttainments(attainments);
@@ -164,7 +173,7 @@ public final class DataBase {
         if (getEmployeeByLoginAndPassword(employer.getLogin(), employer.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYER);
         }
-        employerList.add(employer);
+        employerList.put(employer.getId(), employer);
     }
 
     public void addVacancy(Vacancy vacancy) {
@@ -228,19 +237,16 @@ public final class DataBase {
         return false;
     }
 
-    //REVU: то же самое
-    // удобно сделать конструкцию для хранения token-employee, чтоб не делать полный перебор
     public Employee getEmployeeById(String id) {
-        for (Employee employee : employeeList) {
-            if (id.equals(employee.getId())) {
-                return employee;
-            }
+        Collection<Employee> employees = employeeList.get(id);
+        if (employees.isEmpty()) {
+            return null;
         }
-        return null;
+        return employees.iterator().next();
     }
 
     public Employee getEmployeeByLoginAndPassword(String login, String password) {
-        for (Employee employee : employeeList) {
+        for (Employee employee : employeeList.values()) {
             if (login.equals(employee.getLogin()) && password.equals(employee.getPassword())) {
                 return employee;
             }
@@ -251,7 +257,7 @@ public final class DataBase {
     public List<Employee> getEmployeeListNotLessByDemands(List<Demand> demands) {
         int i = 0;
         List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList) {
+        for (Employee employee : employeeList.values()) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : demands) {
                     if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill() && demand.isNecessary()) {
@@ -269,7 +275,7 @@ public final class DataBase {
     public List<Employee> getEmployeeListObligatoryDemandByDemands(List<Demand> demands) {
         int i = 0, count = 0;
         List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList) {
+        for (Employee employee : employeeList.values()) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : demands) {
                     if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill()) {
@@ -290,7 +296,7 @@ public final class DataBase {
     public List<Employee> getEmployeeListByDemands(List<Demand> demands) {
         int i = 0;
         List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList) {
+        for (Employee employee : employeeList.values()) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : demands) {
                     if (demand.getNameDemand().equals(attainments.getNameSkill())) {
@@ -308,7 +314,7 @@ public final class DataBase {
     public List<Employee> getEmployeeListWithOneDemandByDemands(List<Demand> demands) {
         int i = 0;
         List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList) {
+        for (Employee employee : employeeList.values()) {
             for (Attainments attainments : employee.getAttainmentsList()) {
                 for (Demand demand : demands) {
                     if (demand.getNameDemand().equals(attainments.getNameSkill()) && demand.getSkill() <= attainments.getSkill() && demand.isNecessary()) {
@@ -325,10 +331,6 @@ public final class DataBase {
 
     public String loginEmployer(String login, String password) throws ServerException {
         Employer employer = this.getEmployerByLoginAndPassword(login, password);
-        //REVU: null уже быть не может
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
         setAccountEmployerStatus(employer.getId(), true);
         return employer.getId();
     }
@@ -342,16 +344,15 @@ public final class DataBase {
     }
 
     public Employer getEmployerById(String id) {
-        for (Employer employer : employerList) {
-            if (id.equals(employer.getId())) {
-                return employer;
-            }
+        Collection<Employer> employers = employerList.get(id);
+        if (employers.isEmpty()) {
+            return null;
         }
-        return null;
+        return employers.iterator().next();
     }
 
     public Employer getEmployerByLoginAndPassword(String login, String password) throws ServerException {
-        for (Employer employer : employerList) {
+        for (Employer employer : employerList.values()) {
             if (login.equals(employer.getLogin()) && password.equals(employer.getPassword())) {
                 return employer;
             }
@@ -359,12 +360,57 @@ public final class DataBase {
         throw new ServerException(ErrorCode.GET_USER_EXCEPTION);
     }
 
-    public void updateEmployee(String id, Employee newEmployee) {
-        employeeList.set(employeeList.indexOf(getEmployeeById(id)), newEmployee);
+    public void updateEmployee(String id, Employee newEmployee) throws ServerException {
+        List<Employee> value = new ArrayList<>();
+        Employee employee = this.getEmployeeById(id);
+        if (newEmployee.getFirstName() == null) {
+            newEmployee.setFirstName(employee.getFirstName());
+        }
+        if (newEmployee.getPatronymic() == null) {
+            newEmployee.setPatronymic(employee.getPatronymic());
+        }
+        if (newEmployee.getLastName() == null) {
+            newEmployee.setLastName(employee.getLastName());
+        }
+        if (newEmployee.getEmail() == null) {
+            newEmployee.setEmail(employee.getEmail());
+        }
+        if (newEmployee.getPassword() == null) {
+            newEmployee.setPassword(employee.getPassword());
+        }
+        if (newEmployee.getAttainmentsList() == null) {
+            newEmployee.setAttainmentsList(employee.getAttainmentsList());
+        }
+        value.add(newEmployee);
+        employeeList.replaceValues(id, value);
     }
 
-    public void updateEmployer(String id, Employer newEmployer) {
-        employerList.set(employerList.indexOf(this.getEmployerById(id)), newEmployer);
+    public void updateEmployer(String id, Employer newEmployer) throws ServerException {
+        List<Employer> value = new ArrayList<>();
+        Employer employer = this.getEmployerById(id);
+        if (newEmployer.getName() == null) {
+            newEmployer.setName(employer.getName());
+        }
+        if (newEmployer.getFirstName() == null) {
+            newEmployer.setFirstName(employer.getFirstName());
+        }
+        if (newEmployer.getPatronymic() == null) {
+            newEmployer.setPatronymic(employer.getPatronymic());
+        }
+        if (newEmployer.getLastName() == null) {
+            newEmployer.setLastName(employer.getLastName());
+        }
+        if (newEmployer.getAddress() == null) {
+            newEmployer.setAddress(employer.getAddress());
+        }
+        if (newEmployer.getEmail() == null) {
+            newEmployer.setEmail(employer.getEmail());
+        }
+        if (newEmployer.getPassword() == null) {
+            newEmployer.setPassword(employer.getPassword());
+        }
+        value.add(newEmployer);
+        employerList.replaceValues(id, value);
     }
 
     public void updateVacancy(String nameVacancy, String tokenEmployer, Vacancy newVacancy) throws ServerException {
@@ -389,17 +435,17 @@ public final class DataBase {
     }
 
     public void deleteEmployee(String id) {
-        employeeList.remove(this.getEmployeeById(id));
+        employeeList.removeAll(id);
     }
 
     public void deleteEmployer(String id) {
-        employerList.remove(this.getEmployerById(id));
+        employerList.removeAll(id);
     }
 
     public void removeAccountEmployer(String token) {
         this.removeAllVacanciesByToken(token);
         //REVU: а как сохраняются данные (прогресс) после удаления, если идет удаление из списка?
-        this.deleteEmployer(token);//пока что так
+        this.deleteEmployer(token);
     }
 
     public void deleteVacancy(String token, String namePost) throws ServerException {
@@ -464,115 +510,7 @@ public final class DataBase {
         updateEmployee(employee.getId(), employee);
     }
 
-    public void updateEmployerFirstName(String token, String firstName) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setFirstName(firstName);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerPatronymic(String token, String patronymic) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setPatronymic(patronymic);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerLastName(String token, String lastName) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setLastName(lastName);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerEmail(String token, String email) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setEmail(email);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerPassword(String token, String password) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setPassword(password);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerNameCompany(String token, String nameCompany) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setName(nameCompany);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployerAddress(String token, String address) throws ServerException {
-        Employer employer = this.getEmployerById(token);
-        if (employer == null) {
-            throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-        }
-        employer.setAddress(address);
-        updateEmployer(employer.getId(), employer);
-    }
-
-    public void updateEmployeeFirstName(String token, String firstName) throws ServerException {
-        Employee employee = getEmployeeById(token);
-        if (employee == null) {
-            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-        }
-        employee.setFirstName(firstName);
-        this.updateEmployee(token, employee);
-    }
-
-    public void updateEmployeePatronymic(String token, String patronymic) throws ServerException {
-        Employee employee = getEmployeeById(token);
-        if (employee == null) {
-            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-        }
-        employee.setPatronymic(patronymic);
-        this.updateEmployee(token, employee);
-    }
-
-    public void updateEmployeeLastName(String token, String lastName) throws ServerException {
-        Employee employee = getEmployeeById(token);
-        if (employee == null) {
-            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-        }
-        employee.setLastName(lastName);
-        this.updateEmployee(token, employee);
-    }
-
-    public void updateEmployeeEmail(String token, String email) throws ServerException {
-        Employee employee = getEmployeeById(token);
-        if (employee == null) {
-            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-        }
-        employee.setEmail(email);
-        this.updateEmployee(token, employee);
-    }
-
-    public void updateEmployeePassword(String token, String password) throws ServerException {
-        Employee employee = getEmployeeById(token);
-        if (employee == null) {
-            throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-        }
-        employee.setPassword(password);
-        this.updateEmployee(token, employee);
-    }
-
-    public static void cleanDataBase() {
+    public void cleanDataBase() {
         vacanciesList.clear();
         employeeList.clear();
         employerList.clear();

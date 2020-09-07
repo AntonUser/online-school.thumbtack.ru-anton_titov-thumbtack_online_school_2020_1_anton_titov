@@ -1,1 +1,1 @@
-{}
+{"employerList":{},"vacanciesList":[],"demandSkills":["ss","language Java"],"employeeList":{}}

@@ -194,64 +194,19 @@ public class EmployeeService {
         return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
     }
 
-    public String updateEmployeeFirstName(String tokenJson) throws ServerException {
-        DtoUpdateFirstName dtoUpdateFirstName = gson.fromJson(tokenJson, DtoUpdateFirstName.class);
-        validateActivity(dtoUpdateFirstName.getToken());
+    public String updateEmployee(String tokenJson) throws ServerException {
+        DtoUpdateEmployeeRequest dtoUpdateEmployeeRequest = gson.fromJson(tokenJson, DtoUpdateEmployeeRequest.class);
         try {
-            dtoUpdateFirstName.validate();
-            eDao.updateEmployeeFirstName(dtoUpdateFirstName.getToken(), dtoUpdateFirstName.getFirstName());
+            dtoUpdateEmployeeRequest.validate();
+            eDao.update(dtoUpdateEmployeeRequest.getId(), new Employee(dtoUpdateEmployeeRequest.getId(), dtoUpdateEmployeeRequest.getFirstName(),
+                    dtoUpdateEmployeeRequest.getPatronymic(), dtoUpdateEmployeeRequest.getLastName(),
+                    dtoUpdateEmployeeRequest.getLogin(), dtoUpdateEmployeeRequest.getPassword(),
+                    dtoUpdateEmployeeRequest.getEmail(), dtoUpdateEmployeeRequest.isStatus(),
+                    dtoUpdateEmployeeRequest.getAttainmentsList(), dtoUpdateEmployeeRequest.isActivity()));
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
         }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateFirstName.getToken()));
-    }
-
-    public String updateEmployeePatronymic(String tokenJson) throws ServerException {
-        DtoUpdatePatronymic dtoUpdatePatronymic = gson.fromJson(tokenJson, DtoUpdatePatronymic.class);
-        validateActivity(dtoUpdatePatronymic.getToken());
-        try {
-            dtoUpdatePatronymic.validate();
-            eDao.updateEmployeePatronymic(dtoUpdatePatronymic.getToken(), dtoUpdatePatronymic.getPatronymic());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdatePatronymic.getToken()));
-    }
-
-    public String updateEmployeeLastName(String tokenJson) throws ServerException {
-        DtoUpdateLastName dtoUpdateLastName = gson.fromJson(tokenJson, DtoUpdateLastName.class);
-        validateActivity(dtoUpdateLastName.getToken());
-        try {
-            dtoUpdateLastName.validate();
-            eDao.updateEmployeeLastName(dtoUpdateLastName.getToken(), dtoUpdateLastName.getLastName());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateLastName.getToken()));
-    }
-
-    public String updateEmployeeEmail(String tokenJson) throws ServerException {
-        DtoUpdateEmail dtoUpdateEmail = gson.fromJson(tokenJson, DtoUpdateEmail.class);
-        validateActivity(dtoUpdateEmail.getToken());
-        try {
-            dtoUpdateEmail.validate();
-            eDao.updateEmployeeEmail(dtoUpdateEmail.getToken(), dtoUpdateEmail.getEmail());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdateEmail.getToken()));
-    }
-
-    public String updateEmployeePassword(String tokenJson) throws ServerException {
-        DtoUpdatePassword dtoUpdatePassword = gson.fromJson(tokenJson, DtoUpdatePassword.class);
-        validateActivity(dtoUpdatePassword.getToken());
-        try {
-            dtoUpdatePassword.validate();
-            eDao.updateEmployeePassword(dtoUpdatePassword.getToken(), dtoUpdatePassword.getPassword());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        return gson.toJson(new DtoTokenResponse(dtoUpdatePassword.getToken()));
+        return gson.toJson(new DtoTokenResponse(dtoUpdateEmployeeRequest.getId()));
     }
 
     private DtoSkills convertSkills(String abilitiesJson) {

@@ -48,7 +48,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
         dataBase.setAccountEmployeeStatus(token, status);
     }
 
-    public void addSkillForEmployee(Attainments attainments, String token) {
+    public void addSkillForEmployee(Attainments attainments, String token) throws ServerException {
         dataBase.addSkillForEmployee(attainments, token);
     }
 
@@ -56,25 +56,6 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
         dataBase.setEmployeeStatus(token, status);
     }
 
-    public void updateEmployeeFirstName(String token, String firstName) throws ServerException {
-        dataBase.updateEmployeeFirstName(token, firstName);
-    }
-
-    public void updateEmployeePatronymic(String token, String patronymic) throws ServerException {
-        dataBase.updateEmployeePatronymic(token, patronymic);
-    }
-
-    public void updateEmployeeLastName(String token, String lastName) throws ServerException {
-        dataBase.updateEmployeeLastName(token, lastName);
-    }
-
-    public void updateEmployeeEmail(String token, String email) throws ServerException {
-        dataBase.updateEmployeeEmail(token, email);
-    }
-
-    public void updateEmployeePassword(String token, String password) throws ServerException {
-        dataBase.updateEmployeePassword(token, password);
-    }
 
     @Override
     public List<Employee> getAll() {
@@ -87,7 +68,7 @@ public class EmployeeDao implements Dao<Employee, List<Employee>> {
     }
 
     @Override
-    public void update(String id, Employee newEmployee) {
+    public void update(String id, Employee newEmployee) throws ServerException {
         dataBase.updateEmployee(id, newEmployee);
     }
 
