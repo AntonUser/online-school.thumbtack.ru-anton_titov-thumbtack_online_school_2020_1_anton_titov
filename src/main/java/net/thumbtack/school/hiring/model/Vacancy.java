@@ -4,10 +4,16 @@ import java.util.*;
 
 //cделать 2 коллекции в одной обязательные требования в другой нет(коллекция пара-ключ)
 public class Vacancy {
+	// REVU просто name. И так ясно, чего
     private String namePost;
     private int salary;
+    // REVU эти 2 map мне непонятны
+    // что такое String и Integer ?
+    // давайте в скайпе обсудим, можно голосом
     private Map<String, Integer> obligatoryDemands;
     private Map<String, Integer> notObligatoryDemands;
+    // REVU а это что такое ?
+    // токены только юзерам выдаются
     private String token;
     private boolean status;
 

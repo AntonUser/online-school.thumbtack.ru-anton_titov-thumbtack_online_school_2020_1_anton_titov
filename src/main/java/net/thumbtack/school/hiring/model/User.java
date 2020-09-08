@@ -16,6 +16,10 @@ public class User {
     private boolean activity;//true профиль активен, false нет
 
     public User(String id, String login, String password, String email, boolean activity) throws ServerException {
+    	// REVU в классах модели проверки не делаем
+    	// классы модели либо делаются из DTO, которые мы проверяем, прежде чем делать на их основе класс модели
+    	// либо берем из БД, а туда они попали по первому варианту
+    	// поэтому тут проверки не нужны
         if (login == null || login.isEmpty()) {
             throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
         }

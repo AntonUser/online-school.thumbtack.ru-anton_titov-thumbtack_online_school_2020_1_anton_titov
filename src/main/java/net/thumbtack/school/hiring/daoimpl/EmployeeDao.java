@@ -9,6 +9,8 @@ import net.thumbtack.school.hiring.model.Employee;
 
 import java.util.List;
 
+// REVU если хотите так, пусть будет так, но ИМХО ненужное усложнение
+// и все же это должен быть интерфейс, а класс EmployeeDaoImpl 
 public class EmployeeDao implements Dao<Employee, List<Employee>> {
     private DataBase dataBase;
 

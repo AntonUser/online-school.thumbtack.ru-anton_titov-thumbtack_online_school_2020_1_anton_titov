@@ -16,6 +16,8 @@ import net.thumbtack.school.hiring.model.Vacancy;
 import java.util.UUID;
 
 public class EmployerService {
+	// REVU EmployeeDao и другие - это интерфейсы
+	// а класс EmployeeDaoImpl
     private EmployeeDao employeeDao;
     private Gson gson;
     private VacancyDao vacancyDao;
@@ -23,6 +25,7 @@ public class EmployerService {
     private DemandSkillDao demandSkillDao;
 
     public EmployerService() {
+    	// REVU можно было инициализировать прямо в описании
         employerDao = new EmployerDao();
         employeeDao = new EmployeeDao();
         gson = new Gson();
@@ -31,7 +34,13 @@ public class EmployerService {
     }
 
     public String registerEmployer(String json) {
+    	// REVU а если распарсить не удалось ?
+    	// Сделайте метод getClassInstanceFromJson, шаблонный, передавайте ему Class
+    	// а он пусть ловит исключения от fromJson и если поймает, выбрасывает ServerException
+    	// и тогда вызов этого метода поставьте под try 
+    	// здесь и везде
         EmployerDtoRegisterRequest employerDtoRegisterRequest = gson.fromJson(json, EmployerDtoRegisterRequest.class);
+        // REVU описывайте переменную когда она понадобится. Да, в try
         Employer employer;
         try {
             employerDtoRegisterRequest.validate();
@@ -67,6 +76,12 @@ public class EmployerService {
         } catch (ServerException e) {
             return gson.toJson(new ErrorToken(e.getMessage()));
         }
+        // REVU не надо токен в вакансию заносить
+        // вместо validateActivity лучше было бы получить по токену Employer
+        // а для этого в БД добавить Map<String, User> userByToken
+        // и потом этого Employer передавать в vacancyDao.save
+        // будет логично
+        // vacancyDao.save(employer, new Vacancy...
         validateActivity(dtoAddVacancyRequest.getToken());
         vacancyDao.save(new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), dtoAddVacancyRequest.getObligatoryDemands(), dtoAddVacancyRequest.getNotObligatoryDemands(), dtoAddVacancyRequest.getToken()));
         return gson.toJson(new DtoTokenResponse(dtoAddVacancyRequest.getToken()));

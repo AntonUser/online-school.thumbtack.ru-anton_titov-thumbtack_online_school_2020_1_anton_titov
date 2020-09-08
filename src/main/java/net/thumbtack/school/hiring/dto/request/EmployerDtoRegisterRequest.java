@@ -31,6 +31,9 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
         this.address = address;
     }
 
+    // REVU лучше этот код перенести в сервис, сделав там private static метод
+    // сервису лучше знать, как правильно валидировать
+    // может, в зависимости от чего-то нужно иногда так, а иногда иначе
     public void validate() throws ServerException {
         if (getFirstName() == null || getFirstName().isEmpty()) {
             throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);

@@ -170,6 +170,8 @@ public final class DataBase implements Serializable {
     }
 
     public void addEmployer(Employer employer) throws ServerException {
+    	// REVU не надо проверять.  Просто попробуйте добавить с этим логином с помощью putIfAbsent и проверьте, что из этого вышло
+    	// а до пароля Вам тут и дела нет - все равно добавить нельзя с этим логином
         if (getEmployeeByLoginAndPassword(employer.getLogin(), employer.getPassword()) != null) {
             throw new ServerException(ErrorCode.REPEATING_EMPLOYER);
         }

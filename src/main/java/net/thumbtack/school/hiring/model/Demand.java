@@ -5,7 +5,10 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
+// REVU Requirement лучше
+// REVU а не сделать ли его наследником от Skill ?  
 public class Demand {
+	// REVU просто name. И так ясно, чего
     private String nameDemand;
     private int skill;
     private boolean necessary;
