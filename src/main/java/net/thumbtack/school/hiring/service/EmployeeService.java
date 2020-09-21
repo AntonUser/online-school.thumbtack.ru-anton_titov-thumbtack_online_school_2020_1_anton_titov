@@ -19,10 +19,13 @@ import java.util.UUID;
 public class EmployeeService {
     private VacancyDaoImpl vacancyDaoImpl;
     private Gson gson;
+    // REVU Не сокр. :-) И используйте интерфейс, если он есть
+    // private EmployeeDaol employeeDao;
     private EmployeeDaoImpl eDao;
     private DemandSkillDaoImpl demandSkillDaoImpl;
 
     public EmployeeService() {
+    	// REVU инициализируйте прямо в описании
         gson = new Gson();
         eDao = new EmployeeDaoImpl();
         vacancyDaoImpl = new VacancyDaoImpl();
@@ -33,8 +36,10 @@ public class EmployeeService {
         Employee employee;
         try {
             getClassInstanceFromJson(EmployeeDtoRegisterRequest.class, json);
+            // REVU если getClassInstanceFromJson вернет результат, то этот вызов будет не нужен
             EmployeeDtoRegisterRequest employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
             employeeDtoRegisterRequest.validate();
+            // REVU UUID.randomUUID().toString() тут передавать незачем, пусть конструктор сам поставит
             employee = new Employee(UUID.randomUUID().toString(), employeeDtoRegisterRequest.getFirstName(),
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
@@ -215,6 +220,12 @@ public class EmployeeService {
         }
     }
 
+    // REVU Вы лишь проверку сделали, а надо было вернуть экземпляр класса c
+// 	public static <T> T getClassInstanceFromJson(String json, Class<T> clazz) throws ServerException {
+// это шаблонный метод (не класс!)
+// https://docs.oracle.com/javase/tutorial/extra/generics/methods.html    
+    
+    
     private void getClassInstanceFromJson(Class c, String json) throws ServerException {
         try {
             gson.fromJson(json, c);

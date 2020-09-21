@@ -34,6 +34,8 @@ public final class DataBase implements Serializable {
     }
 
     public String registerUser(User user) {
+    	// REVU а если такой логин уже есть ?
+    	// putIfAbsent и проверяйте результат, при неудаче - throw ServerException
         allUsers.put(user.getLogin(), user);
         activeUsers.put(user.getId(), user);
         return user.getId();
@@ -41,7 +43,9 @@ public final class DataBase implements Serializable {
 
     public String loginUser(String login, String password) {
         User user = allUsers.get(login);
+        // REVU а если такого логина нет ?
         if (user.getPassword().equals(password)) {
+        	// REVU при логине должен выдаваться новый токен . 
             activeUsers.put(user.getId(), user);
             return user.getId();
         }
@@ -50,6 +54,7 @@ public final class DataBase implements Serializable {
 
     public void removeAccount(String token) {
         User user = activeUsers.get(token);
+        // REVU а если такого токена нет ?
         allUsers.remove(user.getLogin());
         activeUsers.remove(token, user);
     }

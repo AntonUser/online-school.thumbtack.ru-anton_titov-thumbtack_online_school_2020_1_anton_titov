@@ -3,6 +3,9 @@ package net.thumbtack.school.hiring.model;
 import java.util.Objects;
 
 public class User {
+	// REVU что это такое ? Токен ? Если да - ему тут не место
+	// только залогиненные юзеры его имеют
+	// поэтому в БД должна быть коллекция, а здесь не надо этого id
     private String id;
     private String login;
     private String password;

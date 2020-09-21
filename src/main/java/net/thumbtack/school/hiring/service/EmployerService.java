@@ -17,6 +17,7 @@ import net.thumbtack.school.hiring.model.Vacancy;
 import java.util.UUID;
 
 public class EmployerService {
+	// REVU см. REVU в классе EmployerService 
     private EmployeeDaoImpl employeeDaoImpl;
     private Gson gson;
     private VacancyDaoImpl vacancyDaoImpl;
@@ -24,6 +25,7 @@ public class EmployerService {
     private DemandSkillDaoImpl demandSkillDaoImpl;
 
     public EmployerService() {
+    	// REVU 2 раза зачем ?
         employerDaoImpl = new EmployerDaoImpl();
         employeeDaoImpl = new EmployeeDaoImpl();
         gson = new Gson();

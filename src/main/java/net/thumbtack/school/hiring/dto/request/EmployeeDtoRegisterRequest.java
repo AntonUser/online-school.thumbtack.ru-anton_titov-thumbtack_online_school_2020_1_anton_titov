@@ -82,9 +82,12 @@ public class EmployeeDtoRegisterRequest {
         this.attainmentsList = attainmentsList;
     }
 
+    // REVU лучше пусть сервис валидирует, ему лучше знать, как валидировать
+    // перенесите в сервис и пусть там будет private static
     public void validate() throws ServerException {
         if (getFirstName().isEmpty()) {
             throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+            // REVU если if заканчиваается throw или return - else не нужен
         } else if (getLastName() == null || getLastName().isEmpty()) {
             throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
         } else if (getEmail() == null || getEmail().isEmpty()) {
