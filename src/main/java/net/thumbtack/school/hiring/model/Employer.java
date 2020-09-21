@@ -1,32 +1,45 @@
 package net.thumbtack.school.hiring.model;
 
-import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Employer extends User {
     private String name;
     private String address;
+    private List<Vacancy> vacancies;
 
     public Employer(String name, String address, String email, String id, String firstName, String patronymic, String lastName, String login, String password, boolean activity) throws ServerException {
-        super(id, login, password, email, activity);
-        setAddress(address);
-        setName(name);
-        setPatronymic(patronymic);
-        setLastName(lastName);
-        setFirstName(firstName);
-        setPatronymic(patronymic);
+        super(id, login, password, email, lastName, firstName, patronymic, activity);
+        this.address = address;
+        this.name = name;
+        vacancies = new ArrayList<>();
+    }
+
+    public void addVacancy(Vacancy vacancy) {
+        vacancies.add(vacancy);
+    }
+
+    public Vacancy getVacancyById(String id) {
+        for (Vacancy vacancy : vacancies) {
+            if (vacancy.getId().equals(id)) {
+                return vacancy;
+            }
+        }
+        return null;
+    }
+
+    public List<Vacancy> getAllVacancies() {
+        return new ArrayList<>(vacancies);
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) throws ServerException {
-        if (name == null || name.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_EXCEPTION);
-        }
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -34,10 +47,7 @@ public class Employer extends User {
         return address;
     }
 
-    public void setAddress(String address) throws ServerException {
-        if (address == null || address.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_ADDRESS_EXCEPTION);
-        }
+    public void setAddress(String address) {
         this.address = address;
     }
 
@@ -48,11 +58,12 @@ public class Employer extends User {
         if (!super.equals(o)) return false;
         Employer employer = (Employer) o;
         return Objects.equals(name, employer.name) &&
-                Objects.equals(address, employer.address);
+                Objects.equals(address, employer.address) &&
+                Objects.equals(vacancies, employer.vacancies);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, address);
+        return Objects.hash(super.hashCode(), name, address, vacancies);
     }
 }

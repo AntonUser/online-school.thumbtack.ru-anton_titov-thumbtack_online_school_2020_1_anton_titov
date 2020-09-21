@@ -2,7 +2,6 @@ package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Demand;
 
 import java.util.*;
 

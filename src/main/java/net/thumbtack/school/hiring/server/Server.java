@@ -69,9 +69,14 @@ public class Server {
         return employeeService.registerEmployee(requestJsonString);
     }
 
-    public String loginEmployee(String requestJsonString) throws ServerException {
+    public String logInEmployee(String requestJsonString) throws ServerException {
         validateActivityServer();
         return employeeService.loginEmployee(requestJsonString);
+    }
+
+    public String logOutEmployee(String requestJsonString) throws ServerException {
+        validateActivityServer();
+        return employeeService.logOut(requestJsonString);
     }
 
     public String registerEmployer(String requestJsonString) throws ServerException {
@@ -79,21 +84,26 @@ public class Server {
         return employerService.registerEmployer(requestJsonString);
     }
 
-    public String loginEmployer(String requestJsonString) throws ServerException {
+    public String logInEmployer(String requestJsonString) throws ServerException {
         validateActivityServer();
         return employerService.loginEmployer(requestJsonString);
     }
 
-    public String addVacancy(String requestJsonString) throws ServerException {
+    public String logOutEmployer(String requestJsonString) throws ServerException {
         validateActivityServer();
-        return employerService.addVacancy(requestJsonString);
+        return employerService.logOut(requestJsonString);
     }
 
-    public String addSkillEmployee(String requestJsonString) throws ServerException {
-        validateActivityServer();
-        return employeeService.addEmployeeSkill(requestJsonString);
-    }
+    /* public String addVacancy(String requestJsonString) throws ServerException {
+         validateActivityServer();
+         return employerService.addVacancy(requestJsonString);
+     }
 
+     public String addSkillEmployee(String requestJsonString) throws ServerException {
+         validateActivityServer();
+         return employeeService.addEmployeeSkill(requestJsonString);
+     }
+ */
     public String getAllDemandsSkills(String requestJsonString) throws ServerException {
         validateActivityServer();
         return employeeService.getAllDemandSkills(requestJsonString);
@@ -121,7 +131,7 @@ public class Server {
     }
 
     //4 геттера на сотрудников
-    public String getEmployeesNotLess(String requestJsonString) throws ServerException {
+  /* public String getEmployeesNotLess(String requestJsonString) throws ServerException {
         validateActivityServer();
         return employerService.getEmployeeListNotLess(requestJsonString);
     }
@@ -165,28 +175,28 @@ public class Server {
     public String setStatusVacancy(String requestJson) throws ServerException {
         validateActivityServer();
         return employerService.setVacancyStatus(requestJson);
-    }
+    }*/
 
     public String updateSkillEmployee(String newRequestJson) throws ServerException {
         validateActivityServer();
         return employeeService.updateEmployeeSkill(newRequestJson);
     }
 
-    public String updateDemands(String newRequestJson) throws ServerException {
+  /*  public String updateDemands(String newRequestJson) throws ServerException {
         validateActivityServer();
         return employerService.updateDemandsInVacancy(newRequestJson);
-    }
+    }*/
 
     public String updateEmployee(String tokenJson) throws ServerException {
         validateActivityServer();
         return employeeService.updateEmployee(tokenJson);
     }
 
-    public String updateEmployer(String tokenJson) throws ServerException {
+    /*public String updateEmployer(String tokenJson) throws ServerException {
         validateActivityServer();
         return employerService.updateEmployer(tokenJson);
     }
-
+*/
     //
     public String removeSkillEmployee(String json) throws ServerException {
         validateActivityServer();
@@ -194,7 +204,7 @@ public class Server {
     }
 
     //удаление вакансии
-    public String removeVacancy(String json) throws ServerException {
+/*    public String removeVacancy(String json) throws ServerException {
         validateActivityServer();
         return employerService.removeVacancy(json);
     }
@@ -207,17 +217,17 @@ public class Server {
     public String exitEmployer(String tokenJson) throws ServerException {
         validateActivityServer();
         return employerService.setAccountStatus(tokenJson);
-    }
+    }*/
 
     public String removeAccountEmployee(String tokenJson) throws ServerException {
         validateActivityServer();
         return employeeService.removeEmployee(tokenJson);
     }
 
-    public String removeAccountEmployer(String tokenJson) throws ServerException {
+  /*  public String removeAccountEmployer(String tokenJson) throws ServerException {
         validateActivityServer();
         return employerService.removeAccountEmployer(tokenJson);
-    }
+    }*/
 
     private void validateActivityServer() throws ServerException {
         if (!conditionServer) {

@@ -2,36 +2,37 @@ package net.thumbtack.school.hiring.model;
 
 import java.util.*;
 
-//cделать 2 коллекции в одной обязательные требования в другой нет(коллекция пара-ключ)
+
 public class Vacancy {
-	// REVU просто name. И так ясно, чего
-    private String namePost;
+    private String id;
+    private String name;
     private int salary;
     // REVU эти 2 map мне непонятны
     // что такое String и Integer ?
     // давайте в скайпе обсудим, можно голосом
     private Map<String, Integer> obligatoryDemands;
     private Map<String, Integer> notObligatoryDemands;
-    // REVU а это что такое ?
-    // токены только юзерам выдаются
-    private String token;
-    private boolean status;
+    private boolean status;//сделать enum
 
-    public Vacancy(String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
-        this.namePost = namePost;
+    public Vacancy(String id,String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
+        this.id = id;
+        this.name = namePost;
         this.salary = salary;
-        this.token = token;
         this.status = true;
         this.obligatoryDemands = obligatoryDemands;
         this.notObligatoryDemands = notObligatoryDemands;
     }
 
-    public String getNamePost() {
-        return namePost;
+    public String getId() {
+        return id;
     }
 
-    public void setNamePost(String namePost) {
-        this.namePost = namePost;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getSalary() {
@@ -50,14 +51,6 @@ public class Vacancy {
         return notObligatoryDemands;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public boolean isStatus() {
         return status;
     }
@@ -66,7 +59,7 @@ public class Vacancy {
         this.status = status;
     }
 
-    public void updateDemand(String nameDemand, Demand newDemand) {
+    public void updateDemand(String nameDemand, Requirement newDemand) {
         if (newDemand.isNecessary()) {
             obligatoryDemands.remove(nameDemand, obligatoryDemands.get(nameDemand));
             obligatoryDemands.put(newDemand.getNameDemand(), newDemand.getSkill());
@@ -90,14 +83,14 @@ public class Vacancy {
         Vacancy vacancy = (Vacancy) o;
         return salary == vacancy.salary &&
                 status == vacancy.status &&
-                Objects.equals(namePost, vacancy.namePost) &&
+                Objects.equals(id, vacancy.id) &&
+                Objects.equals(name, vacancy.name) &&
                 Objects.equals(obligatoryDemands, vacancy.obligatoryDemands) &&
-                Objects.equals(notObligatoryDemands, vacancy.notObligatoryDemands) &&
-                Objects.equals(token, vacancy.token);
+                Objects.equals(notObligatoryDemands, vacancy.notObligatoryDemands);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(namePost, salary, obligatoryDemands, notObligatoryDemands, token, status);
+        return Objects.hash(id, name, salary, obligatoryDemands, notObligatoryDemands, status);
     }
 }

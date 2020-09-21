@@ -1,8 +1,5 @@
 package net.thumbtack.school.hiring.model;
 
-import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ServerException;
-
 import java.util.Objects;
 
 public class User {
@@ -15,18 +12,14 @@ public class User {
     private String patronymic;
     private boolean activity;//true профиль активен, false нет
 
-    public User(String id, String login, String password, String email, boolean activity) throws ServerException {
-    	// REVU в классах модели проверки не делаем
-    	// классы модели либо делаются из DTO, которые мы проверяем, прежде чем делать на их основе класс модели
-    	// либо берем из БД, а туда они попали по первому варианту
-    	// поэтому тут проверки не нужны
-        if (login == null || login.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
-        }
-        this.login = login;
+    public User(String id, String login, String password, String email, String lastName, String firstName, String patronymic, boolean activity) {
         this.id = id;
-        setPassword(password);
-        setEmail(email);
+        this.login = login;
+        this.password = password;
+        this.email = email;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.patronymic = patronymic;
         this.activity = activity;
     }
 
@@ -38,15 +31,11 @@ public class User {
         return login;
     }
 
-
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) throws ServerException {
-        if (password == null || password.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
-        }
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -54,10 +43,7 @@ public class User {
         return email;
     }
 
-    public void setEmail(String email) throws ServerException {
-        if (email == null || email.isEmpty()) {
-            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
-        }
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -65,10 +51,7 @@ public class User {
         return firstName;
     }
 
-    public void setFirstName(String firstName) throws ServerException {
-        if (firstName == null || firstName.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
-        }
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
@@ -84,10 +67,7 @@ public class User {
         return lastName;
     }
 
-    public void setLastName(String lastName) throws ServerException {
-        if (lastName == null || lastName.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
-        }
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 

@@ -27,7 +27,8 @@ public enum ErrorCode {
     SKILLS_LIST_EXCEPTION("skill list is empty"),
     EMPLOYER_EXCEPTION("employer for the specified id not found"),
     EMPLOYEE_EXCEPTION("employee for the specified id not found"),
-    VACANCY_EXCEPTION("this employer has not found such a vacancy");
+    VACANCY_EXCEPTION("this employer has not found such a vacancy"),
+    JSON_EXCEPTION("JSON does not match the desired type");
 
     String errorCode;
 

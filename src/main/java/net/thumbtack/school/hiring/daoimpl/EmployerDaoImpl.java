@@ -7,14 +7,34 @@ import net.thumbtack.school.hiring.model.Employer;
 
 import java.util.List;
 
-public class EmployerDao implements Dao<Employer, List<Employer>> {
+public class EmployerDaoImpl implements Dao<Employer, List<Employer>> {
     private DataBase dataBase;
 
-    public EmployerDao() {
+    public EmployerDaoImpl() {
         this.dataBase = DataBase.getInstance();
     }
 
+    public String registerEmployer(Employer employer) {
+        return dataBase.registerUser(employer);
+    }
 
+    public String loginEmployer(String login, String password) {
+        return dataBase.loginUser(login, password);
+    }
+
+    public void logOut(String token) {
+        dataBase.logoutUser(token);
+    }
+
+    public void removeAccount(String token) {
+        dataBase.removeAccount(token);
+    }
+
+    public Employer getEmployerById(String id) {
+        return (Employer) dataBase.getUserById(id);
+    }
+
+    /*
     public Employer getByLoginAndPassword(String login, String password) throws ServerException {
         return dataBase.getEmployerByLoginAndPassword(login, password);
     }
@@ -39,24 +59,19 @@ public class EmployerDao implements Dao<Employer, List<Employer>> {
     public void removeAccount(String token) {
         dataBase.removeAccountEmployer(token);
     }
-
-    @Override
-    public List<Employer> getAll() {
-        return dataBase.getEmployerList();
-    }
-
+*/
     @Override
     public void save(Employer employer) throws ServerException {
-        dataBase.addEmployer(employer);
+        dataBase.saveUser(employer);
     }
 
     @Override
     public void update(String id, Employer newEmployer) throws ServerException {
-        dataBase.updateEmployer(id, newEmployer);
+//        dataBase.updateEmployer(id, newEmployer);
     }
 
     @Override
     public void delete(String id) {
-        dataBase.deleteEmployer(id);
+//        dataBase.deleteEmployer(id);
     }
 }

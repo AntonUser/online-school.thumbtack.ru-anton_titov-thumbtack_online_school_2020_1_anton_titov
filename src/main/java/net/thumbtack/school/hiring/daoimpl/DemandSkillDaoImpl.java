@@ -5,14 +5,13 @@ import net.thumbtack.school.hiring.database.DataBase;
 
 import java.util.Set;
 
-public class DemandSkillDao implements Dao<String, Set<String>> {
+public class DemandSkillDaoImpl implements Dao<String, Set<String>> {
     private DataBase dataBase;
 
-    public DemandSkillDao() {
+    public DemandSkillDaoImpl() {
         this.dataBase = DataBase.getInstance();
     }
 
-    @Override
     public Set<String> getAll() {
         return dataBase.getDemandSkillsSet();
     }

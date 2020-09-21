@@ -5,17 +5,13 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
-// REVU Requirement лучше
-// REVU а не сделать ли его наследником от Skill ?  
-public class Demand {
-	// REVU просто name. И так ясно, чего
+public class Requirement extends Skill {
     private String nameDemand;
     private int skill;
     private boolean necessary;
 
-    public Demand(String nameDemand, int skillLevel, boolean necessary) {
-        this.nameDemand = nameDemand;
-        this.skill = skillLevel;
+    public Requirement(String nameDemand, int skillLevel, boolean necessary) {
+        super(nameDemand, skillLevel);
         setNecessary(necessary);
     }
 
@@ -50,10 +46,10 @@ public class Demand {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Demand demand = (Demand) o;
-        return skill == demand.skill &&
-                necessary == demand.necessary &&
-                Objects.equals(nameDemand, demand.nameDemand);
+        Requirement that = (Requirement) o;
+        return skill == that.skill &&
+                necessary == that.necessary &&
+                Objects.equals(nameDemand, that.nameDemand);
     }
 
     @Override

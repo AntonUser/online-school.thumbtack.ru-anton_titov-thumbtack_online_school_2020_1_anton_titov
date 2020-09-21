@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestEmployer {
 
-    @Test
+  /*  @Test
     public void testFirstName() throws ServerException {
         try {
             Employer employer = new Employer("Thumbtack", "646255 Omsk ul.Gagarina d.3", "thumbtack@gmail.com", "", "", "Sergeevich", "Petrov", "iva05", "w5464x52", true);
@@ -203,5 +203,5 @@ public class TestEmployer {
         } catch (ServerException e) {
             assertEquals(ErrorCode.NULL_ADDRESS_EXCEPTION, e.getErrorCode());
         }
-    }
+    }*/
 }

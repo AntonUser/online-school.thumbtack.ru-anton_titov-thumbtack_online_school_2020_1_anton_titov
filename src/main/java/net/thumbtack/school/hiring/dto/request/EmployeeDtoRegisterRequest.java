@@ -2,7 +2,7 @@ package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Attainments;
+import net.thumbtack.school.hiring.model.Skill;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,17 +14,15 @@ public class EmployeeDtoRegisterRequest {
     private String login;
     private String password;
     private String email;
-    private boolean status;
-    private List<Attainments> attainmentsList;
+    private List<Skill> attainmentsList;
 
-    public EmployeeDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String email, boolean status, List<Attainments> attainmentsList) {
+    public EmployeeDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<Skill> attainmentsList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.patronymic = patronymic;
         this.login = login;
         this.password = password;
         this.email = email;
-        this.status = status;
         this.attainmentsList = attainmentsList;
     }
 
@@ -76,19 +74,11 @@ public class EmployeeDtoRegisterRequest {
         this.email = email;
     }
 
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public List<Attainments> getAttainmentsList() {
+    public List<Skill> getAttainmentsList() {
         return attainmentsList;
     }
 
-    public void setAttainmentsList(List<Attainments> attainmentsList) {
+    public void setAttainmentsList(List<Skill> attainmentsList) {
         this.attainmentsList = attainmentsList;
     }
 
@@ -110,14 +100,18 @@ public class EmployeeDtoRegisterRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         EmployeeDtoRegisterRequest that = (EmployeeDtoRegisterRequest) o;
-        return status == that.status &&
+        return Objects.equals(firstName, that.firstName) &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(patronymic, that.patronymic) &&
+                Objects.equals(login, that.login) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(email, that.email) &&
                 Objects.equals(attainmentsList, that.attainmentsList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), status, attainmentsList);
+        return Objects.hash(firstName, lastName, patronymic, login, password, email, attainmentsList);
     }
 }

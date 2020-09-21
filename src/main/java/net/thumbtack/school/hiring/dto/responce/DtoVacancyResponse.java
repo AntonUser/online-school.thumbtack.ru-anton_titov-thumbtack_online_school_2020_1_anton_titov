@@ -1,8 +1,5 @@
 package net.thumbtack.school.hiring.dto.responce;
 
-import net.thumbtack.school.hiring.model.Demand;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 

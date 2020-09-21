@@ -3,21 +3,21 @@ package net.thumbtack.school.hiring.daoimpl;
 import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Demand;
+import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Vacancy;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
+public class VacancyDaoImpl implements Dao<Vacancy, List<Vacancy>> {
     private DataBase dataBase;
 
-    public VacancyDao() {
+    public VacancyDaoImpl() {
         this.dataBase = DataBase.getInstance();
     }
 
-
+/*
     public List<Vacancy> getVacanciesListByToken(String token) {
         return dataBase.getVacanciesListByToken(token);
     }
@@ -28,7 +28,7 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
 
     public List<Vacancy> getNotActivityVacanciesListByToken(String token) {
         return dataBase.getNotActivityVacanciesListByToken(token);
-    }
+    }*/
 
     public List<Vacancy> getVacanciesListNotLess(Map<String, Integer> skills) {
         return dataBase.getVacanciesListNotLess(skills);
@@ -46,15 +46,10 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
         return dataBase.getVacanciesListWithOneDemand(skills);
     }
 
-    public Vacancy setStatus(String token, String namePost, boolean status) throws ServerException {
-        return dataBase.setVacancyStatus(token, namePost, status);
-    }
-
-    public void updateDemandInVacancy(Demand demand, String token, String nameVacancy, String oldNameDemand) throws ServerException {
+   /* public void updateDemandInVacancy(Requirement demand, String token, String nameVacancy, String oldNameDemand) throws ServerException {
         dataBase.updateDemandInVacancy(demand, token, nameVacancy, oldNameDemand);
-    }
+    }*/
 
-    @Override
     public List<Vacancy> getAll() {
         return dataBase.getVacanciesList();
     }
@@ -68,18 +63,18 @@ public class VacancyDao implements Dao<Vacancy, List<Vacancy>> {
 //не знаю что с этим сделать только в этом классе имплементации не совсем подходят, в других Dao все как нужно
     public void update(String string, Vacancy vacancy) {
     }
-
+/*
     public void update(String namePost, String tokenEmployer, Vacancy newVacancy) throws ServerException {
         dataBase.updateVacancy(namePost, tokenEmployer, newVacancy);
-    }
+    }*/
 
     @Override//не знаю что с этим сделать
     public void delete(String string) {
     }
-
+/*
     public void delete(String namePost, String tokenEmployer) throws ServerException {
         dataBase.deleteVacancy(tokenEmployer, namePost);
-    }
+    }*/
 
     public Set<String> getAllDemandSkills() {
         return dataBase.getDemandSkillsSet();

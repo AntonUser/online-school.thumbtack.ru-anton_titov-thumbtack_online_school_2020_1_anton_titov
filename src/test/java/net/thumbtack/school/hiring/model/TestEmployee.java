@@ -13,7 +13,7 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEmployee {
-    @Test
+  /*  @Test
     public void testId() throws ServerException {
         String uuid = UUID.randomUUID().toString();
         Employee employee = new Employee(uuid, "Vasily", "", "Petrov", "petrov008", "wh45dh79", "petrow@mail.ru", true, new ArrayList<>(), true);
@@ -182,5 +182,5 @@ public class TestEmployee {
         } catch (ServerException e) {
             assertEquals(ErrorCode.EMAIL_EXCEPTION, e.getErrorCode());
         }
-    }
+    }*/
 }
