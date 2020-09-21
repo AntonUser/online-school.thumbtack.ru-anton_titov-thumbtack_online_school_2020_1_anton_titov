@@ -6,76 +6,53 @@ import net.thumbtack.school.hiring.daoimpl.DemandSkillDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployeeDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployerDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.VacancyDaoImpl;
-import net.thumbtack.school.hiring.dto.request.*;
-import net.thumbtack.school.hiring.dto.responce.*;
+import net.thumbtack.school.hiring.dto.request.DtoDemands;
+import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
+import net.thumbtack.school.hiring.dto.request.DtoToken;
+import net.thumbtack.school.hiring.dto.request.EmployerDtoRegisterRequest;
+import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
+import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
+import net.thumbtack.school.hiring.dto.responce.ErrorToken;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Employer;
-import net.thumbtack.school.hiring.model.Vacancy;
-
-import java.util.UUID;
 
 public class EmployerService {
-	// REVU см. REVU в классе EmployerService 
-    private EmployeeDaoImpl employeeDaoImpl;
-    private Gson gson;
-    private VacancyDaoImpl vacancyDaoImpl;
-    private EmployerDaoImpl employerDaoImpl;
-    private DemandSkillDaoImpl demandSkillDaoImpl;
-
-    public EmployerService() {
-    	// REVU 2 раза зачем ?
-        employerDaoImpl = new EmployerDaoImpl();
-        employeeDaoImpl = new EmployeeDaoImpl();
-        gson = new Gson();
-        vacancyDaoImpl = new VacancyDaoImpl();
-        demandSkillDaoImpl = new DemandSkillDaoImpl();
-    }
+    private EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
+    private static Gson gson = new Gson();
+    private VacancyDaoImpl vacancyDaoImpl = new VacancyDaoImpl();
+    private EmployerDaoImpl employerDaoImpl = new EmployerDaoImpl();
+    private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
     public String registerEmployer(String json) {
         try {
-            getClassInstanceFromJson(EmployerDtoRegisterRequest.class, json);
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
-        }
-        EmployerDtoRegisterRequest employerDtoRegisterRequest = gson.fromJson(json, EmployerDtoRegisterRequest.class);
-        Employer employer;
-        try {
-            employerDtoRegisterRequest.validate();
-            employer = new Employer(employerDtoRegisterRequest.getName(), employerDtoRegisterRequest.getAddress(),
-                    employerDtoRegisterRequest.getEmail(), UUID.randomUUID().toString(),
-                    employerDtoRegisterRequest.getFirstName(), employerDtoRegisterRequest.getPatronymic(),
-                    employerDtoRegisterRequest.getLastName(), employerDtoRegisterRequest.getLogin(),
-                    employerDtoRegisterRequest.getPassword(), true);
-            employerDaoImpl.registerEmployer(employer);
+            EmployerDtoRegisterRequest employerDtoRegisterRequest = getClassInstanceFromJson(EmployerDtoRegisterRequest.class, json);
+            validateEmployerDtoRegisterRequest(employerDtoRegisterRequest);
+            Employer employer = new Employer(employerDtoRegisterRequest.getName(), employerDtoRegisterRequest.getAddress(),
+                    employerDtoRegisterRequest.getEmail(), employerDtoRegisterRequest.getFirstName(),
+                    employerDtoRegisterRequest.getPatronymic(), employerDtoRegisterRequest.getLastName(),
+                    employerDtoRegisterRequest.getLogin(), employerDtoRegisterRequest.getPassword());
+            return gson.toJson(new DtoRegisterResponse(employerDaoImpl.registerEmployer(employer)));
         } catch (ServerException se) {
             return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
         }
-        return gson.toJson(new DtoRegisterResponse(employer.getId()));
     }
 
     public String loginEmployer(String json) {
-        String token;
         try {
-            getClassInstanceFromJson(DtoLoginRequest.class, json);
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
-        }
-        DtoLoginRequest dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
-        try {
+            DtoLoginRequest dtoLoginRequest = getClassInstanceFromJson(DtoLoginRequest.class, json);
             dtoLoginRequest.validate();
-            token = employerDaoImpl.loginEmployer(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
+            String token = employerDaoImpl.loginEmployer(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
+            return gson.toJson(new DtoLoginResponse(token));
         } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
         }
-        return gson.toJson(new DtoLoginResponse(token));
+
     }
 
     public String logOut(String json) {
         try {
-            getClassInstanceFromJson(DtoToken.class, json);
-            DtoToken dtoToken = gson.fromJson(json, DtoToken.class);
+            DtoToken dtoToken = getClassInstanceFromJson(DtoToken.class, json);
             dtoToken.validate();
             employerDaoImpl.logOut(dtoToken.getToken());
             return gson.toJson(dtoToken);
@@ -267,11 +244,35 @@ public class EmployerService {
         return gson.fromJson(demandsJson, DtoDemands.class);
     }
 
-    private void getClassInstanceFromJson(Class c, String json) throws ServerException {
+    private static <T> T getClassInstanceFromJson(Class<T> xClass, String json) throws ServerException {
         try {
-            gson.fromJson(json, c);
+            return gson.fromJson(json, xClass);
         } catch (JsonSyntaxException ex) {
             throw new ServerException(ErrorCode.JSON_EXCEPTION);
+        }
+    }
+
+    private static void validateEmployerDtoRegisterRequest(EmployerDtoRegisterRequest employerDtoRegisterRequest) throws ServerException {
+        if (employerDtoRegisterRequest.getFirstName() == null || employerDtoRegisterRequest.getFirstName().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getLastName() == null || employerDtoRegisterRequest.getLastName().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getEmail() == null || employerDtoRegisterRequest.getEmail().isEmpty()) {
+            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getLogin() == null || employerDtoRegisterRequest.getLogin().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getPassword() == null || employerDtoRegisterRequest.getPassword().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getAddress() == null || employerDtoRegisterRequest.getAddress().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_ADDRESS_EXCEPTION);
+        }
+        if (employerDtoRegisterRequest.getName() == null || employerDtoRegisterRequest.getName().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_NAME_EXCEPTION);
         }
     }
 }

@@ -11,8 +11,8 @@ public class Employer extends User {
     private String address;
     private List<Vacancy> vacancies;
 
-    public Employer(String name, String address, String email, String id, String firstName, String patronymic, String lastName, String login, String password, boolean activity) throws ServerException {
-        super(id, login, password, email, lastName, firstName, patronymic, activity);
+    public Employer(String name, String address, String email, String firstName, String patronymic, String lastName, String login, String password) throws ServerException {
+        super(login, password, email, lastName, firstName, patronymic);
         this.address = address;
         this.name = name;
         vacancies = new ArrayList<>();

@@ -17,46 +17,31 @@ import java.util.UUID;
 //REVU: проверь все свои валидации
 // там не должно быть NullPointerException, используй свой ServerException и лови тут его
 public class EmployeeService {
-    private VacancyDaoImpl vacancyDaoImpl;
-    private Gson gson;
-    // REVU Не сокр. :-) И используйте интерфейс, если он есть
-    // private EmployeeDaol employeeDao;
-    private EmployeeDaoImpl eDao;
-    private DemandSkillDaoImpl demandSkillDaoImpl;
-
-    public EmployeeService() {
-    	// REVU инициализируйте прямо в описании
-        gson = new Gson();
-        eDao = new EmployeeDaoImpl();
-        vacancyDaoImpl = new VacancyDaoImpl();
-        demandSkillDaoImpl = new DemandSkillDaoImpl();
-    }
+    private VacancyDaoImpl vacancyDaoImpl = new VacancyDaoImpl();
+    private static Gson gson = new Gson();
+    private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
     public String registerEmployee(String json) {
         Employee employee;
         try {
-            getClassInstanceFromJson(EmployeeDtoRegisterRequest.class, json);
-            // REVU если getClassInstanceFromJson вернет результат, то этот вызов будет не нужен
-            EmployeeDtoRegisterRequest employeeDtoRegisterRequest = gson.fromJson(json, EmployeeDtoRegisterRequest.class);
-            employeeDtoRegisterRequest.validate();
-            // REVU UUID.randomUUID().toString() тут передавать незачем, пусть конструктор сам поставит
-            employee = new Employee(UUID.randomUUID().toString(), employeeDtoRegisterRequest.getFirstName(),
+            EmployeeDtoRegisterRequest employeeDtoRegisterRequest = getClassInstanceFromJson(EmployeeDtoRegisterRequest.class, json);
+            validateEmployeeDtoRegisterRequest(employeeDtoRegisterRequest);
+            employee = new Employee(employeeDtoRegisterRequest.getFirstName(),
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
-                    employeeDtoRegisterRequest.getEmail(), employeeDtoRegisterRequest.getAttainmentsList(), true);
-            eDao.registerEmployee(employee);
+                    employeeDtoRegisterRequest.getEmail(), employeeDtoRegisterRequest.getAttainmentsList());
+            return gson.toJson(employeeDao.registerEmployee(employee));
         } catch (ServerException se) {
             return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
         }
-        return gson.toJson(new DtoRegisterResponse(employee.getId()));
     }
 
     public String logOut(String json) {
         try {
-            getClassInstanceFromJson(DtoToken.class, json);
-            DtoToken dtoToken = gson.fromJson(json, DtoToken.class);
+            DtoToken dtoToken = getClassInstanceFromJson(DtoToken.class, json);
             dtoToken.validate();
-            eDao.logOut(dtoToken.getToken());
+            employeeDao.logOut(dtoToken.getToken());
             return gson.toJson(dtoToken);
         } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
@@ -65,20 +50,13 @@ public class EmployeeService {
 
     public String loginEmployee(String json) {
         try {
-            getClassInstanceFromJson(DtoLoginRequest.class, json);
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
-        }
-        DtoLoginRequest dtoLoginRequest;
-        String employeeToken;
-        dtoLoginRequest = gson.fromJson(json, DtoLoginRequest.class);
-        try {
+            DtoLoginRequest dtoLoginRequest = getClassInstanceFromJson(DtoLoginRequest.class, json);
             dtoLoginRequest.validate();
-            employeeToken = eDao.loginEmployee(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
+            String employeeToken = employeeDao.loginEmployee(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
+            return gson.toJson(new DtoLoginResponse(employeeToken));
         } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
-        return gson.toJson(new DtoLoginResponse(employeeToken));
     }
 
 
@@ -161,12 +139,12 @@ public class EmployeeService {
         validateActivity(newSkill.getToken());
         //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
         Skill newAttainments = new Skill(newSkill.getNameSkill(), newSkill.getSkill());
-        employee = eDao.getEmployeeById(newSkill.getToken());
+        employee = employeeDao.getEmployeeById(newSkill.getToken());
         employee.updateAttainments(newSkill.getOldNameSkill(), newAttainments);
         return gson.toJson(new ErrorToken());
     }
 
-    public String removeEmployeeSkill(String skillJson) throws ServerException {
+    /*public String removeEmployeeSkill(String skillJson) throws ServerException {
         Employee employee;
         DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
         try {
@@ -179,10 +157,10 @@ public class EmployeeService {
         // то есть не надо тут брать employee by id, передай id в БД
 
         Skill attainment = new Skill(skill.getNameSkill(), skill.getSkill());
-        employee = eDao.getEmployeeById(skill.getToken());
+        employee = employeeDao.getEmployeeById(skill.getToken());
         employee.removeAttainments(attainment);
         return gson.toJson(new DtoTokenResponse(employee.getId()));
-    }
+    }*/
 
     public String removeEmployee(String tokenJson) throws ServerException {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
@@ -192,45 +170,57 @@ public class EmployeeService {
             return gson.toJson(new ErrorToken(ex.getMessage()));
         }
         validateActivity(dtoToken.getToken());
-        eDao.delete(dtoToken.getToken());
+        employeeDao.delete(dtoToken.getToken());
         return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
     }
 
-    public String updateEmployee(String tokenJson) throws ServerException {
+    /*public String updateEmployee(String tokenJson) throws ServerException {
         DtoUpdateEmployeeRequest dtoUpdateEmployeeRequest = gson.fromJson(tokenJson, DtoUpdateEmployeeRequest.class);
         try {
             dtoUpdateEmployeeRequest.validate();
-            eDao.update(dtoUpdateEmployeeRequest.getId(), new Employee(dtoUpdateEmployeeRequest.getId(), dtoUpdateEmployeeRequest.getFirstName(),
+            employeeDao.update(dtoUpdateEmployeeRequest.getId(), new Employee(dtoUpdateEmployeeRequest.getFirstName(),
                     dtoUpdateEmployeeRequest.getPatronymic(), dtoUpdateEmployeeRequest.getLastName(),
                     dtoUpdateEmployeeRequest.getLogin(), dtoUpdateEmployeeRequest.getPassword(),
-                    dtoUpdateEmployeeRequest.getEmail(), dtoUpdateEmployeeRequest.getAttainmentsList(), dtoUpdateEmployeeRequest.isActivity()));
+                    dtoUpdateEmployeeRequest.getEmail(), dtoUpdateEmployeeRequest.getAttainmentsList()));
         } catch (ServerException ex) {
             return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
         }
         return gson.toJson(new DtoTokenResponse(dtoUpdateEmployeeRequest.getId()));
-    }
+    }*/
 
     private DtoSkills convertSkills(String abilitiesJson) {
         return gson.fromJson(abilitiesJson, DtoSkills.class);
     }
 
     private void validateActivity(String token) throws ServerException {
-        if (eDao.getEmployeeById(token) == null) {
+        if (employeeDao.getEmployeeById(token) == null) {
             throw new ServerException(ErrorCode.AUTHORIZATION_EXCEPTION);
         }
     }
 
-    // REVU Вы лишь проверку сделали, а надо было вернуть экземпляр класса c
-// 	public static <T> T getClassInstanceFromJson(String json, Class<T> clazz) throws ServerException {
-// это шаблонный метод (не класс!)
-// https://docs.oracle.com/javase/tutorial/extra/generics/methods.html    
-    
-    
-    private void getClassInstanceFromJson(Class c, String json) throws ServerException {
+    private static <T> T getClassInstanceFromJson(Class<T> xClass, String json) throws ServerException {
         try {
-            gson.fromJson(json, c);
+            return gson.fromJson(json, xClass);
         } catch (JsonSyntaxException ex) {
             throw new ServerException(ErrorCode.JSON_EXCEPTION);
+        }
+    }
+
+    private static void validateEmployeeDtoRegisterRequest(EmployeeDtoRegisterRequest employeeDtoRegisterRequest) throws ServerException {
+        if (employeeDtoRegisterRequest.getFirstName().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+        }
+        if (employeeDtoRegisterRequest.getLastName() == null || employeeDtoRegisterRequest.getLastName().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
+        }
+        if (employeeDtoRegisterRequest.getEmail() == null || employeeDtoRegisterRequest.getEmail().isEmpty()) {
+            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
+        }
+        if (employeeDtoRegisterRequest.getLogin() == null || employeeDtoRegisterRequest.getLogin().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+        }
+        if (employeeDtoRegisterRequest.getPassword() == null || employeeDtoRegisterRequest.getPassword().isEmpty()) {
+            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
         }
     }
 }

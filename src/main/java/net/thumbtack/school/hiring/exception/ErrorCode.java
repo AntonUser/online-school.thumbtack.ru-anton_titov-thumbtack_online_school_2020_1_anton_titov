@@ -28,7 +28,9 @@ public enum ErrorCode {
     EMPLOYER_EXCEPTION("employer for the specified id not found"),
     EMPLOYEE_EXCEPTION("employee for the specified id not found"),
     VACANCY_EXCEPTION("this employer has not found such a vacancy"),
-    JSON_EXCEPTION("JSON does not match the desired type");
+    JSON_EXCEPTION("JSON does not match the desired type"),
+    BUSY_LOGIN_EXCEPTION("this login is already taken"),
+    USER_EXCEPTION("user for the specified login not found");
 
     String errorCode;
 

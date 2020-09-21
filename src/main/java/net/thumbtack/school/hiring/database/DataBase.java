@@ -1,5 +1,7 @@
 package net.thumbtack.school.hiring.database;
 
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employee;
 import net.thumbtack.school.hiring.model.Skill;
 import net.thumbtack.school.hiring.model.User;
@@ -29,32 +31,37 @@ public final class DataBase implements Serializable {
         return instance;
     }
 
-    public static synchronized void setInstance(DataBase newInstance) {
+    public static void setInstance(DataBase newInstance) {
         instance = newInstance;
     }
 
-    public String registerUser(User user) {
-    	// REVU а если такой логин уже есть ?
-    	// putIfAbsent и проверяйте результат, при неудаче - throw ServerException
-        allUsers.put(user.getLogin(), user);
-        activeUsers.put(user.getId(), user);
-        return user.getId();
+    public String registerUser(User user) throws ServerException {
+        if (allUsers.putIfAbsent(user.getLogin(), user) != null) {
+            throw new ServerException(ErrorCode.BUSY_LOGIN_EXCEPTION);
+        }
+        String id = UUID.randomUUID().toString();
+        activeUsers.put(id, user);
+        return id;
     }
 
-    public String loginUser(String login, String password) {
-        User user = allUsers.get(login);
-        // REVU а если такого логина нет ?
+    public String loginUser(String login, String password) throws ServerException {
+        User user;
+        if ((user = allUsers.get(login)) == null) {
+            throw new ServerException(ErrorCode.USER_EXCEPTION);
+        }
         if (user.getPassword().equals(password)) {
-        	// REVU при логине должен выдаваться новый токен . 
-            activeUsers.put(user.getId(), user);
-            return user.getId();
+            String id = UUID.randomUUID().toString();
+            activeUsers.put(id, user);
+            return id;
         }
         return null;
     }
 
-    public void removeAccount(String token) {
+    public void removeAccount(String token) throws ServerException {
         User user = activeUsers.get(token);
-        // REVU а если такого токена нет ?
+        if (user == null) {
+            throw new ServerException(ErrorCode.USER_EXCEPTION);
+        }
         allUsers.remove(user.getLogin());
         activeUsers.remove(token, user);
     }

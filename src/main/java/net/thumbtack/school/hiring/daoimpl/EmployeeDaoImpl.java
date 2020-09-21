@@ -15,11 +15,11 @@ public class EmployeeDaoImpl implements Dao<Employee, List<Employee>> {
         this.dataBase = DataBase.getInstance();
     }
 
-    public String registerEmployee(Employee employee) {
+    public String registerEmployee(Employee employee) throws ServerException {
         return dataBase.registerUser(employee);
     }
 
-    public String loginEmployee(String login, String password) {
+    public String loginEmployee(String login, String password) throws ServerException {
         return dataBase.loginUser(login, password);
     }
 
@@ -31,7 +31,7 @@ public class EmployeeDaoImpl implements Dao<Employee, List<Employee>> {
         dataBase.logoutUser(token);
     }
 
-    public void removeAccount(String token) {
+    public void removeAccount(String token) throws ServerException {
         dataBase.removeAccount(token);
     }
 

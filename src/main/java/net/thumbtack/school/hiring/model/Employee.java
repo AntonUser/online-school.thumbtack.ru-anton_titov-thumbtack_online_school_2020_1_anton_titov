@@ -6,8 +6,8 @@ import java.util.*;
 public class Employee extends User implements Serializable {
     private List<Skill> attainmentsList;
 
-    public Employee(String id, String firstName, String patronymic, String lastName, String login, String password, String email, List<Skill> attainments, boolean activity) {
-        super(id, login, password, email, lastName, firstName, patronymic, activity);
+    public Employee(String firstName, String patronymic, String lastName, String login, String password, String email, List<Skill> attainments) {
+        super(login, password, email, lastName, firstName, patronymic);
         attainmentsList = attainments;
     }
 

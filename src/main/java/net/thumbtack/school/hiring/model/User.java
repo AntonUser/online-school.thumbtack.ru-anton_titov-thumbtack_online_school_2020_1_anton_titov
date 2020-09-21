@@ -3,31 +3,20 @@ package net.thumbtack.school.hiring.model;
 import java.util.Objects;
 
 public class User {
-	// REVU что это такое ? Токен ? Если да - ему тут не место
-	// только залогиненные юзеры его имеют
-	// поэтому в БД должна быть коллекция, а здесь не надо этого id
-    private String id;
     private String login;
     private String password;
     private String email;
     private String lastName;
     private String firstName;
     private String patronymic;
-    private boolean activity;//true профиль активен, false нет
 
-    public User(String id, String login, String password, String email, String lastName, String firstName, String patronymic, boolean activity) {
-        this.id = id;
+    public User(String login, String password, String email, String lastName, String firstName, String patronymic) {
         this.login = login;
         this.password = password;
         this.email = email;
         this.lastName = lastName;
         this.firstName = firstName;
         this.patronymic = patronymic;
-        this.activity = activity;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getLogin() {
@@ -74,22 +63,12 @@ public class User {
         this.lastName = lastName;
     }
 
-    public boolean isActivity() {
-        return activity;
-    }
-
-    public void setActivity(boolean activity) {
-        this.activity = activity;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return activity == user.activity &&
-                Objects.equals(id, user.id) &&
-                Objects.equals(login, user.login) &&
+        return Objects.equals(login, user.login) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(lastName, user.lastName) &&
@@ -99,6 +78,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, password, email, lastName, firstName, patronymic, activity);
+        return Objects.hash(login, password, email, lastName, firstName, patronymic);
     }
 }

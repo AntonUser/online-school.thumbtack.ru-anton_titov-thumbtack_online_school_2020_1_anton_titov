@@ -32,11 +32,11 @@ public class DtoUpdateEmployeeRequest extends EmployeeDtoRegisterRequest {
         this.activity = activity;
     }
 
-    public void validate() throws ServerException {
+    /*public void validate() throws ServerException {
         super.validate();
         if (id == null || id.isEmpty()) {
             throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
         }
-    }
+    }*/
 
 }

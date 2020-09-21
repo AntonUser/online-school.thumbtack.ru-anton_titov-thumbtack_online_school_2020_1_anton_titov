@@ -187,10 +187,10 @@ public class Server {
         return employerService.updateDemandsInVacancy(newRequestJson);
     }*/
 
-    public String updateEmployee(String tokenJson) throws ServerException {
+   /* public String updateEmployee(String tokenJson) throws ServerException {
         validateActivityServer();
         return employeeService.updateEmployee(tokenJson);
-    }
+    }*/
 
     /*public String updateEmployer(String tokenJson) throws ServerException {
         validateActivityServer();
@@ -198,11 +198,11 @@ public class Server {
     }
 */
     //
-    public String removeSkillEmployee(String json) throws ServerException {
+   /* public String removeSkillEmployee(String json) throws ServerException {
         validateActivityServer();
         return employeeService.removeEmployeeSkill(json);
     }
-
+*/
     //удаление вакансии
 /*    public String removeVacancy(String json) throws ServerException {
         validateActivityServer();
