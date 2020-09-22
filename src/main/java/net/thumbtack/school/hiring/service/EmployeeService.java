@@ -19,10 +19,13 @@ import java.util.UUID;
 public class EmployeeService {
     private VacancyDaoImpl vacancyDaoImpl = new VacancyDaoImpl();
     private static Gson gson = new Gson();
+    // REVU используйте интерфейс, если он есть
+    // private EmployeeDao employeeDao = new EmployeeDaoImpl();
     private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
     private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
     public String registerEmployee(String json) {
+    	// REVU описывайте переменную там, где она становится нужной
         Employee employee;
         try {
             EmployeeDtoRegisterRequest employeeDtoRegisterRequest = getClassInstanceFromJson(EmployeeDtoRegisterRequest.class, json);
@@ -31,8 +34,12 @@ public class EmployeeService {
                     employeeDtoRegisterRequest.getPatronymic(), employeeDtoRegisterRequest.getLastName(),
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
                     employeeDtoRegisterRequest.getEmail(), employeeDtoRegisterRequest.getAttainmentsList());
+            // REVU не надо так, вызов DAO не сразу заметен
+            // лучше ввести промежуточную переменную
             return gson.toJson(employeeDao.registerEmployee(employee));
         } catch (ServerException se) {
+        	// REVU просто return gson.toJson(new ErrorToken(se)); 
+        	// а конструктор пусть и разбирается
             return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
         }
     }
@@ -199,6 +206,7 @@ public class EmployeeService {
     }
 
     private static <T> T getClassInstanceFromJson(Class<T> xClass, String json) throws ServerException {
+    	// REVU не мешает еще на null проверить
         try {
             return gson.fromJson(json, xClass);
         } catch (JsonSyntaxException ex) {

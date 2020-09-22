@@ -39,6 +39,7 @@ public final class DataBase implements Serializable {
         if (allUsers.putIfAbsent(user.getLogin(), user) != null) {
             throw new ServerException(ErrorCode.BUSY_LOGIN_EXCEPTION);
         }
+        // REVU лучше String token, под id обычно понимают нечто иное
         String id = UUID.randomUUID().toString();
         activeUsers.put(id, user);
         return id;
@@ -54,6 +55,10 @@ public final class DataBase implements Serializable {
             activeUsers.put(id, user);
             return id;
         }
+        // REVU а вот такое делать не надо. Как понимать потом в вызывающем коде этот null ?
+        // либо метод должен вернуть токен, либо выбросить исключение
+        // третьего не дано
+        // то есть при неверном пароле тоже должно быть выброшео исключение, но с кодом ErrorCode.WRONG_PASSWORD
         return null;
     }
 
@@ -96,6 +101,14 @@ public final class DataBase implements Serializable {
         return new ArrayList<>(vacanciesList);
     }
 
+    // REVU это все сейчас слишком медленно, полный перебор
+    // будем обсуждать, как это сделать лучше
+    // пока доделайте работу со скиллами и вакансиями
+    // добавить скилл
+    // добавить вакансию
+    // добавить требование в вакансию
+    // удалить требование из вакансии
+    // и т.д.
     public List<Vacancy> getVacanciesListNotLess(Map<String, Integer> skills) {
         int i;
         List<Vacancy> outList = new ArrayList<>();

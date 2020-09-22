@@ -1,5 +1,7 @@
 package net.thumbtack.school.hiring.dto.responce;
 
+// REVU при чем тут токен ? Это класс для всех видов ошибок
+// ErrorDtoResponse, например
 public class ErrorToken {
     private String error;
 

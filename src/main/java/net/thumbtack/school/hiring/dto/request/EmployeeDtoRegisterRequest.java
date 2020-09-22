@@ -14,6 +14,13 @@ public class EmployeeDtoRegisterRequest {
     private String login;
     private String password;
     private String email;
+    // REVU можно, конечно, и так - при регистрации сразу указать список умений
+    // можно и иначе - при регистрации его не указывать, а потом сделать метод,который добавляет
+    // это просто к сведению, ничего делать в этом плане не надо
+    // а вот использование класса модели в DTO - плохо
+    // лучше, если DTO ничего не будет знать про модель
+    // так что стоит завести класс SkillDtoRequest и тут его использовать
+    // проверьте и в других DTO
     private List<Skill> attainmentsList;
 
     public EmployeeDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<Skill> attainmentsList) {
