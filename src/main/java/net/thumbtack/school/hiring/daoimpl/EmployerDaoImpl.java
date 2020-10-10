@@ -4,6 +4,8 @@ import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employer;
+import net.thumbtack.school.hiring.model.Requirement;
+import net.thumbtack.school.hiring.model.Vacancy;
 
 import java.util.List;
 
@@ -32,6 +34,22 @@ public class EmployerDaoImpl implements Dao<Employer, List<Employer>> {
 
     public Employer getEmployerById(String id) {
         return (Employer) dataBase.getUserById(id);
+    }
+
+    public void addVacancy(Vacancy vacancy, String token) {
+        dataBase.addVacancy(vacancy, token);
+    }
+
+    public void removeVacancy(String name, String token) throws ServerException {
+        dataBase.removeVacancy(name, token);
+    }
+
+    public void addRequirement(Requirement requirement, String token, String nameVacancy) throws ServerException {
+        dataBase.addRequirementInVacancy(requirement, token, nameVacancy);
+    }
+
+    public void removeRequirement(String token, String nameVacancy, String nameRequirement) throws ServerException {
+    dataBase.removeRequirementOfVacancy(token, nameVacancy, nameRequirement);
     }
 
     /*

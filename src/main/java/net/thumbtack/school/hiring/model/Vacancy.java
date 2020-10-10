@@ -1,26 +1,28 @@
 package net.thumbtack.school.hiring.model;
 
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
+
 import java.util.*;
 
 
-public class Vacancy {
-    private String id;
+public class Vacancy implements Comparable {
+    private final String id;
     private String name;
     private int salary;
-    // REVU эти 2 map мне непонятны
-    // что такое String и Integer ?
-    // давайте в скайпе обсудим, можно голосом
-    private Map<String, Integer> obligatoryDemands;
-    private Map<String, Integer> notObligatoryDemands;
-    private boolean status;//сделать enum
+    private List<Requirement> demands;
+    private VacancyStatus vacancyStatus;
 
-    public Vacancy(String id,String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
-        this.id = id;
-        this.name = namePost;
+    public Vacancy(String name, int salary, List<Requirement> demands) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
         this.salary = salary;
-        this.status = true;
-        this.obligatoryDemands = obligatoryDemands;
-        this.notObligatoryDemands = notObligatoryDemands;
+        this.demands = demands;
+        this.vacancyStatus = VacancyStatus.ACTIVE;
+    }
+
+    public void addRequirement(Requirement demand) {
+        demands.add(demand);
     }
 
     public String getId() {
@@ -43,37 +45,46 @@ public class Vacancy {
         this.salary = salary;
     }
 
-    public Map<String, Integer> getObligatoryDemands() {
-        return obligatoryDemands;
+    public List<Requirement> getDemands() {
+        return demands;
     }
 
-    public Map<String, Integer> getNotObligatoryDemands() {
-        return notObligatoryDemands;
+    public void setDemands(List<Requirement> demands) {
+        this.demands = demands;
     }
 
-    public boolean isStatus() {
-        return status;
+    public VacancyStatus getStatus() {
+        return vacancyStatus;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setStatus(VacancyStatus vacancyStatus) {
+        this.vacancyStatus = vacancyStatus;
     }
 
-    public void updateDemand(String nameDemand, Requirement newDemand) {
-        if (newDemand.isNecessary()) {
-            obligatoryDemands.remove(nameDemand, obligatoryDemands.get(nameDemand));
-            obligatoryDemands.put(newDemand.getNameDemand(), newDemand.getSkill());
-        } else {
-            notObligatoryDemands.remove(nameDemand, notObligatoryDemands.get(nameDemand));
-            notObligatoryDemands.put(newDemand.getNameDemand(), newDemand.getSkill());
-        }
+    public void updateDemand(String nameDemand, Requirement newDemand) throws ServerException {
+        demands.set(demands.indexOf(searchRequirement(nameDemand)), newDemand);
     }
+
 
     public Set<String> getNamesDemands() {
         Set<String> outSet = new HashSet<>();
-        outSet.addAll(obligatoryDemands.keySet());
-        outSet.addAll(notObligatoryDemands.keySet());
+        for (Requirement demand : demands) {
+            outSet.add(demand.getName());
+        }
         return outSet;
+    }
+
+    public void removeDemand(String nameDemand) throws ServerException {
+        demands.remove(searchRequirement(nameDemand));
+    }
+
+    private Requirement searchRequirement(String nameDemand) throws ServerException {
+        for (Requirement demand : demands) {
+            if (demand.getName().equals(nameDemand)) {
+                return demand;
+            }
+        }
+        throw new ServerException(ErrorCode.DEMAND_EXCEPTION);
     }
 
     @Override
@@ -82,15 +93,19 @@ public class Vacancy {
         if (o == null || getClass() != o.getClass()) return false;
         Vacancy vacancy = (Vacancy) o;
         return salary == vacancy.salary &&
-                status == vacancy.status &&
                 Objects.equals(id, vacancy.id) &&
                 Objects.equals(name, vacancy.name) &&
-                Objects.equals(obligatoryDemands, vacancy.obligatoryDemands) &&
-                Objects.equals(notObligatoryDemands, vacancy.notObligatoryDemands);
+                Objects.equals(demands, vacancy.demands) &&
+                vacancyStatus == vacancy.vacancyStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, salary, obligatoryDemands, notObligatoryDemands, status);
+        return Objects.hash(id, name, salary, demands, vacancyStatus);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.getName().compareTo(((Vacancy) o).getName());
     }
 }

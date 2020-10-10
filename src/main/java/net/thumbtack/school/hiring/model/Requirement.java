@@ -1,44 +1,26 @@
 package net.thumbtack.school.hiring.model;
 
-import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ServerException;
-
 import java.util.Objects;
 
-public class Requirement extends Skill {
-    private String nameDemand;
-    private int skill;
-    private boolean necessary;
+public class Requirement extends Skill implements Comparable {
 
-    public Requirement(String nameDemand, int skillLevel, boolean necessary) {
+    private ConditionsRequirements necessary;
+
+    public Requirement(String nameDemand, int skillLevel, ConditionsRequirements necessary) {
         super(nameDemand, skillLevel);
-        setNecessary(necessary);
+        this.necessary = necessary;
     }
 
-    public String getNameDemand() {
-        return nameDemand;
+    public Requirement(Skill skill, ConditionsRequirements necessary) {
+        super(skill.getName(), skill.getLevel());
+        this.necessary = necessary;
     }
 
-    public void setNameDemand(String nameDemand) {
-        this.nameDemand = nameDemand;
-    }
-
-    public int getSkill() {
-        return skill;
-    }
-
-    public void setSkill(int skill) throws ServerException {
-        if (skill < 1 || skill > 5) {
-            throw new ServerException(ErrorCode.ERRONEOUS_SKILL_EXCEPTION);
-        }
-        this.skill = skill;
-    }
-
-    public boolean isNecessary() {
+    public ConditionsRequirements getNecessary() {
         return necessary;
     }
 
-    public void setNecessary(boolean necessary) {
+    public void setNecessary(ConditionsRequirements necessary) {
         this.necessary = necessary;
     }
 
@@ -46,14 +28,28 @@ public class Requirement extends Skill {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Requirement that = (Requirement) o;
-        return skill == that.skill &&
-                necessary == that.necessary &&
-                Objects.equals(nameDemand, that.nameDemand);
+        return necessary == that.necessary;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nameDemand, skill, necessary);
+        return Objects.hash(super.hashCode(), necessary);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        int i = super.compareTo(o);
+        if (i == 0) {
+            if (this.necessary.equals(ConditionsRequirements.NECESSARY) && ((Requirement) o).getNecessary().equals(ConditionsRequirements.NOT_NECESSARY)) {
+                return 1;
+            } else if (this.necessary.equals(ConditionsRequirements.NOT_NECESSARY) && ((Requirement) o).getNecessary().equals(ConditionsRequirements.NECESSARY)) {
+                return -1;
+            }
+            return 0;
+        }
+        return i;
     }
 }
+

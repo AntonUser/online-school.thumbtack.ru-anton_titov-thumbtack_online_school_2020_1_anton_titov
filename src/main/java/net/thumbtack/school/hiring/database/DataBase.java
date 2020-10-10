@@ -1,11 +1,10 @@
 package net.thumbtack.school.hiring.database;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Employee;
-import net.thumbtack.school.hiring.model.Skill;
-import net.thumbtack.school.hiring.model.User;
-import net.thumbtack.school.hiring.model.Vacancy;
+import net.thumbtack.school.hiring.model.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -14,14 +13,17 @@ public final class DataBase implements Serializable {
     private static DataBase instance = null;
     private Map<String, User> allUsers;//String - логин пользователя, User - пользователь
     private Map<String, User> activeUsers;//string - id объекта, User - пользователь
-    private ArrayList<Vacancy> vacanciesList;
     private Set<String> demandSkills;
+    private Multimap<Skill, Employee> userSkills;//?string - скилл,Employee - пользователь у которого он есть
+    private Multimap<Requirement, Vacancy> requirementsVacancies;//?
 
+    //добавить мап скилл-объекты
     private DataBase() {
         allUsers = new HashMap<>();
         activeUsers = new HashMap<>();
-        vacanciesList = new ArrayList<>();
         demandSkills = new HashSet<>();
+        userSkills = TreeMultimap.create();
+        requirementsVacancies = TreeMultimap.create();
     }
 
     public static DataBase getInstance() {
@@ -39,10 +41,14 @@ public final class DataBase implements Serializable {
         if (allUsers.putIfAbsent(user.getLogin(), user) != null) {
             throw new ServerException(ErrorCode.BUSY_LOGIN_EXCEPTION);
         }
-        // REVU лучше String token, под id обычно понимают нечто иное
-        String id = UUID.randomUUID().toString();
-        activeUsers.put(id, user);
-        return id;
+        String token = UUID.randomUUID().toString();
+        activeUsers.put(token, user);
+        if (user instanceof Employee) {
+            for (Skill skill : ((Employee) user).getAttainmentsList()) {
+                userSkills.put(skill, (Employee) user);
+            }
+        }
+        return token;
     }
 
     public String loginUser(String login, String password) throws ServerException {
@@ -51,15 +57,11 @@ public final class DataBase implements Serializable {
             throw new ServerException(ErrorCode.USER_EXCEPTION);
         }
         if (user.getPassword().equals(password)) {
-            String id = UUID.randomUUID().toString();
-            activeUsers.put(id, user);
-            return id;
+            String token = UUID.randomUUID().toString();
+            activeUsers.put(token, user);
+            return token;
         }
-        // REVU а вот такое делать не надо. Как понимать потом в вызывающем коде этот null ?
-        // либо метод должен вернуть токен, либо выбросить исключение
-        // третьего не дано
-        // то есть при неверном пароле тоже должно быть выброшео исключение, но с кодом ErrorCode.WRONG_PASSWORD
-        return null;
+        throw new ServerException(ErrorCode.WRONG_PASSWORD);
     }
 
     public void removeAccount(String token) throws ServerException {
@@ -83,12 +85,56 @@ public final class DataBase implements Serializable {
         allUsers.put(user.getLogin(), user);
     }
 
-    public void removeEmployeeSkill(String id, Skill skill) {
-        Employee employee = (Employee) activeUsers.get(id);
-        employee.removeAttainments(skill);
+    public void addVacancy(Vacancy vacancy, String token) {
+        Employer employer = (Employer) getUserById(token);
+        employer.addVacancy(vacancy);
+        saveUser(employer);
+        activeUsers.put(token, employer);
+        this.addSubSet(vacancy.getNamesDemands());
     }
 
+    public void removeVacancy(String name, String token) throws ServerException {
+        Employer employer = (Employer) getUserById(token);
+        employer.removeVacancy(name);
+        saveUser(employer);
+        activeUsers.put(token, employer);
+    }
 
+    public void addSkillForEmployee(Skill attainment, String token) throws ServerException {
+        this.addDemandSkill(attainment.getName());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
+        Employee employee = (Employee) getUserById(token);
+        employee.addAttainments(attainment);
+        saveUser(employee);
+        activeUsers.put(token, employee);
+    }
+
+    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) {
+        Employee employee = (Employee) getUserById(token);
+        employee.updateAttainments(oldNameSkill, newSkill);
+        saveUser(employee);
+        activeUsers.put(token, employee);
+    }
+
+    public void removeEmployeeSkill(String id, String name) throws ServerException {
+        Employee employee = (Employee) activeUsers.get(id);
+        employee.removeAttainments(employee.getSkillByName(name));
+        saveUser(employee);
+        activeUsers.put(id, employee);
+    }
+
+    public void addRequirementInVacancy(Requirement requirement, String token, String nameVacancy) throws ServerException {
+        Employer employer = (Employer) getUserById(token);
+        employer.getVacancyByName(nameVacancy).addRequirement(requirement);
+        saveUser(employer);
+        activeUsers.put(token, employer);
+    }
+
+    public void removeRequirementOfVacancy(String token, String nameVacancy, String nameRequirement) throws ServerException {
+        Employer employer = (Employer) getUserById(token);
+        employer.getVacancyByName(nameVacancy).removeDemand(nameRequirement);
+        saveUser(employer);
+        activeUsers.put(token, employer);
+    }
    /* public List<Employee> getEmployeeList() {
         return new ArrayList<>(employeeList.values());
     }
@@ -97,9 +143,9 @@ public final class DataBase implements Serializable {
         return new ArrayList<>(employerList.values());
     }*/
 
-    public List<Vacancy> getVacanciesList() {
+   /* public List<Vacancy> getVacanciesList() {
         return new ArrayList<>(vacanciesList);
-    }
+    }*/
 
     // REVU это все сейчас слишком медленно, полный перебор
     // будем обсуждать, как это сделать лучше
@@ -109,98 +155,57 @@ public final class DataBase implements Serializable {
     // добавить требование в вакансию
     // удалить требование из вакансии
     // и т.д.
-    public List<Vacancy> getVacanciesListNotLess(Map<String, Integer> skills) {
-        int i;
-        List<Vacancy> outList = new ArrayList<>();
-        Map<String, Integer> demands = new HashMap();
-        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
-        for (Vacancy vacancy : vacancies) {
-            demands.putAll(vacancy.getNotObligatoryDemands());
-            demands.putAll(vacancy.getObligatoryDemands());
-            if (skills.keySet().containsAll(demands.keySet())) {
-                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
-                i = 0;
-                while (itr.hasNext()) {
-                    Map.Entry<String, Integer> entry = itr.next();
-                    if (skills.get(entry.getKey()) < entry.getValue()) {
-                        break;
-                    }
-                    i++;
-                }
-                if (i == demands.size()) {
-                    outList.add(vacancy);
-                }
-                demands.clear();
-            }
+
+    /*Collection<Employee> employees = userSkills.get(skills.get(0).getName());
+        for (Skill skill : skills) {
+            employees.retainAll(userSkills.get(skill.getName()));
+        } для получения работников
+     */
+    public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
+        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
+        Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
+        Collection<Vacancy> vacancies = new ArrayList<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
+        vacancies.addAll((Collection<? extends Vacancy>) navigableMap.subMap(new Requirement(skills.get(0), ConditionsRequirements.NOT_NECESSARY), new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NOT_NECESSARY)));
+        for (Skill skill : skills) {
+            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
+            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
         }
-        return outList;
+        return new ArrayList<>(vacancies);
     }
 
-    public List<Vacancy> getVacanciesListObligatoryDemand(Map<String, Integer> skills) {
-        int i;
-        List<Vacancy> outList = new ArrayList<>();
-        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
-        for (Vacancy vacancy : vacancies) {
-            if (skills.keySet().containsAll(vacancy.getObligatoryDemands().keySet())) {
-                Iterator<Map.Entry<String, Integer>> itr = vacancy.getObligatoryDemands().entrySet().iterator();
-                i = 0;
-                while (itr.hasNext()) {
-                    Map.Entry<String, Integer> entry = itr.next();
-                    if (skills.get(entry.getKey()) < entry.getValue()) {
-                        break;
-                    }
-                    i++;
-                }
-                if (i == vacancy.getObligatoryDemands().size()) {
-                    outList.add(vacancy);
-                }
-            }
+    public List<Vacancy> getVacanciesListObligatoryDemand(List<Skill> skills) {
+        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
+        Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
+        Collection<Vacancy> vacancies = new ArrayList<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
+        for (Skill skill : skills) {
+            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
         }
-        return outList;
+        return new ArrayList<>(vacancies);
     }
 
-    public List<Vacancy> getVacanciesListOnlyName(Map<String, Integer> skills) {
-        List<Vacancy> outList = new ArrayList<>();
-        Map<String, Integer> demands = new HashMap();
-        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
-        for (Vacancy vacancy : vacancies) {
-            demands.putAll(vacancy.getNotObligatoryDemands());
-            demands.putAll(vacancy.getObligatoryDemands());
-            if (skills.keySet().containsAll(demands.keySet())) {
-                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
-                outList.add(vacancy);
-            }
-            demands.clear();
+    public List<Vacancy> getVacanciesListOnlyName(List<Skill> skills) {
+        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
+        Requirement requirement = new Requirement(skills.get(0).getName(), 1, ConditionsRequirements.NECESSARY);
+        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
+                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+        for (Skill skill : skills) {
+            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
         }
-        return outList;
+        return new ArrayList<>(vacancies);
     }
 
-    public List<Vacancy> getVacanciesListWithOneDemand(Map<String, Integer> skills) {//!!!!!!
-        int i;
-        List<Vacancy> outList = new ArrayList<>();
-        Map<String, Integer> demands = new HashMap();
-        List<Vacancy> vacancies = new ArrayList<>(vacanciesList);
-        for (Vacancy vacancy : vacancies) {
-            demands.putAll(vacancy.getNotObligatoryDemands());
-            demands.putAll(vacancy.getObligatoryDemands());
-            demands.keySet().retainAll(skills.keySet());
-            if (demands.size() != 0) {
-                Iterator<Map.Entry<String, Integer>> itr = demands.entrySet().iterator();
-                i = 0;
-                while (itr.hasNext()) {
-                    Map.Entry<String, Integer> entry = itr.next();
-                    if (skills.get(entry.getKey()) < entry.getValue()) {
-                        break;
-                    }
-                    i++;
-                }
-                if (i != 0) {
-                    outList.add(vacancy);
-                }
-                demands.clear();
-            }
+    public List<Vacancy> getVacanciesListWithOneDemand(List<Skill> skills) {
+        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
+        Requirement requirement = new Requirement(skills.get(0).getName(), 1, ConditionsRequirements.NECESSARY);
+        Set<Vacancy> vacancies = new HashSet<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+                new Requirement(skills.get(0), ConditionsRequirements.NOT_NECESSARY)).values());
+        for (Skill skill : skills) {
+            vacancies.addAll((Collection<? extends Vacancy>) navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
         }
-        return outList;
+        return new ArrayList<>(vacancies);
+
     }
 
     public Set<String> getDemandSkillsSet() {
@@ -215,26 +220,6 @@ public final class DataBase implements Serializable {
         demandSkills.add(nameDemandSkill);
     }
 /*
-    public void addSkillForEmployee(Skill attainments, String token) throws ServerException {
-        this.addDemandSkill(attainments.getName());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
-        Employee employee = getEmployeeById(token);
-        employee.addAttainments(attainments);
-        updateEmployee(employee.getId(), employee);
-    }
-
-    /*public void addEmployer(Employer employer) throws ServerException {
-        // REVU не надо проверять.  Просто попробуйте добавить с этим логином с помощью putIfAbsent и проверьте, что из этого вышло
-        // а до пароля Вам тут и дела нет - все равно добавить нельзя с этим логином
-        if (getEmployeeByLoginAndPassword(employer.getLogin(), employer.getPassword()) != null) {
-            throw new ServerException(ErrorCode.REPEATING_EMPLOYER);
-        }
-        employerList.put(employer.getId(), employer);
-    }*/
-
-    public void addVacancy(Vacancy vacancy) {
-        vacanciesList.add(vacancy);
-        this.addSubSet(vacancy.getNamesDemands());
-    }
 
     /*public Vacancy getVacancyByTokenAndName(String token, String namePost) {
         for (Vacancy vacancy : vacanciesList) {
@@ -536,7 +521,6 @@ public final class DataBase implements Serializable {
         }
     */
     public void cleanDataBase() {
-        vacanciesList.clear();
         allUsers.clear();
         activeUsers.clear();
         demandSkills.clear();

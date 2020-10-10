@@ -104,10 +104,7 @@ public class Server {
          return employeeService.addEmployeeSkill(requestJsonString);
      }
  */
-    public String getAllDemandsSkills(String requestJsonString) throws ServerException {
-        validateActivityServer();
-        return employeeService.getAllDemandSkills(requestJsonString);
-    }
+
 
     //4 геттера на вакансии
     public String getVacanciesNotLess(String requestJsonString) throws ServerException {
@@ -120,9 +117,9 @@ public class Server {
         return employeeService.getVacanciesObligatoryDemand(requestJsonString);
     }
 
-    public String getVacancies(String requestJsonString) throws ServerException {
+    public String getVacanciesOnlyName(String requestJsonString) throws ServerException {
         validateActivityServer();
-        return employeeService.getVacancies(requestJsonString);
+        return employeeService.getVacanciesOnlyName(requestJsonString);
     }
 
     public String getVacanciesWithOneDemand(String requestJsonString) throws ServerException {

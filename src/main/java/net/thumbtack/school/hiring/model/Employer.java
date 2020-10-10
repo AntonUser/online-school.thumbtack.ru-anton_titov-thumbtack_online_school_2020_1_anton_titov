@@ -1,5 +1,6 @@
 package net.thumbtack.school.hiring.model;
 
+import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.ArrayList;
@@ -22,13 +23,26 @@ public class Employer extends User {
         vacancies.add(vacancy);
     }
 
-    public Vacancy getVacancyById(String id) {
+    public void removeVacancy(String name) throws ServerException {
+    vacancies.remove(getVacancyByName(name));
+    }
+
+    public Vacancy getVacancyById(String id) throws ServerException {
         for (Vacancy vacancy : vacancies) {
             if (vacancy.getId().equals(id)) {
                 return vacancy;
             }
         }
-        return null;
+        throw new ServerException(ErrorCode.VACANCY_ID_EXCEPTION);
+    }
+
+    public Vacancy getVacancyByName(String name) throws ServerException {
+        for (Vacancy vacancy : vacancies) {
+            if (vacancy.getName().equals(name)) {
+                return vacancy;
+            }
+        }
+        throw new ServerException(ErrorCode.VACANCY_NAME_EXCEPTION);
     }
 
     public List<Vacancy> getAllVacancies() {

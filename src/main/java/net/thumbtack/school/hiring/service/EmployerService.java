@@ -5,14 +5,13 @@ import com.google.gson.JsonSyntaxException;
 import net.thumbtack.school.hiring.daoimpl.DemandSkillDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployeeDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployerDaoImpl;
-import net.thumbtack.school.hiring.daoimpl.VacancyDaoImpl;
 import net.thumbtack.school.hiring.dto.request.DtoDemands;
 import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
 import net.thumbtack.school.hiring.dto.request.DtoToken;
 import net.thumbtack.school.hiring.dto.request.EmployerDtoRegisterRequest;
 import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
 import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
-import net.thumbtack.school.hiring.dto.responce.ErrorToken;
+import net.thumbtack.school.hiring.dto.responce.ErrorDtoResponse;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employer;
@@ -20,7 +19,6 @@ import net.thumbtack.school.hiring.model.Employer;
 public class EmployerService {
     private EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
     private static Gson gson = new Gson();
-    private VacancyDaoImpl vacancyDaoImpl = new VacancyDaoImpl();
     private EmployerDaoImpl employerDaoImpl = new EmployerDaoImpl();
     private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
@@ -34,7 +32,7 @@ public class EmployerService {
                     employerDtoRegisterRequest.getLogin(), employerDtoRegisterRequest.getPassword());
             return gson.toJson(new DtoRegisterResponse(employerDaoImpl.registerEmployer(employer)));
         } catch (ServerException se) {
-            return gson.toJson(new ErrorToken(se.getErrorCode().getErrorCode()));
+            return gson.toJson(new ErrorDtoResponse(se));
         }
     }
 
@@ -45,7 +43,7 @@ public class EmployerService {
             String token = employerDaoImpl.loginEmployer(dtoLoginRequest.getLogin(), dtoLoginRequest.getPassword());
             return gson.toJson(new DtoLoginResponse(token));
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
+            return gson.toJson(new ErrorDtoResponse(ex));
         }
 
     }
@@ -57,7 +55,7 @@ public class EmployerService {
             employerDaoImpl.logOut(dtoToken.getToken());
             return gson.toJson(dtoToken);
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
+            return gson.toJson(new ErrorDtoResponse(ex));
         }
     }
    /* public String addVacancy(String vacancyJson) throws ServerException {

@@ -27,11 +27,14 @@ public enum ErrorCode {
     SKILLS_LIST_EXCEPTION("skill list is empty"),
     EMPLOYER_EXCEPTION("employer for the specified id not found"),
     EMPLOYEE_EXCEPTION("employee for the specified id not found"),
-    VACANCY_EXCEPTION("this employer has not found such a vacancy"),
+    VACANCY_ID_EXCEPTION("this employer did not find such a vacancy with the given id"),
+    VACANCY_NAME_EXCEPTION("this employer did not find such a vacancy with the given name"),
     JSON_EXCEPTION("JSON does not match the desired type"),
     BUSY_LOGIN_EXCEPTION("this login is already taken"),
-    USER_EXCEPTION("user for the specified login not found");
-
+    USER_EXCEPTION("user for the specified login not found"),
+    WRONG_PASSWORD("wrong password"),
+    DEMAND_EXCEPTION("no requirement found for the given name"),
+    SKILL_EXCEPTION("no skill found for the given name");
     String errorCode;
 
     ErrorCode(String errorCode) {

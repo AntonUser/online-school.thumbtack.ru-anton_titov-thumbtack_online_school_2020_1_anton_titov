@@ -1,9 +1,12 @@
 package net.thumbtack.school.hiring.model;
 
+import net.thumbtack.school.hiring.exception.ErrorCode;
+import net.thumbtack.school.hiring.exception.ServerException;
+
 import java.io.Serializable;
 import java.util.*;
 
-public class Employee extends User implements Serializable {
+public class Employee extends User implements Serializable, Comparable {
     private List<Skill> attainmentsList;
 
     public Employee(String firstName, String patronymic, String lastName, String login, String password, String email, List<Skill> attainments) {
@@ -21,6 +24,15 @@ public class Employee extends User implements Serializable {
                 attainmentsList.set(attainmentsList.indexOf(attainments), newAttainments);
             }
         }
+    }
+
+    public Skill getSkillByName(String name) throws ServerException {
+        for (Skill skill : attainmentsList) {
+            if (name.equals(skill.getName())) {
+                return skill;
+            }
+        }
+        throw new ServerException(ErrorCode.SKILL_EXCEPTION);
     }
 
     public void removeAttainments(Skill attainments) {
@@ -56,5 +68,11 @@ public class Employee extends User implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), attainmentsList);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Employee employee = (Employee) o;
+        return getLastName().compareTo(employee.getLastName()) ;
     }
 }

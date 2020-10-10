@@ -4,7 +4,9 @@ import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employee;
+import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Skill;
+import net.thumbtack.school.hiring.model.Vacancy;
 
 import java.util.List;
 
@@ -31,16 +33,40 @@ public class EmployeeDaoImpl implements Dao<Employee, List<Employee>> {
         dataBase.logoutUser(token);
     }
 
+    public void addSkill(Skill attainment, String token) throws ServerException {
+        dataBase.addSkillForEmployee(attainment, token);
+    }
+
     public void removeAccount(String token) throws ServerException {
         dataBase.removeAccount(token);
     }
 
-    public void removeEmployeeSkill(String id, Skill skill) {
-        dataBase.removeEmployeeSkill(id, skill);
+    public void removeEmployeeSkill(String id, String name) throws ServerException {
+        dataBase.removeEmployeeSkill(id, name);
+    }
+
+    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) {
+        dataBase.updateEmployeeSkill(token, oldNameSkill, newSkill);
     }
     /*public Employee getById(String id) {
         return dataBase.(id);
     }*/
+
+    public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
+        return dataBase.getVacanciesListNotLess(skills);
+    }
+
+    public List<Vacancy> getVacanciesListObligatoryDemand(List<Skill> skills) {
+        return dataBase.getVacanciesListObligatoryDemand(skills);
+    }
+
+    public List<Vacancy> getVacanciesListOnlyName(List<Skill> skills) {
+        return dataBase.getVacanciesListOnlyName(skills);
+    }
+
+    public List<Vacancy> getVacanciesListWithOneDemand(List<Skill> skills) {
+        return dataBase.getVacanciesListWithOneDemand(skills);
+    }
 /*
     public List<Employee> getEmployeeListNotLessByDemand(List<Requirement> demands) {
         return dataBase.getEmployeeListNotLessByDemands(demands);
@@ -57,7 +83,7 @@ public class EmployeeDaoImpl implements Dao<Employee, List<Employee>> {
     public List<Employee> getEmployeeListWithOneDemandByDemands(List<Requirement> demands) {
         return dataBase.getEmployeeListWithOneDemandByDemands(demands);
     }
-
+/*
     public boolean isActivity(String token) {
         return dataBase.isActivityEmployee(token);
     }
