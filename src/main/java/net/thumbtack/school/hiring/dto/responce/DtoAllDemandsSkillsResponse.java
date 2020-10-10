@@ -1,3 +1,4 @@
+// net.thumbtack.school.hiring.dto.response;
 package net.thumbtack.school.hiring.dto.responce;
 
 import java.util.Set;

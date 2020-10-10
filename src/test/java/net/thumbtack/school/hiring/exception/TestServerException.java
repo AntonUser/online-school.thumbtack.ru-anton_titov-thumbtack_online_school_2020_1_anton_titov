@@ -1,6 +1,6 @@
 package net.thumbtack.school.hiring.exception;
 
-
+// REVU это вообще не нужно
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

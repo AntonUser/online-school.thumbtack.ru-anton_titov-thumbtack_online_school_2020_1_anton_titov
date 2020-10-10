@@ -44,6 +44,9 @@ public final class DataBase implements Serializable {
         String token = UUID.randomUUID().toString();
         activeUsers.put(token, user);
         if (user instanceof Employee) {
+        	// REVU не надр много раз приводить тип
+        	// Employee employee = (Employee) user;
+        	// и дальше его используйте
             for (Skill skill : ((Employee) user).getAttainmentsList()) {
                 userSkills.put(skill, (Employee) user);
             }
@@ -53,9 +56,15 @@ public final class DataBase implements Serializable {
 
     public String loginUser(String login, String password) throws ServerException {
         User user;
+        // REVU формально корректно, но лучше присваивание в if не делать
+        // User user = allUsers.get(login);
+        // if(user == null) { throw...
         if ((user = allUsers.get(login)) == null) {
             throw new ServerException(ErrorCode.USER_EXCEPTION);
         }
+        // REVU лучше обратить условие
+        // if (!user.getPassword().equals(password)) { throw
+        // вот тут User есть и пароль правильный
         if (user.getPassword().equals(password)) {
             String token = UUID.randomUUID().toString();
             activeUsers.put(token, user);
@@ -162,6 +171,13 @@ public final class DataBase implements Serializable {
         } для получения работников
      */
     public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
+    	// REVU что-то тут не то
+    	// вот описание   public NavigableMap<K, Collection<V>> asMap() {
+    	// так что он возвращает NavigableMap от Requirement на Collection<Vacancy>>
+    	// что вполне естественно - на этот Requirement много  Vacancy
+    	// так что должно быть
+        // NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>)requirementsVacancies).asMap();
+    	// REVU аналогично другие методы
         NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
         Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
         Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
@@ -208,6 +224,9 @@ public final class DataBase implements Serializable {
     }
 
     public Set<String> getDemandSkillsSet() {
+    	// REVU можно, конечно, новый HashSet создать, но можно и имеющийся вернуть
+    	// а чтобы его со стороны не изменили
+    	// https://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableSet-java.util.Set-
         return new HashSet<>(demandSkills);
     }
 

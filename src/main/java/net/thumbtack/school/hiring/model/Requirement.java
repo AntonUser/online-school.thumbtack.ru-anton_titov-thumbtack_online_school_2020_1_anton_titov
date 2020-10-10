@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public class Requirement extends Skill implements Comparable {
 
+	// REVU см. REVU в классе Employee
+	// Comparable is a raw type. References to generic type Comparable<T> should be parameterized
     private ConditionsRequirements necessary;
 
     public Requirement(String nameDemand, int skillLevel, ConditionsRequirements necessary) {

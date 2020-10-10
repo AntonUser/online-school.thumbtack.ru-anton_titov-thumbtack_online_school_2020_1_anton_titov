@@ -19,6 +19,12 @@ import java.util.Map;
 // там не должно быть NullPointerException, используй свой ServerException и лови тут его
 public class EmployeeService {
     private static Gson gson = new Gson();
+    // REVU слева пишем интерфейс, если он есть, то есть
+    // private EmployeeDao employeeDao = new EmployeeDaoImpl();
+    // сейчас не получится - нет в EmployeeDao методов, которые есть в EmployeeDaoImpl
+    // они там не как методы от интерфейса, а сами по себе
+    // надо их добавить
+    // аналогично другие DAO
     private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
     private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
