@@ -164,9 +164,8 @@ public final class DataBase implements Serializable {
     public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
         NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
         Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
-        Collection<Vacancy> vacancies = new ArrayList<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
                 new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
-        vacancies.addAll((Collection<? extends Vacancy>) navigableMap.subMap(new Requirement(skills.get(0), ConditionsRequirements.NOT_NECESSARY), new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NOT_NECESSARY)));
         for (Skill skill : skills) {
             vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
             vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
@@ -177,7 +176,7 @@ public final class DataBase implements Serializable {
     public List<Vacancy> getVacanciesListObligatoryDemand(List<Skill> skills) {
         NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
         Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
-        Collection<Vacancy> vacancies = new ArrayList<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
                 new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
         for (Skill skill : skills) {
             vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
@@ -199,10 +198,10 @@ public final class DataBase implements Serializable {
     public List<Vacancy> getVacanciesListWithOneDemand(List<Skill> skills) {
         NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
         Requirement requirement = new Requirement(skills.get(0).getName(), 1, ConditionsRequirements.NECESSARY);
-        Set<Vacancy> vacancies = new HashSet<>((Collection<? extends Vacancy>) navigableMap.subMap(requirement,
+        Set<Vacancy> vacancies = new HashSet<>(navigableMap.subMap(requirement,
                 new Requirement(skills.get(0), ConditionsRequirements.NOT_NECESSARY)).values());
         for (Skill skill : skills) {
-            vacancies.addAll((Collection<? extends Vacancy>) navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+            vacancies.addAll(navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
         }
         return new ArrayList<>(vacancies);
 
