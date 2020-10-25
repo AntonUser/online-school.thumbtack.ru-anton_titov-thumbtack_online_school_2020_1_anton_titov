@@ -32,9 +32,9 @@ public class DtoLoginRequest {
 
     public void validate() throws ServerException {
         if (getPassword() == null || getPassword().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_PASSWORD);
         } else if (getLogin() == null || getLogin().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LOGIN);
         }
     }
 

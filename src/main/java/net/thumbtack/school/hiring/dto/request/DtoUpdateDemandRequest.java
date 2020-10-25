@@ -70,15 +70,15 @@ public class DtoUpdateDemandRequest {
 
     public void validate() throws ServerException {
         if (getNameVacancy() == null || getNameVacancy().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_VACANCY);
+            throw new ServerException(ErrorCode.EMPTY_NAME_VACANCY);
         } else if (getOldNameDemand() == null || getOldNameDemand().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_DEMAND);
+            throw new ServerException(ErrorCode.EMPTY_NAME_DEMAND);
         } else if (getNameDemand() == null || getNameDemand().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_DEMAND);
+            throw new ServerException(ErrorCode.EMPTY_NAME_DEMAND);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         } else if (getSkill() < 1 || getSkill() > 5) {
-            throw new ServerException(ErrorCode.SKILL_BORDER_EXCEPTION);
+            throw new ServerException(ErrorCode.SKILL_BORDER);
         }
     }
 

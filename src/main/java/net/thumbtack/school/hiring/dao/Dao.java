@@ -2,7 +2,7 @@ package net.thumbtack.school.hiring.dao;
 
 import net.thumbtack.school.hiring.exception.ServerException;
 
-public interface Dao<T, K> {
+public interface Dao<T> {
 
     void save(T object) throws ServerException;
 

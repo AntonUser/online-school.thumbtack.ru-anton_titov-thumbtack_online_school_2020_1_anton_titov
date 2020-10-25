@@ -5,9 +5,7 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.Objects;
 
-// REVU см. REVU в классе Employee
-// Comparable is a raw type. References to generic type Comparable<T> should be parameterized
-public class Skill implements Comparable {
+public class Skill {
     private String name;
     private int level;
 
@@ -30,7 +28,7 @@ public class Skill implements Comparable {
 
     public void setLevel(int level) throws ServerException {
         if (level < 1 || level > 5) {
-            throw new ServerException(ErrorCode.ERRONEOUS_SKILL_EXCEPTION);
+            throw new ServerException(ErrorCode.ERRONEOUS_SKILL);
         }
         this.level = level;
     }
@@ -49,13 +47,4 @@ public class Skill implements Comparable {
         return Objects.hash(name, level);
     }
 
-    @Override
-    public int compareTo(Object o) {
-    	// REVU избегайте однобуквенных имен переменных
-        int i = this.getName().compareTo(((Skill) o).getName());
-        if (i != 0) {
-            return i;
-        }
-        return this.level - ((Skill) o).getLevel();
-    }
 }

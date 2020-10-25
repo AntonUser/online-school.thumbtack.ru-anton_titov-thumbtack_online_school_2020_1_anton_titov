@@ -35,9 +35,9 @@ public class DtoSkills {
 
     public void validate() throws ServerException {
         if (getSkills().isEmpty()) {
-            throw new ServerException(ErrorCode.SKILLS_LIST_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_SKILLS_LIST);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 }

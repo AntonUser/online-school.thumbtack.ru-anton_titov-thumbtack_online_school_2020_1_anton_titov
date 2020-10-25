@@ -32,9 +32,9 @@ public class DtoDemands {
 
     public void validate() throws ServerException {
         if (getDemands().isEmpty()) {
-            throw new ServerException(ErrorCode.DEMANDS_LIST_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_DEMANDS_LIST);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 }

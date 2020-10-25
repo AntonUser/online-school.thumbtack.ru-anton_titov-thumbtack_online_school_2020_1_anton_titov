@@ -50,13 +50,13 @@ public class DtoSkillRequest {
 
     public void validate() throws ServerException {
         if (getNameSkill() == null || getNameSkill().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_SKILL_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME_SKILL);
         } else if (getSkill() < 1 || getSkill() > 5) {
-            throw new ServerException(ErrorCode.SKILL_BORDER_EXCEPTION);
+            throw new ServerException(ErrorCode.SKILL_BORDER);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         } else if (getOldNameSkill() == null || getOldNameSkill().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_SKILL_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME_SKILL);
         }
     }
 }

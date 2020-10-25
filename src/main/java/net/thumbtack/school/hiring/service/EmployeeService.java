@@ -5,7 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import net.thumbtack.school.hiring.daoimpl.DemandSkillDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployeeDaoImpl;
 import net.thumbtack.school.hiring.dto.request.*;
-import net.thumbtack.school.hiring.dto.responce.*;
+import net.thumbtack.school.hiring.dto.response.*;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Skill;
@@ -19,12 +19,6 @@ import java.util.Map;
 // там не должно быть NullPointerException, используй свой ServerException и лови тут его
 public class EmployeeService {
     private static Gson gson = new Gson();
-    // REVU слева пишем интерфейс, если он есть, то есть
-    // private EmployeeDao employeeDao = new EmployeeDaoImpl();
-    // сейчас не получится - нет в EmployeeDao методов, которые есть в EmployeeDaoImpl
-    // они там не как методы от интерфейса, а сами по себе
-    // надо их добавить
-    // аналогично другие DAO
     private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
     private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
@@ -130,30 +124,30 @@ public class EmployeeService {
         return gson.toJson(new DtoVacanciesResponse(employeeDao.getVacanciesListWithOneDemand(skillsList)));
     }
 
-   /* public String getAllDemandSkills(String tokenJson) throws ServerException {
-        DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
-        try {
-            token.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorDtoResponse(ex));
-        }
-        validateActivity(token.getToken());
-        return gson.toJson(new DtoAllDemandsSkillsResponse(employeeDao.getAllDemandSkills()));
-    }
+    /* public String getAllDemandSkills(String tokenJson) throws ServerException {
+         DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
+         try {
+             token.validate();
+         } catch (ServerException ex) {
+             return gson.toJson(new ErrorDtoResponse(ex));
+         }
+         validateActivity(token.getToken());
+         return gson.toJson(new DtoAllDemandsSkillsResponse(employeeDao.getAllDemandSkills()));
+     }
 
-    /*
-        public String addEmployeeSkill(String skillJson) throws ServerException {
-            DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
-            try {
-                skill.validate();
-            } catch (ServerException ex) {
-                return gson.toJson(new ErrorToken(ex.getMessage()));
-            }
-            validateActivity(skill.getToken());
-            eDao.addSkillForEmployee(new Skill(skill.getNameSkill(), skill.getSkill()), skill.getToken());
-            return gson.toJson(new DtoAttainmentsResponse(skill.getNameSkill(), skill.getSkill()));
-        }
-    */
+     /*
+         public String addEmployeeSkill(String skillJson) throws ServerException {
+             DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
+             try {
+                 skill.validate();
+             } catch (ServerException ex) {
+                 return gson.toJson(new ErrorToken(ex.getMessage()));
+             }
+             validateActivity(skill.getToken());
+             eDao.addSkillForEmployee(new Skill(skill.getNameSkill(), skill.getSkill()), skill.getToken());
+             return gson.toJson(new DtoAttainmentsResponse(skill.getNameSkill(), skill.getSkill()));
+         }
+     */
     public String updateEmployeeSkill(String newSkillJson) throws ServerException {
         DtoSkillRequest newSkill = gson.fromJson(newSkillJson, DtoSkillRequest.class);
         try {
@@ -231,19 +225,19 @@ public class EmployeeService {
 
     private static void validateEmployeeDtoRegisterRequest(EmployeeDtoRegisterRequest employeeDtoRegisterRequest) throws ServerException {
         if (employeeDtoRegisterRequest.getFirstName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_FIRST_NAME);
         }
         if (employeeDtoRegisterRequest.getLastName() == null || employeeDtoRegisterRequest.getLastName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LAST_NAME);
         }
         if (employeeDtoRegisterRequest.getEmail() == null || employeeDtoRegisterRequest.getEmail().isEmpty()) {
             throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
         }
         if (employeeDtoRegisterRequest.getLogin() == null || employeeDtoRegisterRequest.getLogin().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LOGIN);
         }
         if (employeeDtoRegisterRequest.getPassword() == null || employeeDtoRegisterRequest.getPassword().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_PASSWORD);
         }
     }
 }

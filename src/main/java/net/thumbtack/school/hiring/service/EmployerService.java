@@ -9,9 +9,9 @@ import net.thumbtack.school.hiring.dto.request.DtoDemands;
 import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
 import net.thumbtack.school.hiring.dto.request.DtoToken;
 import net.thumbtack.school.hiring.dto.request.EmployerDtoRegisterRequest;
-import net.thumbtack.school.hiring.dto.responce.DtoLoginResponse;
-import net.thumbtack.school.hiring.dto.responce.DtoRegisterResponse;
-import net.thumbtack.school.hiring.dto.responce.ErrorDtoResponse;
+import net.thumbtack.school.hiring.dto.response.DtoLoginResponse;
+import net.thumbtack.school.hiring.dto.response.DtoRegisterResponse;
+import net.thumbtack.school.hiring.dto.response.ErrorDtoResponse;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employer;
@@ -252,25 +252,25 @@ public class EmployerService {
 
     private static void validateEmployerDtoRegisterRequest(EmployerDtoRegisterRequest employerDtoRegisterRequest) throws ServerException {
         if (employerDtoRegisterRequest.getFirstName() == null || employerDtoRegisterRequest.getFirstName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_FIRST_NAME);
         }
         if (employerDtoRegisterRequest.getLastName() == null || employerDtoRegisterRequest.getLastName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LAST_NAME);
         }
         if (employerDtoRegisterRequest.getEmail() == null || employerDtoRegisterRequest.getEmail().isEmpty()) {
             throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
         }
         if (employerDtoRegisterRequest.getLogin() == null || employerDtoRegisterRequest.getLogin().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LOGIN);
         }
         if (employerDtoRegisterRequest.getPassword() == null || employerDtoRegisterRequest.getPassword().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_PASSWORD);
         }
         if (employerDtoRegisterRequest.getAddress() == null || employerDtoRegisterRequest.getAddress().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_ADDRESS_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_ADDRESS);
         }
         if (employerDtoRegisterRequest.getName() == null || employerDtoRegisterRequest.getName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME);
         }
     }
 }

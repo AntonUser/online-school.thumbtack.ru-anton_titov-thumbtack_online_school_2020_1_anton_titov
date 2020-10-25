@@ -7,9 +7,7 @@ import net.thumbtack.school.hiring.model.Employer;
 import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Vacancy;
 
-import java.util.List;
-
-public class EmployerDaoImpl implements Dao<Employer, List<Employer>> {
+public class EmployerDaoImpl implements Dao<Employer> {
     private DataBase dataBase;
 
     public EmployerDaoImpl() {

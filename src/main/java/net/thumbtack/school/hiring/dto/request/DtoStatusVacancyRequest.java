@@ -21,9 +21,9 @@ public class DtoStatusVacancyRequest extends DtoStatusEmployeeRequest {
 
     public void validate() throws ServerException {
         if (namePost == null || namePost.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_POST_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME_POST);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 }

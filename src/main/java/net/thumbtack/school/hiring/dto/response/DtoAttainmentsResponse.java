@@ -1,4 +1,4 @@
-package net.thumbtack.school.hiring.dto.responce;
+package net.thumbtack.school.hiring.dto.response;
 
 public class DtoAttainmentsResponse {
     private String nameSkill;

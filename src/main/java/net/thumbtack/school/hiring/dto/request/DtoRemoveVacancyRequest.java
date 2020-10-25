@@ -30,9 +30,9 @@ public class DtoRemoveVacancyRequest {
 
     public void validate() throws ServerException {
         if (token == null || token.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         } else if (namePost == null || namePost.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_POST_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME_POST);
         }
     }
 }

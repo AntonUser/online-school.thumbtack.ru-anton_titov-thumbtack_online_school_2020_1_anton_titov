@@ -58,11 +58,11 @@ public class DtoAddVacancyRequest {
 
     public void validate() throws ServerException, NullPointerException {
         if (getNamePost() == null || getNamePost().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_POST_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME_POST);
         } else if (getSalary() < 0) {
             throw new ServerException(ErrorCode.SALARY_EXCEPTION);
         } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 

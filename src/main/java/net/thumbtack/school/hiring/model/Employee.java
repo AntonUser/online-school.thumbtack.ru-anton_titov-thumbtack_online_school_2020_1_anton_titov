@@ -6,14 +6,7 @@ import net.thumbtack.school.hiring.exception.ServerException;
 import java.io.Serializable;
 import java.util.*;
 
-// REVU не стоит Employee делать Comparable
-// кстати, надо было, если уж желать, Comparable<Employee>
-// сделав так, Вы навязали классу сравнение по текущему compareTo  
-// иными словами, у Вас определено, что один больше другого по фамилии
-// и в TreeMap и вообще везде
-// лучше было здесь Comparable не имплементировать, а в TreeMap.create поставить Comparator
-// с тем же кодом. Он будет только для этого TreeMap, а не везде
-public class Employee extends User implements Serializable, Comparable {
+public class Employee extends User implements Serializable {
     private List<Skill> attainmentsList;
 
     public Employee(String firstName, String patronymic, String lastName, String login, String password, String email, List<Skill> attainments) {
@@ -75,11 +68,5 @@ public class Employee extends User implements Serializable, Comparable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), attainmentsList);
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        Employee employee = (Employee) o;
-        return getLastName().compareTo(employee.getLastName()) ;
     }
 }

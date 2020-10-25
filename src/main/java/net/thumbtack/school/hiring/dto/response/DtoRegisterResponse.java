@@ -1,9 +1,9 @@
-package net.thumbtack.school.hiring.dto.responce;
+package net.thumbtack.school.hiring.dto.response;
 
-public class DtoTokenResponse {
+public class DtoRegisterResponse {
     private String token;
 
-    public DtoTokenResponse(String token) {
+    public DtoRegisterResponse(String token) {
         this.token = token;
     }
 

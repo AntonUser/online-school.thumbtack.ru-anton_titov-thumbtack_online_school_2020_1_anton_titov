@@ -3,20 +3,18 @@ package net.thumbtack.school.hiring.model;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Employer extends User {
     private String name;
     private String address;
-    private List<Vacancy> vacancies;
+    private Set<Vacancy> vacancies;
 
     public Employer(String name, String address, String email, String firstName, String patronymic, String lastName, String login, String password) throws ServerException {
         super(login, password, email, lastName, firstName, patronymic);
         this.address = address;
         this.name = name;
-        vacancies = new ArrayList<>();
+        vacancies = new HashSet<>();
     }
 
     public void addVacancy(Vacancy vacancy) {
@@ -33,7 +31,7 @@ public class Employer extends User {
                 return vacancy;
             }
         }
-        throw new ServerException(ErrorCode.VACANCY_ID_EXCEPTION);
+        throw new ServerException(ErrorCode.NOT_FOUND_VACANCY_ID);
     }
 
     public Vacancy getVacancyByName(String name) throws ServerException {
@@ -42,7 +40,7 @@ public class Employer extends User {
                 return vacancy;
             }
         }
-        throw new ServerException(ErrorCode.VACANCY_NAME_EXCEPTION);
+        throw new ServerException(ErrorCode.NOT_FOUND_VACANCY_NAME);
     }
 
     public List<Vacancy> getAllVacancies() {

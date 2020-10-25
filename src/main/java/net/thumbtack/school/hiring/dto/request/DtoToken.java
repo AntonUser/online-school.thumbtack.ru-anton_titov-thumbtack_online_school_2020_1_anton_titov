@@ -20,7 +20,7 @@ public class DtoToken {
 
     public void validate() throws ServerException {
         if (token == null || token.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 }

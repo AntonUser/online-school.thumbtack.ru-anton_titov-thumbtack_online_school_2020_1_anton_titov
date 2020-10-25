@@ -36,19 +36,19 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
     // может, в зависимости от чего-то нужно иногда так, а иногда иначе
     public void validate() throws ServerException {
         if (getFirstName() == null || getFirstName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_FIRST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_FIRST_NAME);
         } else if (getLastName() == null || getLastName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LAST_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LAST_NAME);
         } else if (getEmail() == null || getEmail().isEmpty()) {
             throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
         } else if (getLogin() == null || getLogin().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_LOGIN_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_LOGIN);
         } else if (getPassword() == null || getPassword().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_PASSWORD_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_PASSWORD);
         } else if (getAddress() == null || getAddress().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_ADDRESS_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_ADDRESS);
         } else if (getName() == null || getName().isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_NAME_EXCEPTION);
+            throw new ServerException(ErrorCode.EMPTY_NAME);
         }
     }
 

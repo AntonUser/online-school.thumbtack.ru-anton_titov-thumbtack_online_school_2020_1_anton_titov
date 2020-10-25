@@ -29,7 +29,7 @@ public class Server {
 
     public void startServer(String savedDataFileName) throws ServerException, IOException {
         if (conditionServer) {
-            throw new ServerException(ErrorCode.SERVER_STARTED_EXCEPTION);
+            throw new ServerException(ErrorCode.SERVER_STARTED);
         }
         conditionServer = true;
         DataBase dataBase;
@@ -48,7 +48,7 @@ public class Server {
 
     public void stopServer(String saveDataFileName) throws IOException, ServerException {
         if (!conditionServer) {
-            throw new ServerException(ErrorCode.SERVER_STOPPED_EXCEPTION);
+            throw new ServerException(ErrorCode.SERVER_STOPPED);
         }
         conditionServer = false;
         String writeJson;
@@ -228,7 +228,7 @@ public class Server {
 
     private void validateActivityServer() throws ServerException {
         if (!conditionServer) {
-            throw new ServerException(ErrorCode.SERVER_STOPPED_EXCEPTION);
+            throw new ServerException(ErrorCode.SERVER_STOPPED);
         }
     }
 }

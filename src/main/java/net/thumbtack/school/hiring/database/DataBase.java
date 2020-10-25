@@ -15,15 +15,40 @@ public final class DataBase implements Serializable {
     private Map<String, User> activeUsers;//string - id объекта, User - пользователь
     private Set<String> demandSkills;
     private Multimap<Skill, Employee> userSkills;//?string - скилл,Employee - пользователь у которого он есть
-    private Multimap<Requirement, Vacancy> requirementsVacancies;//?
+    private Multimap<Requirement, Vacancy> requirementsVacancies;
 
     //добавить мап скилл-объекты
     private DataBase() {
         allUsers = new HashMap<>();
         activeUsers = new HashMap<>();
         demandSkills = new HashSet<>();
-        userSkills = TreeMultimap.create();
-        requirementsVacancies = TreeMultimap.create();
+        userSkills = TreeMultimap.create((o1, o2) -> {
+            int i = o1.getName().compareTo(o2.getName());
+            if (i != 0) {
+                return i;
+            }
+            return o1.getLevel() - o2.getLevel();
+        }, (o1, o2) -> {
+            return o1.getLastName().compareTo(o2.getLastName());
+        });
+        requirementsVacancies = TreeMultimap.create((o1, o2) -> {
+            int i = o1.getNecessary().compareTo(o2.getNecessary());
+            if (i != 0) {
+                return i;
+            } else if (o1.getName().compareTo(o2.getName()) != 0) {
+                return o1.getName().compareTo(o2.getName());
+            }
+            return o1.getLevel() - o2.getLevel();
+/*            int i = o1.getName().compareTo(o2.getName());
+            if (i != 0) {
+                return i;
+            } else if (o1.getLevel() - o2.getLevel() != 0) {
+                return o1.getLevel() - o2.getLevel();
+            }
+            return o1.getNecessary().compareTo(o2.getNecessary());*/
+        }, (o1, o2) -> {
+            return o1.getName().compareTo(o2.getName());
+        });
     }
 
     public static DataBase getInstance() {
@@ -44,39 +69,37 @@ public final class DataBase implements Serializable {
         String token = UUID.randomUUID().toString();
         activeUsers.put(token, user);
         if (user instanceof Employee) {
-        	// REVU не надр много раз приводить тип
-        	// Employee employee = (Employee) user;
-        	// и дальше его используйте
-            for (Skill skill : ((Employee) user).getAttainmentsList()) {
-                userSkills.put(skill, (Employee) user);
+            Employee employee = (Employee) user;
+            for (Skill skill : employee.getAttainmentsList()) {
+                userSkills.put(skill, employee);
+            }
+        }
+        if (user instanceof Employer) {
+            Employer employer = (Employer) user;
+            for (Vacancy vacancy : employer.getAllVacancies()) {
+                this.addVacancy(vacancy, token);
             }
         }
         return token;
     }
 
     public String loginUser(String login, String password) throws ServerException {
-        User user;
-        // REVU формально корректно, но лучше присваивание в if не делать
-        // User user = allUsers.get(login);
-        // if(user == null) { throw...
-        if ((user = allUsers.get(login)) == null) {
-            throw new ServerException(ErrorCode.USER_EXCEPTION);
+        User user = allUsers.get(login);
+        if (user == null) {
+            throw new ServerException(ErrorCode.NOT_FOUND_USER);
         }
-        // REVU лучше обратить условие
-        // if (!user.getPassword().equals(password)) { throw
-        // вот тут User есть и пароль правильный
-        if (user.getPassword().equals(password)) {
-            String token = UUID.randomUUID().toString();
-            activeUsers.put(token, user);
-            return token;
+        if (!user.getPassword().equals(password)) {
+            throw new ServerException(ErrorCode.WRONG_PASSWORD);
         }
-        throw new ServerException(ErrorCode.WRONG_PASSWORD);
+        String token = UUID.randomUUID().toString();
+        activeUsers.put(token, user);
+        return token;
     }
 
     public void removeAccount(String token) throws ServerException {
         User user = activeUsers.get(token);
         if (user == null) {
-            throw new ServerException(ErrorCode.USER_EXCEPTION);
+            throw new ServerException(ErrorCode.NOT_FOUND_USER);
         }
         allUsers.remove(user.getLogin());
         activeUsers.remove(token, user);
@@ -98,8 +121,12 @@ public final class DataBase implements Serializable {
         Employer employer = (Employer) getUserById(token);
         employer.addVacancy(vacancy);
         saveUser(employer);
-        activeUsers.put(token, employer);
-        this.addSubSet(vacancy.getNamesDemands());
+        activeUsers.replace(token, employer);
+        allUsers.replace(employer.getLogin(), employer);
+        for (Requirement requirement : vacancy.getRequirements()) {
+            requirementsVacancies.put(requirement, vacancy);
+        }
+        this.addSubSet(vacancy.getNamesRequirements());
     }
 
     public void removeVacancy(String name, String token) throws ServerException {
@@ -156,78 +183,118 @@ public final class DataBase implements Serializable {
         return new ArrayList<>(vacanciesList);
     }*/
 
-    // REVU это все сейчас слишком медленно, полный перебор
-    // будем обсуждать, как это сделать лучше
-    // пока доделайте работу со скиллами и вакансиями
-    // добавить скилл
-    // добавить вакансию
-    // добавить требование в вакансию
-    // удалить требование из вакансии
-    // и т.д.
-
     /*Collection<Employee> employees = userSkills.get(skills.get(0).getName());
         for (Skill skill : skills) {
             employees.retainAll(userSkills.get(skill.getName()));
         } для получения работников
      */
     public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
-    	// REVU что-то тут не то
-    	// вот описание   public NavigableMap<K, Collection<V>> asMap() {
-    	// так что он возвращает NavigableMap от Requirement на Collection<Vacancy>>
-    	// что вполне естественно - на этот Requirement много  Vacancy
-    	// так что должно быть
-        // NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>)requirementsVacancies).asMap();
-    	// REVU аналогично другие методы
-        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
-        Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
-        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
-                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
+        NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
+        Collection<Vacancy> vacancies = new HashSet<>(requirementsVacancies.values());
+        Collection<Collection<Vacancy>> temporalVacanciesCollection;
+        boolean chek;
+        List<Vacancy> vacancies2 = new ArrayList<>();
+        Set<Vacancy> vacanciesWithOneRequirement = new HashSet<>();
         for (Skill skill : skills) {
-            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
-            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+            chek = false;
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies2.addAll(vacancies1);
+            }
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NOT_NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies2.addAll(vacancies1);
+            }
+            if (vacancies2.size() != 0) {
+                for (Vacancy vacancy : vacancies2) {
+                    if (vacancy.getRequirements().size() == 1) {
+                        vacanciesWithOneRequirement.add(vacancy);//чтобы элементы с одним требованием не потерялись при пересечении(т.к они в одном листе)
+                        chek = true;
+                    }
+                }
+                if (!chek) {
+                    vacancies.retainAll(vacancies2);
+                }
+                vacancies2.clear();
+            }
         }
+        vacancies.addAll(vacanciesWithOneRequirement);
         return new ArrayList<>(vacancies);
     }
 
     public List<Vacancy> getVacanciesListObligatoryDemand(List<Skill> skills) {
-        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
-        Requirement requirement = new Requirement(skills.get(0), ConditionsRequirements.NECESSARY);
-        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
-                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NECESSARY)).values());
+        NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
+        Collection<Vacancy> vacancies = new HashSet<>(requirementsVacancies.values());
+        Collection<Collection<Vacancy>> temporalVacanciesCollection;
+        boolean chek;
+        List<Vacancy> vacancies2 = new ArrayList<>();
+        Set<Vacancy> vacanciesWithOneRequirement = new HashSet<>();
         for (Skill skill : skills) {
-            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), skill.getLevel(), ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values());
+            chek = false;
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies2.addAll(vacancies1);
+            }
+            if (vacancies2.size() != 0) {
+                for (Vacancy vacancy : vacancies2) {
+                    if (vacancy.getRequirements().size() == 1) {
+                        vacanciesWithOneRequirement.add(vacancy);//чтобы элементы с одним требованием не потерялись при пересечении(т.к они в одном листе)
+                        chek = true;
+                    }
+                }
+                if (!chek) {
+                    vacancies.retainAll(vacancies2);
+                }
+                vacancies2.clear();
+            }
         }
+        vacancies.addAll(vacanciesWithOneRequirement);
         return new ArrayList<>(vacancies);
     }
 
     public List<Vacancy> getVacanciesListOnlyName(List<Skill> skills) {
-        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
-        Requirement requirement = new Requirement(skills.get(0).getName(), 1, ConditionsRequirements.NECESSARY);
-        Collection<Vacancy> vacancies = new ArrayList<>(navigableMap.subMap(requirement,
-                new Requirement(skills.get(0).getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+        NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
+        Collection<Vacancy> vacancies = new HashSet<>(requirementsVacancies.values());
+        Collection<Collection<Vacancy>> temporalVacanciesCollection;
+        Set<String> skillsNames = new HashSet<>();
         for (Skill skill : skills) {
-            vacancies.retainAll(navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies.addAll(vacancies1);
+            }
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies.addAll(vacancies1);
+            }
         }
+        for (Skill skill : skills) {
+            skillsNames.add(skill.getName());
+        }
+        vacancies.removeIf(vacancy -> !skillsNames.containsAll(vacancy.getNamesRequirements()));
         return new ArrayList<>(vacancies);
     }
 
     public List<Vacancy> getVacanciesListWithOneDemand(List<Skill> skills) {
-        NavigableMap<Requirement, Vacancy> navigableMap = ((TreeMultimap) requirementsVacancies).asMap();
-        Requirement requirement = new Requirement(skills.get(0).getName(), 1, ConditionsRequirements.NECESSARY);
-        Set<Vacancy> vacancies = new HashSet<>(navigableMap.subMap(requirement,
-                new Requirement(skills.get(0), ConditionsRequirements.NOT_NECESSARY)).values());
+        NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
+        Collection<Vacancy> vacancies = new HashSet<>();
+        Collection<Collection<Vacancy>> temporalVacanciesCollection;
         for (Skill skill : skills) {
-            vacancies.addAll(navigableMap.subMap(new Requirement(skill.getName(), 1, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NOT_NECESSARY)).values());
+
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies.addAll(vacancies1);
+            }
+            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NOT_NECESSARY)).values();
+            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
+                vacancies.addAll(vacancies1);
+            }
         }
         return new ArrayList<>(vacancies);
 
     }
 
     public Set<String> getDemandSkillsSet() {
-    	// REVU можно, конечно, новый HashSet создать, но можно и имеющийся вернуть
-    	// а чтобы его со стороны не изменили
-    	// https://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#unmodifiableSet-java.util.Set-
-        return new HashSet<>(demandSkills);
+        return Collections.unmodifiableSet(demandSkills);
     }
 
     public void addSubSet(Set<String> subSet) {
@@ -542,6 +609,8 @@ public final class DataBase implements Serializable {
         allUsers.clear();
         activeUsers.clear();
         demandSkills.clear();
+        userSkills.clear();
+        requirementsVacancies.clear();
     }
 }
 

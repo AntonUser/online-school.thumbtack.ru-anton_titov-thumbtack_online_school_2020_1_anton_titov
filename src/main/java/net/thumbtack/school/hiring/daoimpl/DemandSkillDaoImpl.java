@@ -5,7 +5,7 @@ import net.thumbtack.school.hiring.database.DataBase;
 
 import java.util.Set;
 
-public class DemandSkillDaoImpl implements Dao<String, Set<String>> {
+public class DemandSkillDaoImpl implements Dao<String> {
     private DataBase dataBase;
 
     public DemandSkillDaoImpl() {

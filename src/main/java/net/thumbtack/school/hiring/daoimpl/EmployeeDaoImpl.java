@@ -4,13 +4,12 @@ import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
 import net.thumbtack.school.hiring.model.Employee;
-import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Skill;
 import net.thumbtack.school.hiring.model.Vacancy;
 
 import java.util.List;
 
-public class EmployeeDaoImpl implements Dao<Employee, List<Employee>> {
+public class EmployeeDaoImpl implements Dao<Employee> {
     private DataBase dataBase;
 
     public EmployeeDaoImpl() {
