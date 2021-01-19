@@ -484,7 +484,9 @@ public class TestServer {
             requirements.add(new DtoRequirement("java", 4, "NOT_NECESSARY"));
             requirements.add(new DtoRequirement("php", 2, "NOT_NECESSARY"));
             String response = server.getEmployeesObligatoryDemand(gson.toJson(new DtoRequirements(null, requirements)));
-            assertEquals("{\"employeeList\":[{\"attainmentsList\":[{\"name\":\"html\",\"level\":4},{\"name\":\"react\",\"level\":3},{\"name\":\"css\",\"level\":5}],\"status\":\"ACTIVE\",\"login\":\"kema_12\",\"password\":\"dfbce5S5v0\",\"email\":\"kemalt@noname.ru\",\"lastName\":\"Altybekov\",\"firstName\":\"Kemel\",\"patronymic\":\"Abdurasulovich\"},{\"attainmentsList\":[{\"name\":\"html\",\"level\":4},{\"name\":\"javascript\",\"level\":4},{\"name\":\"css\",\"level\":4},{\"name\":\"php\",\"level\":5}],\"status\":\"ACTIVE\",\"login\":\"vanka_45\",\"password\":\"sjykaiveiu\",\"email\":\"van@noname.ru\",\"lastName\":\"Ivanov\",\"firstName\":\"Ivan\",\"patronymic\":\"Ivanovich\"}]}", response);
+            assertTrue(response.contains("\"attainmentsList\":[{\"name\":\"html\",\"level\":4},{\"name\":\"react\",\"level\":3},{\"name\":\"css\",\"level\":5}],\"status\":\"ACTIVE\",\"login\":\"kema_12\",\"password\":\"dfbce5S5v0\",\"email\":\"kemalt@noname.ru\",\"lastName\":\"Altybekov\",\"firstName\":\"Kemel\",\"patronymic\":\"Abdurasulovich\""));
+            assertTrue(response.contains("\"attainmentsList\":[{\"name\":\"html\",\"level\":4},{\"name\":\"javascript\",\"level\":4},{\"name\":\"css\",\"level\":4},{\"name\":\"php\",\"level\":5}],\"status\":\"ACTIVE\",\"login\":\"vanka_45\",\"password\":\"sjykaiveiu\",\"email\":\"van@noname.ru\",\"lastName\":\"Ivanov\",\"firstName\":\"Ivan\",\"patronymic\":\"Ivanovich\""));
+
             server.removeAccountEmployee(token1);
             server.removeAccountEmployee(token2);
             server.removeAccountEmployee(token3);
@@ -840,6 +842,8 @@ public class TestServer {
             String response = server.getEmployeesWithOneDemand(gson.toJson(new DtoRequirements(null, requirements)));
             DtoEmployeesResponse dtoEmployeesResponse = gson.fromJson(response, DtoEmployeesResponse.class);
             assertTrue(dtoEmployeesResponse.getEmployeeList().get(0).getAttainmentsList().contains(new Skill("html", 4)));
+            server.removeAccountEmployee(gson.toJson(new DtoToken(dtoRegisterResponse.getToken())));
+            server.stopServer();
         } catch (ServerException | IOException e) {
             e.printStackTrace();
         }
