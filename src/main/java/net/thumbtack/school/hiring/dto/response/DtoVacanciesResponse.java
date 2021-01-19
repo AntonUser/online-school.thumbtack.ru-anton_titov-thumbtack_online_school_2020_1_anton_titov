@@ -1,21 +1,19 @@
 package net.thumbtack.school.hiring.dto.response;
 
-import net.thumbtack.school.hiring.model.Vacancy;
-
 import java.util.List;
 
 public class DtoVacanciesResponse {
-    private List<Vacancy> vacanciesList;
+    private List<DtoVacancyResponse> vacanciesList;
 
-    public DtoVacanciesResponse(List<Vacancy> vacanciesList) {
+    public DtoVacanciesResponse(List<DtoVacancyResponse> vacanciesList) {
         this.vacanciesList = vacanciesList;
     }
 
-    public List<Vacancy> getVacanciesList() {
+    public List<DtoVacancyResponse> getVacanciesList() {
         return vacanciesList;
     }
 
-    public void setVacanciesList(List<Vacancy> vacanciesList) {
+    public void setVacanciesList(List<DtoVacancyResponse> vacanciesList) {
         this.vacanciesList = vacanciesList;
     }
 }

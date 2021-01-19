@@ -5,11 +5,11 @@ import net.thumbtack.school.hiring.exception.ServerException;
 
 import java.util.List;
 
-public class DtoDemands {
+public class DtoRequirements {
     private String token;
-    private List<RequirementDtoRequest> demands;
+    private List<DtoRequirement> demands;
 
-    public DtoDemands(String token, List<RequirementDtoRequest> demands) {
+    public DtoRequirements(String token, List<DtoRequirement> demands) {
         this.token = token;
         this.demands = demands;
     }
@@ -22,11 +22,11 @@ public class DtoDemands {
         this.token = token;
     }
 
-    public List<RequirementDtoRequest> getDemands() {
+    public List<DtoRequirement> getDemands() {
         return demands;
     }
 
-    public void setDemands(List<RequirementDtoRequest> demands) {
+    public void setDemands(List<DtoRequirement> demands) {
         this.demands = demands;
     }
 

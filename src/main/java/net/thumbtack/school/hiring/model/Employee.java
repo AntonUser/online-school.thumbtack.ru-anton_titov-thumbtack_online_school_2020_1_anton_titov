@@ -9,9 +9,12 @@ import java.util.*;
 public class Employee extends User implements Serializable {
     private List<Skill> attainmentsList;
 
+    private EmployeeStatus status;//true - в поиске, false - не в поиске
+
     public Employee(String firstName, String patronymic, String lastName, String login, String password, String email, List<Skill> attainments) {
         super(login, password, email, lastName, firstName, patronymic);
         attainmentsList = attainments;
+        status = EmployeeStatus.ACTIVE;
     }
 
     public void addAttainments(Skill attainments) {
@@ -55,6 +58,13 @@ public class Employee extends User implements Serializable {
         this.attainmentsList = attainmentsList;
     }
 
+    public EmployeeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EmployeeStatus status) {
+        this.status = status;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -62,11 +72,11 @@ public class Employee extends User implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Employee employee = (Employee) o;
-        return Objects.equals(attainmentsList, employee.attainmentsList);
+        return Objects.equals(getAttainmentsList(), employee.getAttainmentsList()) && getStatus() == employee.getStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), attainmentsList);
+        return Objects.hash(super.hashCode(), getAttainmentsList(), getStatus());
     }
 }

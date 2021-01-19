@@ -13,8 +13,8 @@ public class Vacancy {
     private List<Requirement> requirements;
     private VacancyStatus vacancyStatus;
 
-    public Vacancy(String name, int salary, List<Requirement> requirements) {
-        this.id = UUID.randomUUID().toString();
+    public Vacancy(String name, int salary, List<Requirement> requirements, String id) {
+        this.id = id;
         this.name = name;
         this.salary = salary;
         this.requirements = requirements;

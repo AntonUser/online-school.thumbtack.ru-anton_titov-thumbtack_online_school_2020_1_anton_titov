@@ -1,5 +1,7 @@
 package net.thumbtack.school.hiring.dto.response;
 
+import java.util.Objects;
+
 public class DtoAttainmentsResponse {
     private String nameSkill;
     private int skill;
@@ -23,5 +25,18 @@ public class DtoAttainmentsResponse {
 
     public void setSkill(int skill) {
         this.skill = skill;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DtoAttainmentsResponse that = (DtoAttainmentsResponse) o;
+        return getSkill() == that.getSkill() && Objects.equals(getNameSkill(), that.getNameSkill());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNameSkill(), getSkill());
     }
 }

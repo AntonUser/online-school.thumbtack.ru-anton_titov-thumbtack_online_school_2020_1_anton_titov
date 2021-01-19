@@ -6,12 +6,12 @@ import java.util.List;
 
 public class DtoUpdateEmployeeRequest extends EmployeeDtoRegisterRequest {
     private String id;
-    private boolean activity;
+    private String status;
 
-    public DtoUpdateEmployeeRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<SkillDtoRequest> attainmentsList, String id, boolean activity) {
+    public DtoUpdateEmployeeRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<DtoSkill> attainmentsList, String id, String status) {
         super(firstName, lastName, patronymic, login, password, email, attainmentsList);
         this.id = id;
-        this.activity = activity;
+        this.status = status;
     }
 
     public String getId() {
@@ -22,19 +22,11 @@ public class DtoUpdateEmployeeRequest extends EmployeeDtoRegisterRequest {
         this.id = id;
     }
 
-    public boolean isActivity() {
-        return activity;
+    public String getStatus() {
+        return status;
     }
 
-    public void setActivity(boolean activity) {
-        this.activity = activity;
+    public void setStatus(String status) {
+        this.status = status;
     }
-
-    /*public void validate() throws ServerException {
-        super.validate();
-        if (id == null || id.isEmpty()) {
-            throw new ServerException(ErrorCode.NULL_TOKEN_EXCEPTION);
-        }
-    }*/
-
 }

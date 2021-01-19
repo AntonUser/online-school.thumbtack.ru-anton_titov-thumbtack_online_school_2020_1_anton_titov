@@ -8,16 +8,14 @@ import java.util.*;
 public class DtoAddVacancyRequest {
     private String namePost;
     private int salary;
-    private Map<String, Integer> obligatoryDemands;
-    private Map<String, Integer> notObligatoryDemands;
-    private String token;
+    private List<DtoRequirement> requirements;
+    private String id;
 
-    public DtoAddVacancyRequest(String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token) {
+    public DtoAddVacancyRequest(String namePost, int salary, List<DtoRequirement> requirements) {
         this.namePost = namePost;
         this.salary = salary;
-        this.obligatoryDemands = obligatoryDemands;
-        this.notObligatoryDemands = notObligatoryDemands;
-        this.token = token;
+        this.requirements = requirements;
+        this.id = UUID.randomUUID().toString();
     }
 
     public String getNamePost() {
@@ -36,24 +34,20 @@ public class DtoAddVacancyRequest {
         this.salary = salary;
     }
 
-    public String getToken() {
-        return token;
+    public String getId() {
+        return id;
     }
 
-    public Map<String, Integer> getObligatoryDemands() {
-        return obligatoryDemands;
+    public List<DtoRequirement> getRequirements() {
+        return requirements;
     }
 
-    public void setObligatoryDemands(Map<String, Integer> obligatoryDemands) {
-        this.obligatoryDemands = obligatoryDemands;
+    public void setRequirements(List<DtoRequirement> requirements) {
+        this.requirements = requirements;
     }
 
-    public Map<String, Integer> getNotObligatoryDemands() {
-        return notObligatoryDemands;
-    }
-
-    public void setNotObligatoryDemands(Map<String, Integer> notObligatoryDemands) {
-        this.notObligatoryDemands = notObligatoryDemands;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void validate() throws ServerException, NullPointerException {
@@ -61,7 +55,7 @@ public class DtoAddVacancyRequest {
             throw new ServerException(ErrorCode.EMPTY_NAME_POST);
         } else if (getSalary() < 0) {
             throw new ServerException(ErrorCode.SALARY_EXCEPTION);
-        } else if (getToken() == null || getToken().isEmpty()) {
+        } else if (getId() == null || getId().isEmpty()) {
             throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
@@ -73,13 +67,12 @@ public class DtoAddVacancyRequest {
         DtoAddVacancyRequest that = (DtoAddVacancyRequest) o;
         return salary == that.salary &&
                 Objects.equals(namePost, that.namePost) &&
-                Objects.equals(obligatoryDemands, that.obligatoryDemands) &&
-                Objects.equals(notObligatoryDemands, that.notObligatoryDemands) &&
-                Objects.equals(token, that.token);
+                Objects.equals(requirements, that.requirements) &&
+                Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(namePost, salary, obligatoryDemands, notObligatoryDemands, token);
+        return Objects.hash(namePost, salary, requirements, id);
     }
 }

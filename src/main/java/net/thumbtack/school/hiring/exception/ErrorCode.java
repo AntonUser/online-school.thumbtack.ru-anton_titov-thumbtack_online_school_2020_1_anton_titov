@@ -34,7 +34,14 @@ public enum ErrorCode {
     NOT_FOUND_USER("user for the specified login not found"),
     WRONG_PASSWORD("wrong password"),
     DEMAND_EXCEPTION("no requirement found for the given name"),
-    SKILL_EXCEPTION("no skill found for the given name");
+    SKILL_EXCEPTION("no skill found for the given name"),
+    NO_SUCH_USER("user was not found for the given id"),
+    ALREADY_LOGGED_IN("you are already logged in"),
+    EMPLOYEE_DISABLE("employee is already disable"),
+    EMPLOYEE_ENABLE("employee is already enable"),
+    VACANCY_DISABLE("vacancy is already disable"),
+    VACANCY_ENABLE("vacancy is already enable"),
+    BAN_UPDATE_STATUS("there is a separate method for updating the status");
     String errorCode;
 
     ErrorCode(String errorCode) {

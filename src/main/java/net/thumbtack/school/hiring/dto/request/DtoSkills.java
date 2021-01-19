@@ -1,43 +1,23 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ServerException;
-
-import java.util.Map;
+import java.util.Set;
 
 public class DtoSkills {
-    private Map<String, Integer> skills;
-    private String token;
+    private Set<DtoSkill> skills;
 
-    public DtoSkills(Map<String, Integer> skills, String token) {
+    public DtoSkills(Set<DtoSkill> skills) {
         this.skills = skills;
-        this.token = token;
     }
 
     public DtoSkills() {
     }
 
-    public Map<String, Integer> getSkills() {
+    public Set<DtoSkill> getSkills() {
         return skills;
     }
 
-    public void setSkills(Map<String, Integer> skills) {
+    public void setSkills(Set<DtoSkill> skills) {
         this.skills = skills;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public void validate() throws ServerException {
-        if (getSkills().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_SKILLS_LIST);
-        } else if (getToken() == null || getToken().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_TOKEN);
-        }
-    }
 }

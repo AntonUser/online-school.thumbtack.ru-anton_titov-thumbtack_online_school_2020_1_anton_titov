@@ -8,5 +8,5 @@ public interface Dao<T> {
 
     void update(String id, T newObject) throws ServerException;
 
-    void delete(String id);
+    void delete(String id) throws ServerException;
 }

@@ -3,9 +3,12 @@ package net.thumbtack.school.hiring.daoimpl;
 import net.thumbtack.school.hiring.dao.Dao;
 import net.thumbtack.school.hiring.database.DataBase;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.model.Employee;
 import net.thumbtack.school.hiring.model.Employer;
 import net.thumbtack.school.hiring.model.Requirement;
 import net.thumbtack.school.hiring.model.Vacancy;
+
+import java.util.List;
 
 public class EmployerDaoImpl implements Dao<Employer> {
     private DataBase dataBase;
@@ -26,15 +29,11 @@ public class EmployerDaoImpl implements Dao<Employer> {
         dataBase.logoutUser(token);
     }
 
-    public void removeAccount(String token) throws ServerException {
-        dataBase.removeAccount(token);
-    }
-
-    public Employer getEmployerById(String id) {
+    public Employer getEmployerById(String id) throws ServerException {
         return (Employer) dataBase.getUserById(id);
     }
 
-    public void addVacancy(Vacancy vacancy, String token) {
+    public void addVacancy(Vacancy vacancy, String token) throws ServerException {
         dataBase.addVacancy(vacancy, token);
     }
 
@@ -47,35 +46,45 @@ public class EmployerDaoImpl implements Dao<Employer> {
     }
 
     public void removeRequirement(String token, String nameVacancy, String nameRequirement) throws ServerException {
-    dataBase.removeRequirementOfVacancy(token, nameVacancy, nameRequirement);
+        dataBase.removeRequirementOfVacancy(token, nameVacancy, nameRequirement);
     }
 
-    /*
-    public Employer getByLoginAndPassword(String login, String password) throws ServerException {
-        return dataBase.getEmployerByLoginAndPassword(login, password);
+    public List<Employee> getEmployeesListNotLess(List<Requirement> requirements) {
+        return dataBase.getEmployeesListNotLess(requirements);
     }
 
-    public Employer getById(String id) {
-        return dataBase.getEmployerById(id);
+    public List<Employee> getEmployeesListObligatoryDemand(List<Requirement> requirements) {
+        return dataBase.getEmployeesListObligatoryDemand(requirements);
     }
 
-    public void setAccountStatus(String token, boolean status) throws ServerException {
-        dataBase.setAccountEmployerStatus(token, status);
+    public List<Employee> getEmployeesListOnlyName(List<Requirement> requirements) {
+        return dataBase.getEmployeesListOnlyName(requirements);
     }
 
-    public boolean isActivity(String token) {
-        return dataBase.isActivityEmployer(token);
+    public List<Employee> getEmployeesListWithOneDemand(List<Requirement> requirements) {
+        return dataBase.getEmployeesListWithOneDemand(requirements);
     }
 
-
-    public String loginEmployer(String login, String password) throws ServerException {
-        return dataBase.loginEmployer(login, password);
+    public void enableVacancy(String idVacancy, String tokenEmployer) throws ServerException {
+        dataBase.enableVacancy(idVacancy, tokenEmployer);
     }
 
-    public void removeAccount(String token) {
-        dataBase.removeAccountEmployer(token);
+    public void disableVacancy(String idVacancy, String tokenEmployer) throws ServerException {
+        dataBase.disableVacancy(idVacancy, tokenEmployer);
     }
-*/
+
+    public List<Vacancy> getAllVacanciesByToken(String token) throws ServerException {
+        return dataBase.getAllVacanciesByToken(token);
+    }
+
+    public List<Vacancy> getAllActiveVacanciesByToken(String token) throws ServerException {
+        return dataBase.getAllActiveVacanciesByToken(token);
+    }
+
+    public List<Vacancy> getAllNotActiveVacanciesByToken(String token) throws ServerException {
+        return dataBase.getAllNotActiveVacanciesByToken(token);
+    }
+
     @Override
     public void save(Employer employer) throws ServerException {
         dataBase.saveUser(employer);
@@ -83,11 +92,11 @@ public class EmployerDaoImpl implements Dao<Employer> {
 
     @Override
     public void update(String id, Employer newEmployer) throws ServerException {
-//        dataBase.updateEmployer(id, newEmployer);
+        dataBase.updateEmployer(id, newEmployer);
     }
 
     @Override
-    public void delete(String id) {
-//        dataBase.deleteEmployer(id);
+    public void delete(String id) throws ServerException {
+        dataBase.removeAccount(id);
     }
 }

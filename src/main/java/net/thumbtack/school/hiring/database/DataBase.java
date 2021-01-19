@@ -39,13 +39,6 @@ public final class DataBase implements Serializable {
                 return o1.getName().compareTo(o2.getName());
             }
             return o1.getLevel() - o2.getLevel();
-/*            int i = o1.getName().compareTo(o2.getName());
-            if (i != 0) {
-                return i;
-            } else if (o1.getLevel() - o2.getLevel() != 0) {
-                return o1.getLevel() - o2.getLevel();
-            }
-            return o1.getNecessary().compareTo(o2.getNecessary());*/
         }, (o1, o2) -> {
             return o1.getName().compareTo(o2.getName());
         });
@@ -91,6 +84,9 @@ public final class DataBase implements Serializable {
         if (!user.getPassword().equals(password)) {
             throw new ServerException(ErrorCode.WRONG_PASSWORD);
         }
+        if (activeUsers.containsValue(user)) {
+            throw new ServerException(ErrorCode.ALREADY_LOGGED_IN);
+        }
         String token = UUID.randomUUID().toString();
         activeUsers.put(token, user);
         return token;
@@ -101,23 +97,43 @@ public final class DataBase implements Serializable {
         if (user == null) {
             throw new ServerException(ErrorCode.NOT_FOUND_USER);
         }
-        allUsers.remove(user.getLogin());
-        activeUsers.remove(token, user);
+        if (user instanceof Employer) {
+            allUsers.remove(user.getLogin());
+            activeUsers.remove(token, user);
+            Employer employer = (Employer) user;
+            for (Vacancy vacancy : employer.getAllVacancies()) {
+                for (Requirement requirement : vacancy.getRequirements()) {
+                    requirementsVacancies.remove(requirement, vacancy);
+                }
+            }
+        }
+        if (user instanceof Employee) {
+            allUsers.remove(user.getLogin());
+            activeUsers.remove(token, user);
+            Employee employee = (Employee) user;
+            for (Skill skill : employee.getAttainmentsList()) {
+                userSkills.remove(skill, employee);
+            }
+        }
     }
 
     public void logoutUser(String token) {
         activeUsers.remove(token);
     }
 
-    public User getUserById(String id) {
-        return activeUsers.get(id);
+    public User getUserById(String id) throws ServerException {
+        User user = activeUsers.get(id);
+        if (user == null) {
+            throw new ServerException(ErrorCode.NO_SUCH_USER);
+        }
+        return user;
     }
 
     public void saveUser(User user) {
         allUsers.put(user.getLogin(), user);
     }
 
-    public void addVacancy(Vacancy vacancy, String token) {
+    public void addVacancy(Vacancy vacancy, String token) throws ServerException {
         Employer employer = (Employer) getUserById(token);
         employer.addVacancy(vacancy);
         saveUser(employer);
@@ -139,28 +155,45 @@ public final class DataBase implements Serializable {
     public void addSkillForEmployee(Skill attainment, String token) throws ServerException {
         this.addDemandSkill(attainment.getName());//добавляю всегда но так как умения/требования хранятся в Set повторяющиеся будут удаляться
         Employee employee = (Employee) getUserById(token);
-        employee.addAttainments(attainment);
+        if (employee.getStatus().equals(EmployeeStatus.ACTIVE)) {
+            employee.getAttainmentsList().forEach(skill -> userSkills.remove(skill, employee));
+
+            employee.addAttainments(attainment);
+
+            employee.getAttainmentsList().forEach(skill -> userSkills.put(skill, employee));
+
+        } else {
+            employee.addAttainments(attainment);
+        }
         saveUser(employee);
         activeUsers.put(token, employee);
     }
 
-    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) {
+    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) throws ServerException {
         Employee employee = (Employee) getUserById(token);
         employee.updateAttainments(oldNameSkill, newSkill);
         saveUser(employee);
         activeUsers.put(token, employee);
     }
 
-    public void removeEmployeeSkill(String id, String name) throws ServerException {
-        Employee employee = (Employee) activeUsers.get(id);
-        employee.removeAttainments(employee.getSkillByName(name));
+    public void removeEmployeeSkill(String token, String name) throws ServerException {
+        Employee employee = (Employee) activeUsers.get(token);
+        Skill skill = employee.getSkillByName(name);
+        employee.removeAttainments(skill);
         saveUser(employee);
-        activeUsers.put(id, employee);
+        activeUsers.replace(token, employee);
+        allUsers.replace(employee.getLogin(), employee);
     }
 
     public void addRequirementInVacancy(Requirement requirement, String token, String nameVacancy) throws ServerException {
         Employer employer = (Employer) getUserById(token);
+        requirementsVacancies.removeAll(employer);
         employer.getVacancyByName(nameVacancy).addRequirement(requirement);
+        for (Vacancy vacancy : employer.getAllVacancies()) {
+            for (Requirement requirement1 : vacancy.getRequirements()) {
+                requirementsVacancies.put(requirement1, vacancy);
+            }
+        }
         saveUser(employer);
         activeUsers.put(token, employer);
     }
@@ -171,84 +204,86 @@ public final class DataBase implements Serializable {
         saveUser(employer);
         activeUsers.put(token, employer);
     }
-   /* public List<Employee> getEmployeeList() {
-        return new ArrayList<>(employeeList.values());
+
+    public List<Vacancy> getAllVacanciesByToken(String token) throws ServerException {
+        Employer employer = (Employer) this.getUserById(token);
+        Set<Vacancy> vacancies = new HashSet<>(employer.getAllVacancies());
+        return new ArrayList<>(vacancies);
     }
 
-    public List<Employer> getEmployerList() {
-        return new ArrayList<>(employerList.values());
-    }*/
+    public List<Vacancy> getAllActiveVacanciesByToken(String token) throws ServerException {
+        Employer employer = (Employer) this.getUserById(token);
+        Set<Vacancy> outList = new HashSet<>(employer.getAllVacancies());
+        outList.removeIf(vacancy -> vacancy.getStatus().equals(VacancyStatus.NOT_ACTIVE));
+        return new ArrayList<>(outList);
+    }
 
-   /* public List<Vacancy> getVacanciesList() {
-        return new ArrayList<>(vacanciesList);
-    }*/
+    public List<Vacancy> getAllNotActiveVacanciesByToken(String token) throws ServerException {
+        Employer employer = (Employer) this.getUserById(token);
+        Set<Vacancy> outList = new HashSet<>(employer.getAllVacancies());
+        outList.removeIf(vacancy -> vacancy.getStatus().equals(VacancyStatus.ACTIVE));
+        return new ArrayList<>(outList);
+    }
 
-    /*Collection<Employee> employees = userSkills.get(skills.get(0).getName());
-        for (Skill skill : skills) {
-            employees.retainAll(userSkills.get(skill.getName()));
-        } для получения работников
-     */
     public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
         NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
-        Collection<Vacancy> vacancies = new HashSet<>(requirementsVacancies.values());
-        Collection<Collection<Vacancy>> temporalVacanciesCollection;
-        boolean chek;
-        List<Vacancy> vacancies2 = new ArrayList<>();
-        Set<Vacancy> vacanciesWithOneRequirement = new HashSet<>();
+        Collection<Vacancy> vacancies = new HashSet<>();
+        Set<Map.Entry<Requirement, Collection<Vacancy>>> entrySet;
+        int i;
         for (Skill skill : skills) {
-            chek = false;
-            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).values();
-            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
-                vacancies2.addAll(vacancies1);
+            entrySet = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).entrySet();
+            for (Map.Entry<Requirement, Collection<Vacancy>> entry : entrySet) {
+                vacancies.addAll(entry.getValue());
             }
-            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NOT_NECESSARY)).values();
-            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
-                vacancies2.addAll(vacancies1);
-            }
-            if (vacancies2.size() != 0) {
-                for (Vacancy vacancy : vacancies2) {
-                    if (vacancy.getRequirements().size() == 1) {
-                        vacanciesWithOneRequirement.add(vacancy);//чтобы элементы с одним требованием не потерялись при пересечении(т.к они в одном листе)
-                        chek = true;
-                    }
-                }
-                if (!chek) {
-                    vacancies.retainAll(vacancies2);
-                }
-                vacancies2.clear();
+            entrySet = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NOT_NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NOT_NECESSARY)).entrySet();
+            for (Map.Entry<Requirement, Collection<Vacancy>> entry : entrySet) {
+                vacancies.addAll(entry.getValue());
             }
         }
-        vacancies.addAll(vacanciesWithOneRequirement);
+        for (Vacancy vacancy : new HashSet<>(vacancies)) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                i = 0;
+                for (Skill skill : skills) {
+                    if (skill.getName().equals(requirement.getName()) && skill.getLevel() >= requirement.getLevel()) {
+                        break;
+                    }
+                    i++;
+                }
+                if (i == skills.size()) {
+                    vacancies.remove(vacancy);
+                    break;
+                }
+            }
+        }
         return new ArrayList<>(vacancies);
     }
 
     public List<Vacancy> getVacanciesListObligatoryDemand(List<Skill> skills) {
         NavigableMap<Requirement, Collection<Vacancy>> navigableMap = ((TreeMultimap<Requirement, Vacancy>) requirementsVacancies).asMap();
-        Collection<Vacancy> vacancies = new HashSet<>(requirementsVacancies.values());
-        Collection<Collection<Vacancy>> temporalVacanciesCollection;
-        boolean chek;
-        List<Vacancy> vacancies2 = new ArrayList<>();
-        Set<Vacancy> vacanciesWithOneRequirement = new HashSet<>();
+        Collection<Vacancy> vacancies = new HashSet<>();
+        Set<Map.Entry<Requirement, Collection<Vacancy>>> entrySet;
+        int i;
         for (Skill skill : skills) {
-            chek = false;
-            temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).values();
-            for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
-                vacancies2.addAll(vacancies1);
-            }
-            if (vacancies2.size() != 0) {
-                for (Vacancy vacancy : vacancies2) {
-                    if (vacancy.getRequirements().size() == 1) {
-                        vacanciesWithOneRequirement.add(vacancy);//чтобы элементы с одним требованием не потерялись при пересечении(т.к они в одном листе)
-                        chek = true;
-                    }
-                }
-                if (!chek) {
-                    vacancies.retainAll(vacancies2);
-                }
-                vacancies2.clear();
+            entrySet = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), skill.getLevel() + 1, ConditionsRequirements.NECESSARY)).entrySet();
+            for (Map.Entry<Requirement, Collection<Vacancy>> entry : entrySet) {
+                vacancies.addAll(entry.getValue());
             }
         }
-        vacancies.addAll(vacanciesWithOneRequirement);
+        for (Vacancy vacancy : new HashSet<>(vacancies)) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                i = 0;
+                for (Skill skill : skills) {
+                    if (skill.getName().equals(requirement.getName()) && skill.getLevel() >= requirement.getLevel() && requirement.getNecessary().equals(ConditionsRequirements.NECESSARY)) {
+                        break;
+                    }
+                    i++;
+                }
+                if (i == skills.size()) {
+                    vacancies.remove(vacancy);
+                    break;
+                }
+            }
+        }
         return new ArrayList<>(vacancies);
     }
 
@@ -258,6 +293,9 @@ public final class DataBase implements Serializable {
         Collection<Collection<Vacancy>> temporalVacanciesCollection;
         Set<String> skillsNames = new HashSet<>();
         for (Skill skill : skills) {
+            skillsNames.add(skill.getName());
+        }
+        for (Skill skill : skills) {
             temporalVacanciesCollection = navigableMap.subMap(new Requirement(skill.getName(), 0, ConditionsRequirements.NECESSARY), new Requirement(skill.getName(), 6, ConditionsRequirements.NECESSARY)).values();
             for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
                 vacancies.addAll(vacancies1);
@@ -266,9 +304,6 @@ public final class DataBase implements Serializable {
             for (Collection<Vacancy> vacancies1 : temporalVacanciesCollection) {
                 vacancies.addAll(vacancies1);
             }
-        }
-        for (Skill skill : skills) {
-            skillsNames.add(skill.getName());
         }
         vacancies.removeIf(vacancy -> !skillsNames.containsAll(vacancy.getNamesRequirements()));
         return new ArrayList<>(vacancies);
@@ -293,6 +328,43 @@ public final class DataBase implements Serializable {
 
     }
 
+    public List<Employee> getEmployeesListNotLess(List<Requirement> requirements) {
+        Set<Employee> employees = new HashSet<>(userSkills.values());
+        for (Requirement requirement : requirements) {
+            List<Collection<Employee>> collection = new ArrayList<>(((TreeMultimap) userSkills).asMap().subMap(new Skill(requirement.getName(), requirement.getLevel()), new Skill(requirement.getName(), 6)).values());
+            employees.retainAll(collection.get(0));
+        }
+        return new ArrayList<>(employees);
+    }
+
+    public List<Employee> getEmployeesListObligatoryDemand(List<Requirement> requirements) {
+        List<Requirement> obligatoryRequirement = new ArrayList<>();
+        for (Requirement requirement : requirements) {
+            if (requirement.getNecessary().equals(ConditionsRequirements.NECESSARY)) {
+                obligatoryRequirement.add(requirement);
+            }
+        }
+        return this.getEmployeesListNotLess(obligatoryRequirement);
+    }
+
+    public List<Employee> getEmployeesListOnlyName(List<Requirement> requirements) {
+        Set<Employee> employees = new HashSet<>(userSkills.values());
+        for (Requirement requirement : requirements) {
+            List<Collection<Employee>> collection = new ArrayList<>(((TreeMultimap) userSkills).asMap().subMap(new Skill(requirement.getName(), 1), new Skill(requirement.getName(), 6)).values());
+            employees.retainAll(collection.get(0));
+        }
+        return new ArrayList<>(employees);
+    }
+
+    public List<Employee> getEmployeesListWithOneDemand(List<Requirement> requirements) {
+        Set<Employee> employees = new HashSet<>();
+        for (Requirement requirement : requirements) {
+            List<Collection<Employee>> collection = new ArrayList<>(((TreeMultimap) userSkills).asMap().subMap(new Skill(requirement.getName(), requirement.getLevel()), new Skill(requirement.getName(), 6)).values());
+            employees.addAll(collection.get(0));
+        }
+        return new ArrayList<>(employees);
+    }
+
     public Set<String> getDemandSkillsSet() {
         return Collections.unmodifiableSet(demandSkills);
     }
@@ -304,159 +376,68 @@ public final class DataBase implements Serializable {
     public void addDemandSkill(String nameDemandSkill) {
         demandSkills.add(nameDemandSkill);
     }
-/*
 
-    /*public Vacancy getVacancyByTokenAndName(String token, String namePost) {
-        for (Vacancy vacancy : vacanciesList) {
-            if (token.equals(vacancy.getToken()) && namePost.equals(vacancy.getName())) {
-                return vacancy;
-            }
+    public void disableEmployee(String token) throws ServerException {
+        Employee employee = (Employee) activeUsers.get(token);
+        if (employee.getStatus().equals(EmployeeStatus.NOT_ACTIVE)) {
+            throw new ServerException(ErrorCode.EMPLOYEE_DISABLE);
         }
-        return null;
+        userSkills.removeAll(employee);
+        employee.setStatus(EmployeeStatus.NOT_ACTIVE);
+        activeUsers.replace(token, employee);
+        allUsers.replace(employee.getLogin(), employee);
     }
 
-    public List<Vacancy> getVacanciesListByToken(String token) {
-        List<Vacancy> outVacanciesList = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {
-            if (vacancy.getToken().equals(token)) {
-                outVacanciesList.add(vacancy);
-            }
+    public void enableEmployee(String token) throws ServerException {
+        Employee employee = (Employee) activeUsers.get(token);
+        if (employee.getStatus().equals(EmployeeStatus.ACTIVE)) {
+            throw new ServerException(ErrorCode.EMPLOYEE_ENABLE);
         }
-        return outVacanciesList;
-    }
-*/
-  /*  public List<Vacancy> getActivityVacanciesListByToken(String token) {
-        List<Vacancy> vacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {
-            if (vacancy.isStatus() && vacancy.getToken().equals(token)) {
-                vacancies.add(vacancy);
-            }
+        for (Skill skill : employee.getAttainmentsList()) {
+            userSkills.put(skill, employee);
         }
-        return vacancies;
+        employee.setStatus(EmployeeStatus.ACTIVE);
+        activeUsers.replace(token, employee);
+        allUsers.replace(employee.getLogin(), employee);
     }
 
-    public List<Vacancy> getNotActivityVacanciesListByToken(String token) {
-        List<Vacancy> vacancies = new ArrayList<>();
-        for (Vacancy vacancy : vacanciesList) {
-            if (!vacancy.isStatus() && vacancy.getToken().equals(token)) {
-                vacancies.add(vacancy);
-            }
+    public void disableVacancy(String idVacancy, String tokenEmployer) throws ServerException {
+        Employer employer = (Employer) this.getUserById(tokenEmployer);
+        Vacancy vacancy = employer.getVacancyById(idVacancy);
+        if (vacancy.getStatus() == VacancyStatus.NOT_ACTIVE) {
+            throw new ServerException(ErrorCode.VACANCY_DISABLE);
         }
-        return vacancies;
-    }*/
-
-  /*  public Employee getEmployeeById(String id) {
-        Collection<Employee> employees = employeeList.get(id);
-        if (employees.isEmpty()) {
-            return null;
-        }
-        return employees.iterator().next();
+        vacancy.getRequirements().forEach(requirement -> requirementsVacancies.remove(requirement, vacancy));
+        vacancy.setStatus(VacancyStatus.NOT_ACTIVE);
+        employer.removeVacancy(vacancy.getName());
+        employer.addVacancy(vacancy);
+        activeUsers.replace(tokenEmployer, employer);
+        allUsers.replace(employer.getLogin(), employer);
     }
 
-    public Employee getEmployeeByLoginAndPassword(String login, String password) {
-        for (Employee employee : employeeList.values()) {
-            if (login.equals(employee.getLogin()) && password.equals(employee.getPassword())) {
-                return employee;
-            }
+    public void enableVacancy(String idVacancy, String tokenEmployer) throws ServerException {
+        Employer employer = (Employer) this.getUserById(tokenEmployer);
+        Vacancy vacancy = (Vacancy) employer.getVacancyById(idVacancy);
+        if (vacancy.getStatus() == VacancyStatus.ACTIVE) {
+            throw new ServerException(ErrorCode.VACANCY_ENABLE);
         }
-        return null;
+        for (Requirement requirement : vacancy.getRequirements()) {
+            requirementsVacancies.put(requirement, vacancy);
+        }
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        employer.removeVacancy(vacancy.getName());
+        employer.addVacancy(vacancy);
+        activeUsers.replace(tokenEmployer, employer);
+        allUsers.replace(employer.getLogin(), employer);
     }
 
-    public List<Employee> getEmployeeListNotLessByDemands(List<Requirement> demands) {
-        int i = 0;
-        List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList.values()) {
-            for (Skill attainments : employee.getAttainmentsList()) {
-                for (Requirement demand : demands) {
-                    if (demand.getNameDemand().equals(attainments.getName()) && demand.getSkill() <= attainments.getLevel() && demand.isNecessary()) {
-                        i++;
-                    }
-                }
-            }
-            if (i == demands.size()) {
-                outList.add(employee);
-            }
+    public void updateEmployee(String token, Employee newEmployee) throws ServerException {
+        Employee employee = (Employee) this.getUserById(token);
+        if (!employee.getStatus().equals(newEmployee.getStatus())) {
+            throw new ServerException(ErrorCode.BAN_UPDATE_STATUS);
         }
-        return outList;
-    }
-*//*
-    public List<Employee> getEmployeeListObligatoryDemandByDemands(List<Requirement> demands) {
-        int i = 0, count = 0;
-        List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList.values()) {
-            for (Skill attainments : employee.getAttainmentsList()) {
-                for (Requirement demand : demands) {
-                    if (demand.getNameDemand().equals(attainments.getName()) && demand.getSkill() <= attainments.getLevel()) {
-                        i++;
-                    }
-                    if (demand.isNecessary()) {
-                        count++;
-                    }
-                }
-            }
-            if (i == count) {
-                outList.add(employee);
-            }
-        }
-        return outList;
-    }
+        newEmployee.setLogin(employee.getLogin());//логин оставляем обязательно старый т.к. менять нельзя
 
-    public List<Employee> getEmployeeListByDemands(List<Requirement> demands) {
-        int i = 0;
-        List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList.values()) {
-            for (Skill attainments : employee.getAttainmentsList()) {
-                for (Requirement demand : demands) {
-                    if (demand.getNameDemand().equals(attainments.getName())) {
-                        i++;
-                    }
-                }
-            }
-            if (i == demands.size()) {
-                outList.add(employee);
-            }
-        }
-        return outList;
-    }
-
-    public List<Employee> getEmployeeListWithOneDemandByDemands(List<Requirement> demands) {
-        int i = 0;
-        List<Employee> outList = new ArrayList<>();
-        for (Employee employee : employeeList.values()) {
-            for (Skill attainments : employee.getAttainmentsList()) {
-                for (Requirement demand : demands) {
-                    if (demand.getNameDemand().equals(attainments.getName()) && demand.getSkill() <= attainments.getLevel() && demand.isNecessary()) {
-                        i++;
-                    }
-                }
-            }
-            if (i != 0) {
-                outList.add(employee);
-            }
-        }
-        return outList;
-    }*/
-
-   /* public Employer getEmployerById(String id) {
-        Collection<Employer> employers = employerList.get(id);
-        if (employers.isEmpty()) {
-            return null;
-        }
-        return employers.iterator().next();
-    }
-
-    public Employer getEmployerByLoginAndPassword(String login, String password) throws ServerException {
-        for (Employer employer : employerList.values()) {
-            if (login.equals(employer.getLogin()) && password.equals(employer.getPassword())) {
-                return employer;
-            }
-        }
-        throw new ServerException(ErrorCode.GET_USER_EXCEPTION);
-    }
-
-    public void updateEmployee(String id, Employee newEmployee) throws ServerException {
-        List<Employee> value = new ArrayList<>();
-        Employee employee = this.getEmployeeById(id);
         if (newEmployee.getFirstName() == null) {
             newEmployee.setFirstName(employee.getFirstName());
         }
@@ -475,13 +456,17 @@ public final class DataBase implements Serializable {
         if (newEmployee.getAttainmentsList() == null) {
             newEmployee.setAttainmentsList(employee.getAttainmentsList());
         }
-        value.add(newEmployee);
-        employeeList.replaceValues(id, value);
-    }*/
-/*
-    public void updateEmployer(String id, Employer newEmployer) throws ServerException {
-        List<Employer> value = new ArrayList<>();
-        Employer employer = this.getEmployerById(id);
+        if (newEmployee.getStatus().equals(EmployeeStatus.ACTIVE)) {
+            employee.getAttainmentsList().forEach(skill -> userSkills.remove(skill, employee));
+            newEmployee.getAttainmentsList().forEach(skill -> userSkills.put(skill, newEmployee));
+        }
+        allUsers.replace(employee.getLogin(), employee, newEmployee);
+        activeUsers.replace(token, employee, newEmployee);
+    }
+
+    public void updateEmployer(String token, Employer newEmployer) throws ServerException {
+        Employer employer = (Employer) this.getUserById(token);
+
         if (newEmployer.getName() == null) {
             newEmployer.setName(employer.getName());
         }
@@ -503,10 +488,12 @@ public final class DataBase implements Serializable {
         if (newEmployer.getPassword() == null) {
             newEmployer.setPassword(employer.getPassword());
         }
-        value.add(newEmployer);
-        employerList.replaceValues(id, value);
-    }
+        newEmployer.setVacancies(new HashSet<>(employer.getAllVacancies()));
 
+        allUsers.replace(employer.getLogin(), newEmployer);
+        activeUsers.replace(token, newEmployer);
+    }
+/*
     public void updateVacancy(String nameVacancy, String tokenEmployer, Vacancy newVacancy) throws ServerException {
         Vacancy vacancy = getVacancyByTokenAndName(tokenEmployer, nameVacancy);
         if (vacancy == null) {
@@ -528,83 +515,12 @@ public final class DataBase implements Serializable {
         vacancy.updateDemand(oldNameDemand, demand);
     }
 
-    public void deleteEmployee(String id) {
-        employeeList.removeAll(id);
-    }
-
-    public void deleteEmployer(String id) {
-        employerList.removeAll(id);
-    }
-
-    public void removeAccountEmployer(String token) {
-        this.removeAllVacanciesByToken(token);
-        //REVU: а как сохраняются данные (прогресс) после удаления, если идет удаление из списка?
-        this.deleteEmployer(token);
-    }
-
-    public void deleteVacancy(String token, String namePost) throws ServerException {
-        Vacancy vacancy = getVacancyByTokenAndName(token, namePost);
-        if (vacancy == null) {
-            throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
-        }
-        vacanciesList.remove(vacancy);
-    }
-
-    public void removeAllVacanciesByToken(String token) {
-        List<Vacancy> vacancies = this.getVacanciesList();
-        for (Vacancy vacancy : vacancies) {
-            if (vacancy.getToken().equals(token)) {
-                try {
-                    this.deleteVacancy(vacancy.getToken(), vacancy.getName());
-                } catch (ServerException e) {
-                    //REVU: не нужно отлавливать тут исключение
-                }
-            }
-        }
-    }*/
+  */
 
     public void deleteDemandSkill(String name) {
         demandSkills.remove(name);
     }
 
-    /*
-        public void setAccountEmployeeStatus(String token, boolean status) throws ServerException {
-            Employee employee = getEmployeeById(token);
-            if (employee == null) {
-                throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-            }
-            employee.setActivity(status);
-            this.updateEmployee(employee.getId(), employee);
-        }
-
-        public void setAccountEmployerStatus(String token, boolean status) throws ServerException {
-            Employer employer = this.getEmployerById(token);
-            if (employer == null) {
-                throw new ServerException(ErrorCode.EMPLOYER_EXCEPTION);
-            }
-            employer.setActivity(status);
-            updateEmployer(employer.getId(), employer);
-        }
-
-        public Vacancy setVacancyStatus(String token, String namePost, boolean status) throws ServerException {
-            Vacancy vacancy = this.getVacancyByTokenAndName(token, namePost);
-            if (vacancy == null) {
-                throw new ServerException(ErrorCode.VACANCY_EXCEPTION);
-            }
-            vacancy.setStatus(status);
-            updateVacancy(vacancy.getName(), vacancy.getToken(), vacancy);
-            return vacancy;
-        }
-
-        public void setEmployeeStatus(String token, boolean status) throws ServerException {
-            Employee employee = getEmployeeById(token);
-            if (employee == null) {
-                throw new ServerException(ErrorCode.EMPLOYEE_EXCEPTION);
-            }
-            employee.setStatus(status);
-            updateEmployee(employee.getId(), employee);
-        }
-    */
     public void cleanDataBase() {
         allUsers.clear();
         activeUsers.clear();

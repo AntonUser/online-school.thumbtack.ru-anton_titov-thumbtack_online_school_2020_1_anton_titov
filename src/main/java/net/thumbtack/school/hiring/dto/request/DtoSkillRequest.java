@@ -3,25 +3,15 @@ package net.thumbtack.school.hiring.dto.request;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
 
-public class DtoSkillRequest {
-    private String oldNameSkill;
-    private String token;
+public class DtoSkillRequest extends DtoRemoveSkillRequest {
+
     private String nameSkill;
-    private int skill;
+    private int level;
 
-    public DtoSkillRequest(String token, String nameSkill, int skill, String oldNameSkill) {
-        this.token = token;
+    public DtoSkillRequest(String token, String nameSkill, int level, String oldNameSkill) {
+        super(oldNameSkill, token);
         this.nameSkill = nameSkill;
-        this.skill = skill;
-        this.oldNameSkill = oldNameSkill;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+        this.level = level;
     }
 
     public String getNameSkill() {
@@ -32,26 +22,18 @@ public class DtoSkillRequest {
         this.nameSkill = nameSkill;
     }
 
-    public int getSkill() {
-        return skill;
+    public int getLevel() {
+        return level;
     }
 
-    public void setSkill(int skill) {
-        this.skill = skill;
-    }
-
-    public String getOldNameSkill() {
-        return oldNameSkill;
-    }
-
-    public void setOldNameSkill(String oldNameSkill) {
-        this.oldNameSkill = oldNameSkill;
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public void validate() throws ServerException {
         if (getNameSkill() == null || getNameSkill().isEmpty()) {
             throw new ServerException(ErrorCode.EMPTY_NAME_SKILL);
-        } else if (getSkill() < 1 || getSkill() > 5) {
+        } else if (getLevel() < 1 || getLevel() > 5) {
             throw new ServerException(ErrorCode.SKILL_BORDER);
         } else if (getToken() == null || getToken().isEmpty()) {
             throw new ServerException(ErrorCode.EMPTY_TOKEN);

@@ -21,9 +21,9 @@ public class EmployeeDtoRegisterRequest {
     // лучше, если DTO ничего не будет знать про модель
     // так что стоит завести класс SkillDtoRequest и тут его использовать
     // проверьте и в других DTO
-    private List<SkillDtoRequest> attainmentsList;
+    private List<DtoSkill> attainmentsList;
 
-    public EmployeeDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<SkillDtoRequest> attainmentsList) {
+    public EmployeeDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String email, List<DtoSkill> attainmentsList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.patronymic = patronymic;
@@ -81,11 +81,11 @@ public class EmployeeDtoRegisterRequest {
         this.email = email;
     }
 
-    public List<SkillDtoRequest> getAttainmentsList() {
+    public List<DtoSkill> getAttainmentsList() {
         return attainmentsList;
     }
 
-    public void setAttainmentsList(List<SkillDtoRequest> attainmentsList) {
+    public void setAttainmentsList(List<DtoSkill> attainmentsList) {
         this.attainmentsList = attainmentsList;
     }
 

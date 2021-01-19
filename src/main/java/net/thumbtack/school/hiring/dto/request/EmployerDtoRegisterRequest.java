@@ -2,17 +2,22 @@ package net.thumbtack.school.hiring.dto.request;
 
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
+import net.thumbtack.school.hiring.model.Vacancy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
     private String name;
     private String address;
+    private List<DtoAddVacancyRequest> vacancies;
 
     public EmployerDtoRegisterRequest(String firstName, String lastName, String patronymic, String login, String password, String name, String address, String email) {
         super(firstName, lastName, patronymic, login, password, email);
         setName(name);
         setAddress(address);
+        vacancies = new ArrayList<>();
     }
 
     public String getName() {
@@ -31,27 +36,26 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
         this.address = address;
     }
 
-    // REVU лучше этот код перенести в сервис, сделав там private static метод
-    // сервису лучше знать, как правильно валидировать
-    // может, в зависимости от чего-то нужно иногда так, а иногда иначе
-    public void validate() throws ServerException {
-        if (getFirstName() == null || getFirstName().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_FIRST_NAME);
-        } else if (getLastName() == null || getLastName().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_LAST_NAME);
-        } else if (getEmail() == null || getEmail().isEmpty()) {
-            throw new ServerException(ErrorCode.EMAIL_EXCEPTION);
-        } else if (getLogin() == null || getLogin().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_LOGIN);
-        } else if (getPassword() == null || getPassword().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_PASSWORD);
-        } else if (getAddress() == null || getAddress().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_ADDRESS);
-        } else if (getName() == null || getName().isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_NAME);
-        }
+    public List<DtoAddVacancyRequest> getVacancies() {
+        return vacancies;
     }
 
+    public DtoAddVacancyRequest getVacancyByName(String name) throws ServerException {
+        for (DtoAddVacancyRequest dtoAddVacancyRequest : vacancies) {
+            if (dtoAddVacancyRequest.getNamePost().equals(name)) {
+                return dtoAddVacancyRequest;
+            }
+        }
+        throw new ServerException(ErrorCode.NOT_FOUND_VACANCY_NAME);
+    }
+
+    public void setVacancies(List<DtoAddVacancyRequest> vacancies) {
+        this.vacancies = vacancies;
+    }
+
+    public void addVacancy(DtoAddVacancyRequest vacancy) {
+        vacancies.add(vacancy);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -60,12 +64,12 @@ public class EmployerDtoRegisterRequest extends DtoRegisterRequest {
         if (!super.equals(o)) return false;
         EmployerDtoRegisterRequest that = (EmployerDtoRegisterRequest) o;
         return Objects.equals(name, that.name) &&
-                Objects.equals(address, that.address);
+                Objects.equals(address, that.address) &&
+                Objects.equals(vacancies, that.vacancies);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, address);
+        return Objects.hash(super.hashCode(), name, address, vacancies);
     }
-
 }

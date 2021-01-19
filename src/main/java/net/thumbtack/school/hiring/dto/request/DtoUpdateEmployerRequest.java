@@ -1,8 +1,5 @@
 package net.thumbtack.school.hiring.dto.request;
 
-import net.thumbtack.school.hiring.exception.ErrorCode;
-import net.thumbtack.school.hiring.exception.ServerException;
-
 public class DtoUpdateEmployerRequest extends EmployerDtoRegisterRequest {
     private String id;
     private boolean activity;
@@ -27,12 +24,5 @@ public class DtoUpdateEmployerRequest extends EmployerDtoRegisterRequest {
 
     public void setActivity(boolean activity) {
         this.activity = activity;
-    }
-
-    public void validate() throws ServerException {
-        super.validate();
-        if (id == null || id.isEmpty()) {
-            throw new ServerException(ErrorCode.EMPTY_TOKEN);
-        }
     }
 }

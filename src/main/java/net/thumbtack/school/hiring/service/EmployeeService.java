@@ -8,12 +8,10 @@ import net.thumbtack.school.hiring.dto.request.*;
 import net.thumbtack.school.hiring.dto.response.*;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Skill;
-import net.thumbtack.school.hiring.model.Employee;
+import net.thumbtack.school.hiring.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 //REVU: проверь все свои валидации
 // там не должно быть NullPointerException, используй свой ServerException и лови тут его
@@ -27,7 +25,7 @@ public class EmployeeService {
             EmployeeDtoRegisterRequest employeeDtoRegisterRequest = getClassInstanceFromJson(EmployeeDtoRegisterRequest.class, json);
             validateEmployeeDtoRegisterRequest(employeeDtoRegisterRequest);
             List<Skill> attainments = new ArrayList<>();
-            for (SkillDtoRequest skill : employeeDtoRegisterRequest.getAttainmentsList()) {
+            for (DtoSkill skill : employeeDtoRegisterRequest.getAttainmentsList()) {
                 attainments.add(new Skill(skill.getName(), skill.getLevel()));
             }
             Employee employee = new Employee(employeeDtoRegisterRequest.getFirstName(),
@@ -35,7 +33,7 @@ public class EmployeeService {
                     employeeDtoRegisterRequest.getLogin(), employeeDtoRegisterRequest.getPassword(),
                     employeeDtoRegisterRequest.getEmail(), attainments);
             String token = employeeDao.registerEmployee(employee);
-            return gson.toJson(token);
+            return gson.toJson(new DtoToken(token));
         } catch (ServerException se) {
             return gson.toJson(new ErrorDtoResponse(se));
         }
@@ -63,146 +61,168 @@ public class EmployeeService {
         }
     }
 
-
-    public String getVacanciesNotLess(String abilitiesJson) throws ServerException {
+    public String getVacanciesNotLess(String abilitiesJson) {
         DtoSkills skills = convertSkills(abilitiesJson);
+        List<Skill> skillsList = new ArrayList<>();
+        List<DtoVacancyResponse> outList = new ArrayList<>();
+        for (DtoSkill dtoSkill : skills.getSkills()) {
+            skillsList.add(new Skill(dtoSkill.getName(), dtoSkill.getLevel()));
+        }
+        List<Vacancy> vacancies = employeeDao.getVacanciesListNotLess(skillsList);
+        List<DtoRequirement> requirements = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                requirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().toString()));
+            }
+            outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), new ArrayList<>(requirements), vacancy.getStatus().toString()));
+            requirements.clear();
+        }
+        return gson.toJson(new DtoVacanciesResponse(outList));
+    }
+
+    public String getVacanciesObligatoryDemand(String abilitiesJson) {
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Skill> skillsList = new ArrayList<>();
+        List<DtoVacancyResponse> outList = new ArrayList<>();
+        for (DtoSkill dtoSkill : skills.getSkills()) {
+            skillsList.add(new Skill(dtoSkill.getName(), dtoSkill.getLevel()));
+        }
+        List<Vacancy> vacancies = employeeDao.getVacanciesListObligatoryDemand(skillsList);
+        List<DtoRequirement> requirements = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                requirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().toString()));
+            }
+            outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), new ArrayList<>(requirements), vacancy.getStatus().toString()));
+            requirements.clear();
+        }
+        return gson.toJson(new DtoVacanciesResponse(outList));
+    }
+
+    public String getVacanciesOnlyName(String abilitiesJson) {
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Skill> skillsList = new ArrayList<>();
+        List<DtoVacancyResponse> outList = new ArrayList<>();
+        for (DtoSkill dtoSkill : skills.getSkills()) {
+            skillsList.add(new Skill(dtoSkill.getName(), dtoSkill.getLevel()));
+        }
+        List<Vacancy> vacancies = employeeDao.getVacanciesListOnlyName(skillsList);
+        List<DtoRequirement> requirements = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                requirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().toString()));
+            }
+            outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), new ArrayList<>(requirements), vacancy.getStatus().toString()));
+            requirements.clear();
+        }
+        return gson.toJson(new DtoVacanciesResponse(outList));
+    }
+
+    public String getVacanciesWithOneDemand(String abilitiesJson) {
+        DtoSkills skills = convertSkills(abilitiesJson);
+        List<Skill> skillsList = new ArrayList<>();
+        List<DtoVacancyResponse> outList = new ArrayList<>();
+        for (DtoSkill dtoSkill : skills.getSkills()) {
+            skillsList.add(new Skill(dtoSkill.getName(), dtoSkill.getLevel()));
+        }
+        List<Vacancy> vacancies = employeeDao.getVacanciesListWithOneDemand(skillsList);
+        List<DtoRequirement> requirements = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            for (Requirement requirement : vacancy.getRequirements()) {
+                requirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().toString()));
+            }
+            outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), new ArrayList<>(requirements), vacancy.getStatus().toString()));
+            requirements.clear();
+        }
+        return gson.toJson(new DtoVacanciesResponse(outList));
+    }
+
+    public String setAccountStatusEnable(String tokenJson) {
+        DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
         try {
-            skills.validate();
+            employeeDao.setAccountStatusEnable(token.getToken());
+            return gson.toJson(new DtoResponseMessage("SUCCESSFUL"));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
+        }
+    }
+
+    public String setAccountStatusDisable(String tokenJson) {
+        DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
+        try {
+            employeeDao.setAccountStatusDisable(token.getToken());
+            return gson.toJson(new DtoResponseMessage("SUCCESSFUL"));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
+        }
+    }
+
+    public String addSkill(String skillJson) {
+        AddSkillRequest skill = gson.fromJson(skillJson, AddSkillRequest.class);
+        try {
+            skill.validate();
+            validateActivity(skill.getToken());
+            employeeDao.addSkill(new Skill(skill.getName(), skill.getLevel()), skill.getToken());
         } catch (ServerException ex) {
             return gson.toJson(new ErrorDtoResponse(ex));
         }
-        validateActivity(skills.getToken());
-        List<Skill> skillsList = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : skills.getSkills().entrySet()) {
-            skillsList.add(new Skill(entry.getKey(), entry.getValue()));
-        }
-        return gson.toJson(new DtoVacanciesResponse(employeeDao.getVacanciesListNotLess(skillsList)));
+        return gson.toJson(new DtoAttainmentsResponse(skill.getName(), skill.getLevel()));
     }
 
-    public String getVacanciesObligatoryDemand(String abilitiesJson) throws ServerException {
-        DtoSkills skills = convertSkills(abilitiesJson);
-        try {
-            skills.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorDtoResponse(ex));
-        }
-        validateActivity(skills.getToken());
-        List<Skill> skillsList = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : skills.getSkills().entrySet()) {
-            skillsList.add(new Skill(entry.getKey(), entry.getValue()));
-        }
-        return gson.toJson(new DtoVacanciesResponse(employeeDao.getVacanciesListObligatoryDemand(skillsList)));
-    }
-
-    public String getVacanciesOnlyName(String abilitiesJson) throws ServerException {
-        DtoSkills skills = convertSkills(abilitiesJson);
-        try {
-            skills.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorDtoResponse(ex));
-        }
-        validateActivity(skills.getToken());
-        List<Skill> skillsList = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : skills.getSkills().entrySet()) {
-            skillsList.add(new Skill(entry.getKey(), entry.getValue()));
-        }
-        return gson.toJson(new DtoVacanciesResponse(employeeDao.getVacanciesListOnlyName(skillsList)));
-    }
-
-    public String getVacanciesWithOneDemand(String abilitiesJson) throws ServerException {
-        DtoSkills skills = convertSkills(abilitiesJson);
-        try {
-            skills.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorDtoResponse(ex));
-        }
-        validateActivity(skills.getToken());
-        List<Skill> skillsList = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : skills.getSkills().entrySet()) {
-            skillsList.add(new Skill(entry.getKey(), entry.getValue()));
-        }
-        return gson.toJson(new DtoVacanciesResponse(employeeDao.getVacanciesListWithOneDemand(skillsList)));
-    }
-
-    /* public String getAllDemandSkills(String tokenJson) throws ServerException {
-         DtoToken token = gson.fromJson(tokenJson, DtoToken.class);
-         try {
-             token.validate();
-         } catch (ServerException ex) {
-             return gson.toJson(new ErrorDtoResponse(ex));
-         }
-         validateActivity(token.getToken());
-         return gson.toJson(new DtoAllDemandsSkillsResponse(employeeDao.getAllDemandSkills()));
-     }
-
-     /*
-         public String addEmployeeSkill(String skillJson) throws ServerException {
-             DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
-             try {
-                 skill.validate();
-             } catch (ServerException ex) {
-                 return gson.toJson(new ErrorToken(ex.getMessage()));
-             }
-             validateActivity(skill.getToken());
-             eDao.addSkillForEmployee(new Skill(skill.getNameSkill(), skill.getSkill()), skill.getToken());
-             return gson.toJson(new DtoAttainmentsResponse(skill.getNameSkill(), skill.getSkill()));
-         }
-     */
-    public String updateEmployeeSkill(String newSkillJson) throws ServerException {
+    public String updateEmployeeSkill(String newSkillJson) {
         DtoSkillRequest newSkill = gson.fromJson(newSkillJson, DtoSkillRequest.class);
         try {
             newSkill.validate();
-            validateActivity(newSkill.getToken());
-            employeeDao.updateEmployeeSkill(newSkill.getToken(), newSkill.getOldNameSkill(), new Skill(newSkill.getNameSkill(), newSkill.getSkill()));
+            employeeDao.updateEmployeeSkill(newSkill.getToken(), newSkill.getOldNameSkill(), new Skill(newSkill.getNameSkill(), newSkill.getLevel()));
         } catch (ServerException ex) {
             return gson.toJson(new ErrorDtoResponse(ex));
         }
         return gson.toJson(new ErrorDtoResponse());
     }
 
-    /*public String removeEmployeeSkill(String skillJson) throws ServerException {
-        Employee employee;
-        DtoSkillRequest skill = gson.fromJson(skillJson, DtoSkillRequest.class);
+    public String removeEmployeeSkill(String skillJson) {
+        DtoRemoveSkillRequest skill = gson.fromJson(skillJson, DtoRemoveSkillRequest.class);
         try {
-            skill.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            validateActivity(skill.getToken());
+            employeeDao.removeEmployeeSkill(skill.getToken(), skill.getOldNameSkill());
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        validateActivity(skill.getToken());
-        //REVU: вынеси всю логику в БД, чтобы была как бы одна операция
-        // то есть не надо тут брать employee by id, передай id в БД
+        return gson.toJson(new DtoTokenResponse(skill.getToken()));
+    }
 
-        Skill attainment = new Skill(skill.getNameSkill(), skill.getSkill());
-        employee = employeeDao.getEmployeeById(skill.getToken());
-        employee.removeAttainments(attainment);
-        return gson.toJson(new DtoTokenResponse(employee.getId()));
-    }*/
-
-    public String removeEmployee(String tokenJson) throws ServerException {
+    public String removeAccountEmployee(String tokenJson) {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
         try {
             dtoToken.validate();
+            validateActivity(dtoToken.getToken());
+            employeeDao.delete(dtoToken.getToken());
+            return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
         } catch (ServerException ex) {
             return gson.toJson(new ErrorDtoResponse(ex));
         }
-        validateActivity(dtoToken.getToken());
-        employeeDao.delete(dtoToken.getToken());
-        return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
     }
 
-    /*public String updateEmployee(String tokenJson) throws ServerException {
+    public String updateEmployee(String tokenJson) {
         DtoUpdateEmployeeRequest dtoUpdateEmployeeRequest = gson.fromJson(tokenJson, DtoUpdateEmployeeRequest.class);
         try {
-            dtoUpdateEmployeeRequest.validate();
-            employeeDao.update(dtoUpdateEmployeeRequest.getId(), new Employee(dtoUpdateEmployeeRequest.getFirstName(),
+            List<Skill> skills = new ArrayList<>();
+            if (dtoUpdateEmployeeRequest.getAttainmentsList() != null &&
+                    dtoUpdateEmployeeRequest.getAttainmentsList().size() != 0) {
+                dtoUpdateEmployeeRequest.getAttainmentsList().forEach(dtoSkill -> skills.add(new Skill(dtoSkill.getName(), dtoSkill.getLevel())));
+            }
+
+            Employee employee = new Employee(dtoUpdateEmployeeRequest.getFirstName(),
                     dtoUpdateEmployeeRequest.getPatronymic(), dtoUpdateEmployeeRequest.getLastName(),
                     dtoUpdateEmployeeRequest.getLogin(), dtoUpdateEmployeeRequest.getPassword(),
-                    dtoUpdateEmployeeRequest.getEmail(), dtoUpdateEmployeeRequest.getAttainmentsList()));
+                    dtoUpdateEmployeeRequest.getEmail(), skills);
+            employee.setStatus(EmployeeStatus.valueOf(dtoUpdateEmployeeRequest.getStatus()));
+            employeeDao.update(dtoUpdateEmployeeRequest.getId(), employee);
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
+            return gson.toJson(new ErrorDtoResponse(ex));
         }
         return gson.toJson(new DtoTokenResponse(dtoUpdateEmployeeRequest.getId()));
-    }*/
+    }
 
     private DtoSkills convertSkills(String abilitiesJson) {
         return gson.fromJson(abilitiesJson, DtoSkills.class);

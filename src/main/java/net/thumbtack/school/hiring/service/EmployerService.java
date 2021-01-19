@@ -5,31 +5,37 @@ import com.google.gson.JsonSyntaxException;
 import net.thumbtack.school.hiring.daoimpl.DemandSkillDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployeeDaoImpl;
 import net.thumbtack.school.hiring.daoimpl.EmployerDaoImpl;
-import net.thumbtack.school.hiring.dto.request.DtoDemands;
-import net.thumbtack.school.hiring.dto.request.DtoLoginRequest;
-import net.thumbtack.school.hiring.dto.request.DtoToken;
-import net.thumbtack.school.hiring.dto.request.EmployerDtoRegisterRequest;
-import net.thumbtack.school.hiring.dto.response.DtoLoginResponse;
-import net.thumbtack.school.hiring.dto.response.DtoRegisterResponse;
-import net.thumbtack.school.hiring.dto.response.ErrorDtoResponse;
+import net.thumbtack.school.hiring.dto.request.*;
+import net.thumbtack.school.hiring.dto.response.*;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
-import net.thumbtack.school.hiring.model.Employer;
+import net.thumbtack.school.hiring.model.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmployerService {
-    private EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
-    private static Gson gson = new Gson();
-    private EmployerDaoImpl employerDaoImpl = new EmployerDaoImpl();
-    private DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
+    private final EmployeeDaoImpl employeeDaoImpl = new EmployeeDaoImpl();
+    private static final Gson gson = new Gson();
+    private final EmployerDaoImpl employerDaoImpl = new EmployerDaoImpl();
+    private final DemandSkillDaoImpl demandSkillDaoImpl = new DemandSkillDaoImpl();
 
     public String registerEmployer(String json) {
         try {
+            List<Requirement> requirements = new ArrayList<>();
             EmployerDtoRegisterRequest employerDtoRegisterRequest = getClassInstanceFromJson(EmployerDtoRegisterRequest.class, json);
             validateEmployerDtoRegisterRequest(employerDtoRegisterRequest);
             Employer employer = new Employer(employerDtoRegisterRequest.getName(), employerDtoRegisterRequest.getAddress(),
                     employerDtoRegisterRequest.getEmail(), employerDtoRegisterRequest.getFirstName(),
                     employerDtoRegisterRequest.getPatronymic(), employerDtoRegisterRequest.getLastName(),
                     employerDtoRegisterRequest.getLogin(), employerDtoRegisterRequest.getPassword());
+            for (DtoAddVacancyRequest vacancy : employerDtoRegisterRequest.getVacancies()) {
+                for (DtoRequirement dtoRequirement : vacancy.getRequirements()) {
+                    requirements.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+                }
+                employer.addVacancy(new Vacancy(vacancy.getNamePost(), vacancy.getSalary(), new ArrayList<>(requirements), vacancy.getId()));
+                requirements.clear();
+            }
             return gson.toJson(new DtoRegisterResponse(employerDaoImpl.registerEmployer(employer)));
         } catch (ServerException se) {
             return gson.toJson(new ErrorDtoResponse(se));
@@ -58,188 +64,297 @@ public class EmployerService {
             return gson.toJson(new ErrorDtoResponse(ex));
         }
     }
-   /* public String addVacancy(String vacancyJson) throws ServerException {
+
+    public String addVacancy(String vacancyJson) {
         try {
-            getClassInstanceFromJson(DtoAddVacancyRequest.class, vacancyJson);
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
-        }
-        DtoAddVacancyRequest dtoAddVacancyRequest = gson.fromJson(vacancyJson, DtoAddVacancyRequest.class);
-        try {
+            DtoAddVacancyRequestWithUserToken dtoAddVacancyRequest = gson.fromJson(vacancyJson, DtoAddVacancyRequestWithUserToken.class);
             dtoAddVacancyRequest.validate();
+            List<Requirement> requirements = new ArrayList<>();
+            for (DtoRequirement dtoRequirement : dtoAddVacancyRequest.getRequirements()) {
+                requirements.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+            }
+            employerDaoImpl.addVacancy(new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), requirements, dtoAddVacancyRequest.getId()), dtoAddVacancyRequest.getUserToken());
+            return gson.toJson(new DtoTokenResponse(dtoAddVacancyRequest.getId()));
+        } catch (ServerException ex) {
+            return gson.toJson(new ErrorDtoResponse(ex));
+        }
+    }
+
+    public String getEmployeesListNotLess(String requirementsJson) {
+        DtoRequirements dtoRequirements = gson.fromJson(requirementsJson, DtoRequirements.class);
+        List<DtoRequirement> requirements = dtoRequirements.getDemands();
+        List<Requirement> requirementsList = new ArrayList<>();
+        for (DtoRequirement dtoRequirement : requirements) {
+            requirementsList.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+        }
+        List<Employee> employeeList = employerDaoImpl.getEmployeesListNotLess(requirementsList);
+        return gson.toJson(new DtoEmployeesResponse(employeeList));
+    }
+
+    public String getEmployeesListObligatoryDemand(String requirementsJson) {
+        DtoRequirements dtoRequirements = gson.fromJson(requirementsJson, DtoRequirements.class);
+        List<DtoRequirement> requirements = dtoRequirements.getDemands();
+        List<Requirement> requirementsList = new ArrayList<>();
+        for (DtoRequirement dtoRequirement : requirements) {
+            requirementsList.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+        }
+        List<Employee> employeeList = employerDaoImpl.getEmployeesListObligatoryDemand(requirementsList);
+        return gson.toJson(new DtoEmployeesResponse(employeeList));
+    }
+
+    public String getEmployeesListOnlyName(String requirementsJson) {
+        DtoRequirements dtoRequirements = gson.fromJson(requirementsJson, DtoRequirements.class);
+        List<DtoRequirement> requirements = dtoRequirements.getDemands();
+        List<Requirement> requirementsList = new ArrayList<>();
+        for (DtoRequirement dtoRequirement : requirements) {
+            requirementsList.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+        }
+        List<Employee> employeeList = employerDaoImpl.getEmployeesListOnlyName(requirementsList);
+        return gson.toJson(new DtoEmployeesResponse(employeeList));
+    }
+
+    public String getEmployeesListWithOneDemand(String requirementsJson) {
+        DtoRequirements dtoRequirements = gson.fromJson(requirementsJson, DtoRequirements.class);
+        List<DtoRequirement> requirements = dtoRequirements.getDemands();
+        List<Requirement> requirementsList = new ArrayList<>();
+        for (DtoRequirement dtoRequirement : requirements) {
+            requirementsList.add(new Requirement(dtoRequirement.getName(), dtoRequirement.getLevel(), ConditionsRequirements.valueOf(dtoRequirement.getNecessary())));
+        }
+        List<Employee> employeeList = employerDaoImpl.getEmployeesListWithOneDemand(requirementsList);
+        return gson.toJson(new DtoEmployeesResponse(employeeList));
+    }
+
+    public String enableVacancy(String requestJson) {
+        DtoReplaceStatusVacancyRequest dtoReplaceStatusVacancyRequest = gson.fromJson(requestJson, DtoReplaceStatusVacancyRequest.class);
+        try {
+            employerDaoImpl.enableVacancy(dtoReplaceStatusVacancyRequest.getIdVacancy(), dtoReplaceStatusVacancyRequest.getTokenEmployer());
+            return gson.toJson(new DtoResponseMessage("SUCCESSFUL"));
         } catch (ServerException e) {
-            return gson.toJson(new ErrorToken(e.getMessage()));
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        // REVU не надо токен в вакансию заносить
-        // вместо validateActivity лучше было бы получить по токену Employer
-        // а для этого в БД добавить Map<String, User> userByToken
-        // и потом этого Employer передавать в vacancyDao.save
-        // будет логично
-        // vacancyDao.save(employer, new Vacancy...
-        // validateActivity(dtoAddVacancyRequest.getToken());
-        employerDaoImpl.getEmployerById(dtoAddVacancyRequest.getToken())
-        vacancyDaoImpl.save(new Vacancy(dtoAddVacancyRequest.getNamePost(), dtoAddVacancyRequest.getSalary(), dtoAddVacancyRequest.getObligatoryDemands(), dtoAddVacancyRequest.getNotObligatoryDemands(), dtoAddVacancyRequest.getToken()));
-        return gson.toJson(new DtoTokenResponse(dtoAddVacancyRequest.getToken()));
-    }*/
-/*
-    public String getEmployeeListNotLess(String demandsJson) throws ServerException {
-        DtoDemands dtoDemands = convertDemands(demandsJson);
-        try {
-            dtoDemands.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        validateActivity(dtoDemands.getToken());
-        return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListNotLessByDemand(dtoDemands.getDemands())));
     }
 
-    public String getEmployeeListObligatoryDemand(String demandsJson) throws ServerException {
-        DtoDemands dtoDemands = convertDemands(demandsJson);
+    public String disableVacancy(String requestJson) {
+        DtoReplaceStatusVacancyRequest dtoReplaceStatusVacancyRequest = gson.fromJson(requestJson, DtoReplaceStatusVacancyRequest.class);
         try {
-            dtoDemands.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            employerDaoImpl.disableVacancy(dtoReplaceStatusVacancyRequest.getIdVacancy(), dtoReplaceStatusVacancyRequest.getTokenEmployer());
+            return gson.toJson(new DtoResponseMessage("SUCCESSFUL"));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        validateActivity(dtoDemands.getToken());
-        return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListObligatoryDemandByDemands(dtoDemands.getDemands())));
     }
 
-    public String getEmployee(String demandsJson) throws ServerException {
-        DtoDemands dtoDemands = convertDemands(demandsJson);
-        try {
-            dtoDemands.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        validateActivity(dtoDemands.getToken());
-        return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListByDemands(dtoDemands.getDemands())));
-    }
-
-    public String getEmployeeWithOneDemand(String demandsJson) throws ServerException {
-        DtoDemands dtoDemands = convertDemands(demandsJson);
-        try {
-            dtoDemands.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
-        }
-        validateActivity(dtoDemands.getToken());
-        return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListWithOneDemandByDemands(dtoDemands.getDemands())));
-    }
-
-    public String getAllVacancies(String tokenJson) throws ServerException {
+    public String getAllVacanciesByToken(String tokenJson) {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
         try {
-            dtoToken.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            List<Vacancy> vacancies = employerDaoImpl.getAllVacanciesByToken(dtoToken.getToken());
+            List<DtoVacancyResponse> outList = new ArrayList<>();
+            for (Vacancy vacancy : vacancies) {
+                List<DtoRequirement> dtoRequirements = new ArrayList<>();
+                for (Requirement requirement : vacancy.getRequirements()) {
+                    dtoRequirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().name()));
+                }
+                outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), dtoRequirements, vacancy.getStatus().name()));
+            }
+            return gson.toJson(new DtoVacanciesResponse(outList));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        validateActivity(dtoToken.getToken());
-        return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getVacanciesListByToken(dtoToken.getToken())));
     }
 
-    public String getActivityVacancies(String tokenJson) throws ServerException {
+    public String getAllActiveVacanciesByToken(String tokenJson) {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
         try {
-            dtoToken.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            List<Vacancy> vacancies = employerDaoImpl.getAllActiveVacanciesByToken(dtoToken.getToken());
+            List<DtoVacancyResponse> outList = new ArrayList<>();
+            for (Vacancy vacancy : vacancies) {
+                List<DtoRequirement> dtoRequirements = new ArrayList<>();
+                for (Requirement requirement : vacancy.getRequirements()) {
+                    dtoRequirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().name()));
+                }
+                outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), dtoRequirements, vacancy.getStatus().name()));
+            }
+            return gson.toJson(new DtoVacanciesResponse(outList));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        validateActivity(dtoToken.getToken());
-        return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getActivityVacanciesListByToken(dtoToken.getToken())));
     }
 
-    public String getNotActivityVacancies(String tokenJson) throws ServerException {
+    public String getAllNotActiveVacanciesByToken(String tokenJson) {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
         try {
-            dtoToken.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            List<Vacancy> vacancies = employerDaoImpl.getAllNotActiveVacanciesByToken(dtoToken.getToken());
+            List<DtoVacancyResponse> outList = new ArrayList<>();
+            for (Vacancy vacancy : vacancies) {
+                List<DtoRequirement> dtoRequirements = new ArrayList<>();
+                for (Requirement requirement : vacancy.getRequirements()) {
+                    dtoRequirements.add(new DtoRequirement(requirement.getName(), requirement.getLevel(), requirement.getNecessary().name()));
+                }
+                outList.add(new DtoVacancyResponse(vacancy.getId(), vacancy.getName(), vacancy.getSalary(), dtoRequirements, vacancy.getStatus().name()));
+            }
+            return gson.toJson(new DtoVacanciesResponse(outList));
+        } catch (ServerException e) {
+            return gson.toJson(new ErrorDtoResponse(e));
         }
-        validateActivity(dtoToken.getToken());
-        return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getNotActivityVacanciesListByToken(dtoToken.getToken())));
     }
 
-    public String setVacancyStatus(String statusJson) throws ServerException {
-        DtoStatusVacancyRequest dtoStatusRequest = gson.fromJson(statusJson, DtoStatusVacancyRequest.class);
-        Vacancy vacancy;
-        validateActivity(dtoStatusRequest.getToken());
-        try {
-            dtoStatusRequest.validate();
-            vacancy = vacancyDaoImpl.setStatus(dtoStatusRequest.getToken(), dtoStatusRequest.getNamePost(), dtoStatusRequest.isStatus());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+    /*
+        public String getEmployeeListNotLess(String demandsJson) throws ServerException {
+            DtoDemands dtoDemands = convertDemands(demandsJson);
+            try {
+                dtoDemands.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoDemands.getToken());
+            return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListNotLessByDemand(dtoDemands.getDemands())));
         }
-        return gson.toJson(new DtoVacancyResponse(vacancy.getName(), vacancy.getSalary(), vacancy.getObligatoryDemands(), vacancy.getNotObligatoryDemands(), vacancy.getToken(), vacancy.isStatus()));
-    }
 
-    public String setAccountStatus(String jsonStatus) throws ServerException {
-        DtoToken dtoToken = gson.fromJson(jsonStatus, DtoToken.class);
-        try {
-            dtoToken.validate();
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+        public String getEmployeeListObligatoryDemand(String demandsJson) throws ServerException {
+            DtoDemands dtoDemands = convertDemands(demandsJson);
+            try {
+                dtoDemands.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoDemands.getToken());
+            return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListObligatoryDemandByDemands(dtoDemands.getDemands())));
         }
-        validateActivity(dtoToken.getToken());
-        employerDaoImpl.setAccountStatus(dtoToken.getToken(), false);
-        return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
-    }
 
-    public String updateDemandsInVacancy(String newDemandJson) throws ServerException {
-        DtoUpdateDemandRequest dtoNewDemand = gson.fromJson(newDemandJson, DtoUpdateDemandRequest.class);
-        validateActivity(dtoNewDemand.getToken());
-        try {
-            dtoNewDemand.validate();
-            vacancyDaoImpl.updateDemandInVacancy(new Requirement(dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary()), dtoNewDemand.getToken(), dtoNewDemand.getNameVacancy(), dtoNewDemand.getOldNameDemand());
-        } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+        public String getEmployee(String demandsJson) throws ServerException {
+            DtoDemands dtoDemands = convertDemands(demandsJson);
+            try {
+                dtoDemands.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoDemands.getToken());
+            return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListByDemands(dtoDemands.getDemands())));
         }
-        return gson.toJson(new DtoDemandResponse(dtoNewDemand.getToken(), dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary()));
-    }
 
+        public String getEmployeeWithOneDemand(String demandsJson) throws ServerException {
+            DtoDemands dtoDemands = convertDemands(demandsJson);
+            try {
+                dtoDemands.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoDemands.getToken());
+            return gson.toJson(new DtoEmployeesResponse(employeeDaoImpl.getEmployeeListWithOneDemandByDemands(dtoDemands.getDemands())));
+        }
+
+        public String getAllVacancies(String tokenJson) throws ServerException {
+            DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+            try {
+                dtoToken.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoToken.getToken());
+            return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getVacanciesListByToken(dtoToken.getToken())));
+        }
+
+        public String getActivityVacancies(String tokenJson) throws ServerException {
+            DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+            try {
+                dtoToken.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoToken.getToken());
+            return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getActivityVacanciesListByToken(dtoToken.getToken())));
+        }
+
+        public String getNotActivityVacancies(String tokenJson) throws ServerException {
+            DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
+            try {
+                dtoToken.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoToken.getToken());
+            return gson.toJson(new DtoVacanciesResponse(vacancyDaoImpl.getNotActivityVacanciesListByToken(dtoToken.getToken())));
+        }
+
+        public String setVacancyStatus(String statusJson) throws ServerException {
+            DtoStatusVacancyRequest dtoStatusRequest = gson.fromJson(statusJson, DtoStatusVacancyRequest.class);
+            Vacancy vacancy;
+            validateActivity(dtoStatusRequest.getToken());
+            try {
+                dtoStatusRequest.validate();
+                vacancy = vacancyDaoImpl.setStatus(dtoStatusRequest.getToken(), dtoStatusRequest.getNamePost(), dtoStatusRequest.isStatus());
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            return gson.toJson(new DtoVacancyResponse(vacancy.getName(), vacancy.getSalary(), vacancy.getObligatoryDemands(), vacancy.getNotObligatoryDemands(), vacancy.getToken(), vacancy.isStatus()));
+        }
+
+        public String setAccountStatus(String jsonStatus) throws ServerException {
+            DtoToken dtoToken = gson.fromJson(jsonStatus, DtoToken.class);
+            try {
+                dtoToken.validate();
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            validateActivity(dtoToken.getToken());
+            employerDaoImpl.setAccountStatus(dtoToken.getToken(), false);
+            return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
+        }
+
+        public String updateDemandsInVacancy(String newDemandJson) throws ServerException {
+            DtoUpdateDemandRequest dtoNewDemand = gson.fromJson(newDemandJson, DtoUpdateDemandRequest.class);
+            validateActivity(dtoNewDemand.getToken());
+            try {
+                dtoNewDemand.validate();
+                vacancyDaoImpl.updateDemandInVacancy(new Requirement(dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary()), dtoNewDemand.getToken(), dtoNewDemand.getNameVacancy(), dtoNewDemand.getOldNameDemand());
+            } catch (ServerException ex) {
+                return gson.toJson(new ErrorToken(ex.getMessage()));
+            }
+            return gson.toJson(new DtoDemandResponse(dtoNewDemand.getToken(), dtoNewDemand.getNameDemand(), dtoNewDemand.getSkill(), dtoNewDemand.isNecessary()));
+        }
+    */
     public String updateEmployer(String tokenJson) throws ServerException {
         DtoUpdateEmployerRequest dtoUpdateFirstName = gson.fromJson(tokenJson, DtoUpdateEmployerRequest.class);
-        validateActivity(dtoUpdateFirstName.getId());
         try {
-            dtoUpdateFirstName.validate();
+            validateEmployerDtoUpdateRequest(dtoUpdateFirstName);
             employerDaoImpl.update(dtoUpdateFirstName.getId(), new Employer(dtoUpdateFirstName.getName(), dtoUpdateFirstName.getAddress(),
-                    dtoUpdateFirstName.getEmail(), dtoUpdateFirstName.getId(),
-                    dtoUpdateFirstName.getFirstName(), dtoUpdateFirstName.getPatronymic(),
+                    dtoUpdateFirstName.getEmail(), dtoUpdateFirstName.getFirstName(), dtoUpdateFirstName.getPatronymic(),
                     dtoUpdateFirstName.getLastName(), dtoUpdateFirstName.getLogin(),
-                    dtoUpdateFirstName.getPassword(), dtoUpdateFirstName.isActivity()));
+                    dtoUpdateFirstName.getPassword()));
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getErrorCode().getErrorCode()));
+            return gson.toJson(new ErrorDtoResponse(ex));
         }
         return gson.toJson(new DtoTokenResponse(dtoUpdateFirstName.getId()));
     }
 
-    public String removeVacancy(String vacancyJson) throws ServerException {
-        DtoRemoveVacancyRequest dtoRemoveVacancyRequest = gson.fromJson(vacancyJson, DtoRemoveVacancyRequest.class);
-        validateActivity(dtoRemoveVacancyRequest.getToken());
-        try {
-            dtoRemoveVacancyRequest.validate();
+    /*
+        public String removeVacancy(String vacancyJson) throws ServerException {
+            DtoRemoveVacancyRequest dtoRemoveVacancyRequest = gson.fromJson(vacancyJson, DtoRemoveVacancyRequest.class);
+            validateActivity(dtoRemoveVacancyRequest.getToken());
+            try {
+                dtoRemoveVacancyRequest.validate();
 
-        } catch (ServerException e) {
-            return gson.toJson(new ErrorToken(e.getMessage()));
+            } catch (ServerException e) {
+                return gson.toJson(new ErrorToken(e.getMessage()));
+            }
+
+            vacancyDaoImpl.delete(dtoRemoveVacancyRequest.getNamePost(), dtoRemoveVacancyRequest.getToken());
+            return gson.toJson(new DtoTokenResponse(dtoRemoveVacancyRequest.getToken()));
         }
-
-        vacancyDaoImpl.delete(dtoRemoveVacancyRequest.getNamePost(), dtoRemoveVacancyRequest.getToken());
-        return gson.toJson(new DtoTokenResponse(dtoRemoveVacancyRequest.getToken()));
-    }
-
-    public String removeAccountEmployer(String tokenJson) throws ServerException {
+    */
+    public String removeAccountEmployer(String tokenJson) {
         DtoToken dtoToken = gson.fromJson(tokenJson, DtoToken.class);
-        validateActivity(dtoToken.getToken());
         try {
             dtoToken.validate();
-            employerDaoImpl.removeAccount(dtoToken.getToken());
+            employerDaoImpl.delete(dtoToken.getToken());
         } catch (ServerException ex) {
-            return gson.toJson(new ErrorToken(ex.getMessage()));
+            return gson.toJson(new ErrorDtoResponse(ex));
         }
         return gson.toJson(new DtoTokenResponse(dtoToken.getToken()));
-    }*/
+    }
 
-    private DtoDemands convertDemands(String demandsJson) {
-        return gson.fromJson(demandsJson, DtoDemands.class);
+    private DtoRequirements convertDemands(String demandsJson) {
+        return gson.fromJson(demandsJson, DtoRequirements.class);
     }
 
     private static <T> T getClassInstanceFromJson(Class<T> xClass, String json) throws ServerException {
@@ -271,6 +386,13 @@ public class EmployerService {
         }
         if (employerDtoRegisterRequest.getName() == null || employerDtoRegisterRequest.getName().isEmpty()) {
             throw new ServerException(ErrorCode.EMPTY_NAME);
+        }
+    }
+
+    private static void validateEmployerDtoUpdateRequest(DtoUpdateEmployerRequest dtoUpdateEmployerRequest) throws ServerException {
+        validateEmployerDtoRegisterRequest(dtoUpdateEmployerRequest);
+        if (dtoUpdateEmployerRequest.getId() == null || dtoUpdateEmployerRequest.getId().isEmpty()) {
+            throw new ServerException(ErrorCode.EMPTY_TOKEN);
         }
     }
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,20 +37,20 @@ public class TestEmployeeDaoImpl {
             requirements1.add(new Requirement("html", 5, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("javascript", 4, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer1.addVacancy(new Vacancy("developer", 50000, requirements1));//
+            employer1.addVacancy(new Vacancy("developer", 50000, requirements1, UUID.randomUUID().toString()));//
 
             requirements2.add(new Requirement("java", 4, ConditionsRequirements.NECESSARY));
             requirements2.add(new Requirement("kotlin", 4, ConditionsRequirements.NECESSARY));
-            employer1.addVacancy(new Vacancy("tester", 40000, requirements2));
+            employer1.addVacancy(new Vacancy("tester", 40000, requirements2, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer1);
 
             requirements3.add(new Requirement("php", 5, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("angular", 4, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3));
+            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3, UUID.randomUUID().toString()));
 
             requirements4.add(new Requirement("python", 4, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4));
+            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer2);
             List<Vacancy> result = employeeDao.getVacanciesListNotLess(skills);
 
@@ -89,24 +90,24 @@ public class TestEmployeeDaoImpl {
             requirements1.add(new Requirement("html", 5, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("javascript", 4, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("css", 2, ConditionsRequirements.NOT_NECESSARY));
-            employer1.addVacancy(new Vacancy("developer", 50000, requirements1));//
+            employer1.addVacancy(new Vacancy("developer", 50000, requirements1, UUID.randomUUID().toString()));//
 
             requirements2.add(new Requirement("java", 4, ConditionsRequirements.NECESSARY));
             requirements2.add(new Requirement("kotlin", 4, ConditionsRequirements.NECESSARY));
-            employer1.addVacancy(new Vacancy("tester", 40000, requirements2));
+            employer1.addVacancy(new Vacancy("tester", 40000, requirements2, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer1);
 
             requirements3.add(new Requirement("angular", 3, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("css", 3, ConditionsRequirements.NOT_NECESSARY));
-            employer2.addVacancy(new Vacancy("front-end developer", 80000, requirements3));
+            employer2.addVacancy(new Vacancy("front-end developer", 80000, requirements3, UUID.randomUUID().toString()));
 
             requirements4.add(new Requirement("python", 4, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4));
+            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4, UUID.randomUUID().toString()));
 
             requirements5.add(new Requirement("css", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("angular", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("java", 5, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5));
+            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer2);
 
             List<Vacancy> result = employeeDao.getVacanciesListObligatoryDemand(skills);
@@ -145,25 +146,25 @@ public class TestEmployeeDaoImpl {
             requirements1.add(new Requirement("html", 5, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("javascript", 4, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer1.addVacancy(new Vacancy("developer", 50000, requirements1));//
+            employer1.addVacancy(new Vacancy("developer", 50000, requirements1, UUID.randomUUID().toString()));//
 
             requirements2.add(new Requirement("java", 4, ConditionsRequirements.NECESSARY));
             requirements2.add(new Requirement("kotlin", 4, ConditionsRequirements.NECESSARY));
-            employer1.addVacancy(new Vacancy("tester", 40000, requirements2));
+            employer1.addVacancy(new Vacancy("tester", 40000, requirements2, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer1);
 
             requirements3.add(new Requirement("php", 5, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("angular", 4, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3));
+            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3, UUID.randomUUID().toString()));
 
             requirements4.add(new Requirement("python", 4, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4));
+            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4, UUID.randomUUID().toString()));
 
             requirements5.add(new Requirement("css", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("angular", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("java", 5, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5));
+            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5, UUID.randomUUID().toString()));
 
             employerDao.registerEmployer(employer2);
             List<Vacancy> result = employeeDao.getVacanciesListOnlyName(skills);
@@ -211,25 +212,25 @@ public class TestEmployeeDaoImpl {
             requirements1.add(new Requirement("html", 5, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("javascript", 4, ConditionsRequirements.NECESSARY));
             requirements1.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer1.addVacancy(new Vacancy("developer", 50000, requirements1));//
+            employer1.addVacancy(new Vacancy("developer", 50000, requirements1, UUID.randomUUID().toString()));//
 
             requirements2.add(new Requirement("ruby", 4, ConditionsRequirements.NECESSARY));
             requirements2.add(new Requirement("c++", 4, ConditionsRequirements.NECESSARY));
-            employer1.addVacancy(new Vacancy("tester", 40000, requirements2));
+            employer1.addVacancy(new Vacancy("tester", 40000, requirements2, UUID.randomUUID().toString()));
             employerDao.registerEmployer(employer1);
 
             requirements3.add(new Requirement("php", 5, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("angular", 4, ConditionsRequirements.NECESSARY));
             requirements3.add(new Requirement("css", 4, ConditionsRequirements.NOT_NECESSARY));
-            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3));
+            employer2.addVacancy(new Vacancy("web-developer", 80000, requirements3, UUID.randomUUID().toString()));
 
             requirements4.add(new Requirement("python", 4, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4));
+            employer2.addVacancy(new Vacancy("python-tester", 61000, requirements4, UUID.randomUUID().toString()));
 
             requirements5.add(new Requirement("css", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("angular", 3, ConditionsRequirements.NECESSARY));
             requirements5.add(new Requirement("java", 5, ConditionsRequirements.NECESSARY));
-            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5));
+            employer2.addVacancy(new Vacancy("full-stack developer", 100000, requirements5, UUID.randomUUID().toString()));
 
             employerDao.registerEmployer(employer2);
             List<Vacancy> result = employeeDao.getVacanciesListWithOneDemand(skills);

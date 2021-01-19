@@ -24,7 +24,7 @@ public class EmployeeDaoImpl implements Dao<Employee> {
         return dataBase.loginUser(login, password);
     }
 
-    public Employee getEmployeeById(String id) {
+    public Employee getEmployeeById(String id) throws ServerException {
         return (Employee) dataBase.getUserById(id);
     }
 
@@ -32,24 +32,18 @@ public class EmployeeDaoImpl implements Dao<Employee> {
         dataBase.logoutUser(token);
     }
 
+
     public void addSkill(Skill attainment, String token) throws ServerException {
         dataBase.addSkillForEmployee(attainment, token);
-    }
-
-    public void removeAccount(String token) throws ServerException {
-        dataBase.removeAccount(token);
     }
 
     public void removeEmployeeSkill(String id, String name) throws ServerException {
         dataBase.removeEmployeeSkill(id, name);
     }
 
-    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) {
+    public void updateEmployeeSkill(String token, String oldNameSkill, Skill newSkill) throws ServerException {
         dataBase.updateEmployeeSkill(token, oldNameSkill, newSkill);
     }
-    /*public Employee getById(String id) {
-        return dataBase.(id);
-    }*/
 
     public List<Vacancy> getVacanciesListNotLess(List<Skill> skills) {
         return dataBase.getVacanciesListNotLess(skills);
@@ -66,30 +60,15 @@ public class EmployeeDaoImpl implements Dao<Employee> {
     public List<Vacancy> getVacanciesListWithOneDemand(List<Skill> skills) {
         return dataBase.getVacanciesListWithOneDemand(skills);
     }
-/*
-    public List<Employee> getEmployeeListNotLessByDemand(List<Requirement> demands) {
-        return dataBase.getEmployeeListNotLessByDemands(demands);
+
+    public void setAccountStatusEnable(String token) throws ServerException {
+        dataBase.enableEmployee(token);
     }
 
-    public List<Employee> getEmployeeListObligatoryDemandByDemands(List<Requirement> demands) {
-        return dataBase.getEmployeeListObligatoryDemandByDemands(demands);
-    }
-
-    public List<Employee> getEmployeeListByDemands(List<Requirement> demands) {
-        return dataBase.getEmployeeListByDemands(demands);
-    }
-
-    public List<Employee> getEmployeeListWithOneDemandByDemands(List<Requirement> demands) {
-        return dataBase.getEmployeeListWithOneDemandByDemands(demands);
+    public void setAccountStatusDisable(String token) throws ServerException {
+        dataBase.disableEmployee(token);
     }
 /*
-    public boolean isActivity(String token) {
-        return dataBase.isActivityEmployee(token);
-    }
-
-    public void setAccountStatus(String token, boolean status) throws ServerException {
-        dataBase.setAccountEmployeeStatus(token, status);
-    }
 
     public void addSkillForEmployee(Skill attainments, String token) throws ServerException {
         dataBase.addSkillForEmployee(attainments, token);
@@ -106,11 +85,11 @@ public class EmployeeDaoImpl implements Dao<Employee> {
 
     @Override
     public void update(String id, Employee newEmployee) throws ServerException {
-        //   dataBase.updateEmployee(id, newEmployee);
+        dataBase.updateEmployee(id, newEmployee);
     }
 
     @Override
-    public void delete(String id) {
-        //  dataBase.deleteEmployee(id);
+    public void delete(String id) throws ServerException {
+        dataBase.removeAccount(id);
     }
 }

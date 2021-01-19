@@ -1,31 +1,36 @@
 package net.thumbtack.school.hiring.dto.response;
 
-import java.util.Map;
+import net.thumbtack.school.hiring.dto.request.DtoRequirement;
+import net.thumbtack.school.hiring.model.Requirement;
+
+import java.util.List;
 import java.util.Objects;
 
 public class DtoVacancyResponse {
-    private String namePost;
+    private String id;
+    private String name;
     private int salary;
-    private Map<String, Integer> obligatoryDemands;
-    private Map<String, Integer> notObligatoryDemands;
-    private String token;
-    private boolean status;
+    private List<DtoRequirement> requirements;
+    private String vacancyStatus;
 
-    public DtoVacancyResponse(String namePost, int salary, Map<String, Integer> obligatoryDemands, Map<String, Integer> notObligatoryDemands, String token, boolean status) {
-        this.namePost = namePost;
+    public DtoVacancyResponse(String id, String name, int salary, List<DtoRequirement> requirements, String vacancyStatus) {
+        this.id = id;
+        this.name = name;
         this.salary = salary;
-        this.obligatoryDemands = obligatoryDemands;
-        this.notObligatoryDemands = notObligatoryDemands;
-        this.token = token;
-        this.status = status;
+        this.requirements = requirements;
+        this.vacancyStatus = vacancyStatus;
     }
 
-    public String getNamePost() {
-        return namePost;
+    public String getId() {
+        return id;
     }
 
-    public void setNamePost(String namePost) {
-        this.namePost = namePost;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getSalary() {
@@ -36,36 +41,20 @@ public class DtoVacancyResponse {
         this.salary = salary;
     }
 
-    public Map<String, Integer> getObligatoryDemands() {
-        return obligatoryDemands;
+    public List<DtoRequirement> getRequirements() {
+        return requirements;
     }
 
-    public void setObligatoryDemands(Map<String, Integer> obligatoryDemands) {
-        this.obligatoryDemands = obligatoryDemands;
+    public void setRequirements(List<DtoRequirement> requirements) {
+        this.requirements = requirements;
     }
 
-    public Map<String, Integer> getNotObligatoryDemands() {
-        return notObligatoryDemands;
+    public String getVacancyStatus() {
+        return vacancyStatus;
     }
 
-    public void setNotObligatoryDemands(Map<String, Integer> notObligatoryDemands) {
-        this.notObligatoryDemands = notObligatoryDemands;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setVacancyStatus(java.lang.String vacancyStatus) {
+        this.vacancyStatus = vacancyStatus;
     }
 
     @Override
@@ -74,15 +63,14 @@ public class DtoVacancyResponse {
         if (o == null || getClass() != o.getClass()) return false;
         DtoVacancyResponse that = (DtoVacancyResponse) o;
         return salary == that.salary &&
-                status == that.status &&
-                Objects.equals(namePost, that.namePost) &&
-                Objects.equals(obligatoryDemands, that.obligatoryDemands) &&
-                Objects.equals(notObligatoryDemands, that.notObligatoryDemands) &&
-                Objects.equals(token, that.token);
+                Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(requirements, that.requirements) &&
+                Objects.equals(vacancyStatus, that.vacancyStatus);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(namePost, salary, obligatoryDemands, notObligatoryDemands, token, status);
+        return Objects.hash(id, name, salary, requirements, vacancyStatus);
     }
 }

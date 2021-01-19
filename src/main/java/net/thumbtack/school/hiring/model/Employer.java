@@ -22,7 +22,7 @@ public class Employer extends User {
     }
 
     public void removeVacancy(String name) throws ServerException {
-    vacancies.remove(getVacancyByName(name));
+        vacancies.remove(getVacancyByName(name));
     }
 
     public Vacancy getVacancyById(String id) throws ServerException {
@@ -45,6 +45,10 @@ public class Employer extends User {
 
     public List<Vacancy> getAllVacancies() {
         return new ArrayList<>(vacancies);
+    }
+
+    public void setVacancies(Set<Vacancy> vacancies) {
+        this.vacancies = vacancies;
     }
 
     public String getName() {
