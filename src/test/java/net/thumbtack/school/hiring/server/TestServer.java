@@ -5,6 +5,8 @@ import net.thumbtack.school.hiring.dto.request.*;
 import net.thumbtack.school.hiring.dto.response.*;
 import net.thumbtack.school.hiring.exception.ErrorCode;
 import net.thumbtack.school.hiring.exception.ServerException;
+// REVU сервера тесты не могут знать про модель
+// надо сделать SkillDto
 import net.thumbtack.school.hiring.model.Skill;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
@@ -433,6 +435,7 @@ public class TestServer {
             requirements.add(new DtoRequirement("javascript", 4, "NECESSARY"));
             String response = server.getEmployeesNotLess(gson.toJson(new DtoRequirements(null, requirements)));
 
+            // REVU не надо сравнивать json. Преобразуйте в DTO и сравнивайте поля
             assertTrue(response.contains("\"attainmentsList\":[{\"name\":\"html\",\"level\":4},{\"name\":\"javascript\",\"level\":4},{\"name\":\"css\",\"level\":4},{\"name\":\"php\",\"level\":5}],\"status\":\"ACTIVE\",\"login\":\"vanka_45\",\"password\":\"sjykaiveiu\",\"email\":\"van@noname.ru\",\"lastName\":\"Ivanov\",\"firstName\":\"Ivan\",\"patronymic\":\"Ivanovich\""));
 
             server.removeAccountEmployee(token1);
