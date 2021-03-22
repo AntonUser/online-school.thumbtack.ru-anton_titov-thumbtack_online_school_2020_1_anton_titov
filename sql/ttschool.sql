@@ -17,16 +17,9 @@ CREATE TABLE `group`
     room     varchar(50) not null,
     idSchool int,
     FOREIGN KEY (idSchool) REFERENCES `school` (id)
+        ON DELETE CASCADE
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
-
-ALTER TABLE `ttschool`.`group`
-    DROP FOREIGN KEY `group_ibfk_1`;
-ALTER TABLE `ttschool`.`group`
-    ADD CONSTRAINT `group_ibfk_1`
-        FOREIGN KEY (`idSchool`)
-            REFERENCES `ttschool`.`school` (`id`)
-            ON DELETE CASCADE;
 
 CREATE TABLE trainee
 (
@@ -45,13 +38,16 @@ CREATE TABLE subject
     name    varchar(50) not null,
     idgroup int,
     FOREIGN KEY (idGroup) REFERENCES `group` (id)
+        ON DELETE SET NULL
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
 
 CREATE TABLE `ttschool`.`timetable`
 (
-    `idtimetable` INT NOT NULL AUTO_INCREMENT,
-    `id_group`    INT NOT NULL,
-    `id_subject`  INT NOT NULL,
-    PRIMARY KEY (`idtimetable`)
+    `id`         INT NOT NULL AUTO_INCREMENT,
+    `id_group`   INT NOT NULL,
+    `id_subject` INT NOT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (id_group) REFERENCES `group` (id),
+    FOREIGN KEY (id_subject) REFERENCES `subject` (id)
 );
