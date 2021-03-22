@@ -20,6 +20,14 @@ CREATE TABLE `group`
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
 
+ALTER TABLE `ttschool`.`group`
+    DROP FOREIGN KEY `group_ibfk_1`;
+ALTER TABLE `ttschool`.`group`
+    ADD CONSTRAINT `group_ibfk_1`
+        FOREIGN KEY (`idSchool`)
+            REFERENCES `ttschool`.`school` (`id`)
+            ON DELETE CASCADE;
+
 CREATE TABLE trainee
 (
     id        INT primary key auto_increment,

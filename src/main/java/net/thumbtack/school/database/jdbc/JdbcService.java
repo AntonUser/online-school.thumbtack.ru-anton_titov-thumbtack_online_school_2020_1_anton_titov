@@ -99,7 +99,6 @@ public class JdbcService {
             }
 
             return trainees;
-
         } catch (SQLException ex) {
             throw new SQLException();
         }
@@ -129,8 +128,6 @@ public class JdbcService {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryDelete)) {
             preparedStatement.setInt(1, trainee.getId());
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            throw new SQLException();
         }
     }
 
