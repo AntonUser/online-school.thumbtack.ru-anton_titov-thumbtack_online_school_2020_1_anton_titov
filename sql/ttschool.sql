@@ -29,6 +29,7 @@ CREATE TABLE trainee
     rating    INT,
     idGroup   INT,
     FOREIGN KEY (idGroup) REFERENCES `group` (id)
+        ON DELETE SET NULL
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
 
@@ -36,9 +37,7 @@ CREATE TABLE subject
 (
     id      INT primary key auto_increment,
     name    varchar(50) not null,
-    idgroup int,
-    FOREIGN KEY (idGroup) REFERENCES `group` (id)
-        ON DELETE SET NULL
+    idgroup int
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
 
