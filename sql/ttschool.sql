@@ -6,16 +6,19 @@ CREATE TABLE `school`
 (
     id   INT primary key auto_increment,
     name VARCHAR(50) not null,
-    year INT         not null
+    year INT         not null,
+    CONSTRAINT school UNIQUE (name, year)
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
+
+
 
 CREATE TABLE `group`
 (
     id       INT primary key auto_increment,
     name     varchar(50) not null,
     room     varchar(50) not null,
-    idSchool int,
+    idSchool int         NOT NULL,
     FOREIGN KEY (idSchool) REFERENCES `school` (id)
         ON DELETE CASCADE
 ) ENGINE = INNODB
@@ -35,9 +38,9 @@ CREATE TABLE trainee
 
 CREATE TABLE subject
 (
-    id      INT primary key auto_increment,
-    name    varchar(50) not null,
-    idgroup int
+    id   INT primary key auto_increment,
+    name varchar(50) not null,
+    CONSTRAINT subject UNIQUE (name)
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8;
 
@@ -47,6 +50,6 @@ CREATE TABLE `ttschool`.`timetable`
     `id_group`   INT NOT NULL,
     `id_subject` INT NOT NULL,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (id_group) REFERENCES `group` (id),
-    FOREIGN KEY (id_subject) REFERENCES `subject` (id)
+    FOREIGN KEY (id_group) REFERENCES `group` (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_subject) REFERENCES `subject` (id) ON DELETE CASCADE
 );

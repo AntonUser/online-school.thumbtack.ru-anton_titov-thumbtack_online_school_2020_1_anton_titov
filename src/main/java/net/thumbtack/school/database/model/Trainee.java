@@ -60,7 +60,7 @@ public class Trainee {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Trainee)) return false;
         Trainee trainee = (Trainee) o;
         return getId() == trainee.getId() && getRating() == trainee.getRating() && Objects.equals(getFirstName(), trainee.getFirstName()) && Objects.equals(getLastName(), trainee.getLastName());
     }
